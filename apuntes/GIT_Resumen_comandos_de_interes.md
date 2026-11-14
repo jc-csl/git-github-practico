@@ -436,6 +436,8 @@ git add index.html                  # marca el conflicto como resuelto
 git commit                          # cierra el merge
 ```
 
+![git merge rebase](./img/git-merge---rebase.jpg)
+
 ---
 
 ## 10. Sincronizar con el remoto y resolver divergencias
