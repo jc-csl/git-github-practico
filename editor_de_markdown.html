@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Editor Markdown — Minimalista y en Tiempo Real</title>
+
+  <!-- Fuentes tipográficas: Inter para la interfaz y JetBrains Mono para el editor -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS con el plugin oficial de Typography para estilizar la vista previa -->
+  <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- Librerías CDN: Marked.js (parser Markdown) y DOMPurify (sanitización HTML) -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-200 font-sans antialiased h-screen flex flex-col overflow-hidden transition-colors duration-200">
+
+  <!-- ===================================================================== -->
+  <!-- BARRA DE HERRAMIENTAS SUPERIOR                                        -->
+  <!-- ===================================================================== -->
+  <header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-3 sm:px-5 py-2 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2 shrink-0 z-20">
+    
+    <!-- Fila 1 (en móvil) / Izquierda (en escritorio): Marca + Herramientas de formato -->
+    <div class="flex items-center justify-between lg:justify-start gap-2 overflow-x-auto no-scrollbar">
+      <!-- Logotipo minimalista -->
+      <div class="flex items-center gap-2 pr-2 border-r border-slate-200 dark:border-slate-800 shrink-0">
+        <div class="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-mono font-bold text-sm shadow-sm">
+          M↓
+        </div>
+        <span class="font-semibold text-sm tracking-tight hidden sm:inline text-slate-900 dark:text-white">
+          Markdown
+        </span>
+      </div>
+
+      <!-- Botones rápidos de formato Markdown -->
+      <div class="flex items-center gap-1" role="toolbar" aria-label="Herramientas de formato">
+        <button type="button" data-format="h1" title="Título principal (H1)" class="format-btn p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors text-xs font-bold">
+          H1
+        </button>
+        <button type="button" data-format="h2" title="Subtítulo (H2)" class="format-btn p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors text-xs font-bold">
+          H2
+        </button>
+
+        <div class="w-px h-5 bg-slate-200 dark:bg-slate-800 mx-0.5 shrink-0"></div>
+
+        <!-- Negrita -->
+        <button type="button" data-format="bold" title="Negrita (Ctrl+B)" class="format-btn p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/><path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/></svg>
+        </button>
+
+        <!-- Cursiva -->
+        <button type="button" data-format="italic" title="Cursiva (Ctrl+I)" class="format-btn p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="4" x2="10" y2="4"/><line x1="14" y1="20" x2="5" y2="20"/><line x1="15" y1="4" x2="9" y2="20"/></svg>
+        </button>
+
+        <div class="w-px h-5 bg-slate-200 dark:bg-slate-800 mx-0.5 shrink-0"></div>
+
+        <!-- Lista con viñetas -->
+        <button type="button" data-format="ul" title="Lista con viñetas" class="format-btn p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        </button>
+
+        <!-- Lista numerada -->
+        <button type="button" data-format="ol" title="Lista numerada" class="format-btn p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
+        </button>
+
+        <!-- Cita -->
+        <button type="button" data-format="quote" title="Cita en bloque" class="format-btn p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>
+        </button>
+
+        <div class="w-px h-5 bg-slate-200 dark:bg-slate-800 mx-0.5 shrink-0"></div>
+
+        <!-- Código en línea -->
+        <button type="button" data-format="inline-code" title="Código en línea" class="format-btn p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        </button>
+
+        <!-- Bloque de código -->
+        <button type="button" data-format="code-block" title="Bloque de código" class="format-btn p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><polyline points="9 9 6 12 9 15"/><polyline points="15 9 18 12 15 15"/></svg>
+        </button>
+
+        <!-- Enlace -->
+        <button type="button" data-format="link" title="Insertar enlace (Ctrl+K)" class="format-btn p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Fila 2 (en móvil) / Derecha (en escritorio): Selector de vista, Exportar y Tema -->
+    <div class="flex items-center justify-between lg:justify-end gap-2 flex-wrap">
+      
+      <!-- Selector de modo de vista -->
+      <div class="inline-flex rounded-xl bg-slate-100 dark:bg-slate-800 p-1 border border-slate-200/70 dark:border-slate-700/70" role="group" aria-label="Modo de vista">
+        <button type="button" data-view="split" class="view-btn px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all">
+          Dividido
+        </button>
+        <button type="button" data-view="editor" class="view-btn px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all">
+          Editor
+        </button>
+        <button type="button" data-view="preview" class="view-btn px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all">
+          Vista previa
+        </button>
+      </div>
+
+      <!-- Acciones de exportación y botón de tema -->
+      <div class="flex items-center gap-1.5">
+        <button type="button" id="btn-copy-md" title="Copiar código Markdown al portapapeles" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <span>Copiar MD</span>
+        </button>
+
+        <button type="button" id="btn-copy-html" title="Copiar HTML renderizado al portapapeles" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          <span class="hidden sm:inline">Copiar HTML</span>
+          <span class="sm:hidden">HTML</span>
+        </button>
+
+        <button type="button" id="btn-download-md" title="Descargar archivo .md" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition-colors flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span class="hidden sm:inline">Descargar .md</span>
+          <span class="sm:hidden">.md</span>
+        </button>
+
+        <!-- Alternar Modo Claro / Oscuro -->
+        <button type="button" id="btn-theme-toggle" title="Alternar modo claro / oscuro" aria-label="Alternar tema" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors ml-0.5">
+          <!-- Icono Sol (visible en modo oscuro) -->
+          <svg id="icon-sun" class="w-4 h-4 hidden dark:block text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          <!-- Icono Luna (visible en modo claro) -->
+          <svg id="icon-moon" class="w-4 h-4 block dark:hidden text-slate-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================================================================== -->
+  <!-- ÁREA PRINCIPAL DIVIDIDA (EDITOR + VISTA PREVIA)                       -->
+  <!-- ===================================================================== -->
+  <main id="workspace" class="flex-1 flex flex-col md:flex-row overflow-hidden relative">
+    
+    <!-- PANEL IZQUIERDO: Editor Markdown con fuente monoespaciada -->
+    <section id="editor-pane" class="flex-1 flex flex-col min-h-0 min-w-0 bg-white dark:bg-slate-950 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-800">
+      <div class="px-4 py-1.5 bg-slate-50/80 dark:bg-slate-900/60 border-b border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[11px] font-medium uppercase tracking-wider text-slate-400 dark:text-slate-500 select-none shrink-0">
+        <span>Markdown</span>
+        <span>UTF-8</span>
+      </div>
+      <textarea
+        id="markdown-input"
+        spellcheck="true"
+        placeholder="Empieza a escribir tu documento en Markdown aquí..."
+        aria-label="Editor de texto Markdown"
+        class="flex-1 w-full h-full resize-none border-0 bg-transparent p-5 sm:p-8 font-mono text-sm sm:text-[15px] leading-relaxed text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none overflow-y-auto"
+      ></textarea>
+    </section>
+
+    <!-- PANEL DERECHO: Vista previa HTML renderizada y sanitizada -->
+    <section id="preview-pane" class="flex-1 flex flex-col min-h-0 min-w-0 bg-slate-50/40 dark:bg-slate-900/40">
+      <div class="px-4 py-1.5 bg-slate-50/80 dark:bg-slate-900/60 border-b border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[11px] font-medium uppercase tracking-wider text-slate-400 dark:text-slate-500 select-none shrink-0">
+        <span>Vista previa</span>
+        <span>HTML</span>
+      </div>
+      <div id="preview-scroll-container" class="flex-1 overflow-y-auto p-5 sm:p-8">
+        <article
+          id="markdown-preview"
+          class="prose prose-slate dark:prose-invert prose-sm sm:prose-base max-w-3xl mx-auto prose-headings:font-semibold prose-a:text-indigo-600 dark:prose-a:text-indigo-400 prose-pre:bg-slate-900 dark:prose-pre:bg-slate-900 prose-pre:border prose-pre:border-slate-800 prose-pre:rounded-xl prose-code:before:content-none prose-code:after:content-none prose-code:bg-slate-200/70 dark:prose-code:bg-slate-800 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md"
+        ></article>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===================================================================== -->
+  <!-- BARRA DE ESTADO INFERIOR                                              -->
+  <!-- ===================================================================== -->
+  <footer class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 px-4 sm:px-5 py-2 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-400 shrink-0 z-20">
+    
+    <!-- Métricas del documento -->
+    <div class="flex items-center gap-3 sm:gap-4">
+      <span><strong id="stat-words" class="font-semibold text-slate-700 dark:text-slate-200">0</strong> palabras</span>
+      <span class="text-slate-300 dark:text-slate-700">•</span>
+      <span><strong id="stat-chars" class="font-semibold text-slate-700 dark:text-slate-200">0</strong> caracteres</span>
+      <span class="text-slate-300 dark:text-slate-700 hidden sm:inline">•</span>
+      <span class="hidden sm:inline">Lectura: <strong id="stat-reading" class="font-semibold text-slate-700 dark:text-slate-200">0 min</strong></span>
+    </div>
+
+    <!-- Indicador de autoguardado y botón de reinicio -->
+    <div class="flex items-center gap-3">
+      <div id="save-indicator" class="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-medium transition-opacity duration-300">
+        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <span id="save-text">Guardado</span>
+      </div>
+
+      <div class="w-px h-4 bg-slate-200 dark:bg-slate-800"></div>
+
+      <button type="button" id="btn-reset-modal" class="text-slate-500 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400 font-medium transition-colors flex items-center gap-1 py-0.5 px-1.5 rounded-md hover:bg-rose-50 dark:hover:bg-rose-950/40">
+        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+        <span>Reiniciar</span>
+      </button>
+    </div>
+  </footer>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL PERSONALIZADO PARA REINICIAR / LIMPIAR DOCUMENTO                -->
+  <!-- ===================================================================== -->
+  <div id="reset-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/50 backdrop-blur-xs p-4" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-xl transform transition-all">
+      <h3 id="modal-title" class="text-base font-semibold text-slate-900 dark:text-white">
+        Reiniciar documento
+      </h3>
+      <p class="mt-2 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+        Elige si deseas vaciar por completo el editor o restaurar la plantilla de ejemplo inicial. Esta acción reemplazará el contenido actual.
+      </p>
+      <div class="mt-6 flex flex-col sm:flex-row justify-end gap-2">
+        <button type="button" id="btn-modal-cancel" class="px-4 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+          Cancelar
+        </button>
+        <button type="button" id="btn-modal-sample" class="px-4 py-2 rounded-xl text-xs font-medium text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition-colors">
+          Restaurar ejemplo
+        </button>
+        <button type="button" id="btn-modal-clear" class="px-4 py-2 rounded-xl text-xs font-medium text-white bg-rose-600 hover:bg-rose-700 transition-colors">
+          Vaciar todo
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- CONTENEDOR DE NOTIFICACIONES FLOTANTES (TOASTS)                       -->
+  <!-- ===================================================================== -->
+  <div id="toast-container" class="fixed bottom-12 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- ===================================================================== -->
+  <!-- LÓGICA DE LA APLICACIÓN                                               -->
+  <!-- ===================================================================== -->
+  <script>
+    (function () {
+      'use strict';
+
+      // Claves de almacenamiento local
+      const STORAGE_CONTENT_KEY = 'md_editor_content_es_v1';
+      const STORAGE_THEME_KEY = 'md_editor_theme_v1';
+      const STORAGE_VIEW_KEY = 'md_editor_view_v1';
+
+      // Texto de ejemplo inicial en español
+      const DEFAULT_MARKDOWN = `# Bienvenido a tu Editor Markdown ✨
+
+Este es un espacio **minimalista y sin distracciones** diseñado para redactar y previsualizar documentos en *Markdown* en tiempo real.
+
+## Características principales
+
+- **Vista dividida en tiempo real**: Escribe en el panel izquierdo y observa el resultado formateado a la derecha.
+- **Atajos y barra rápida**: Aplica formato con un clic o mediante atajos de teclado (\`Ctrl+B\`, \`Ctrl+I\`, \`Ctrl+K\`).
+- **Autoguardado automático**: Tu trabajo se conserva localmente en el navegador mientras escribes.
+- **Exportación directa**: Copia el Markdown, el HTML limpio o descarga el archivo \`.md\`.
+
+### Listas numeradas y citas
+
+1. Estructura tus ideas con encabezados claros.
+2. Resalta conceptos clave con **negritas** y *cursivas*.
+3. Exporta tu documento listo para publicar.
+
+> "La simplicidad es la máxima sofisticación." — *Leonardo da Vinci*
+
+### Código y enlaces
+
+Puedes insertar código en línea como \`const estado = "Listo";\` o bloques completos:
+
+\`\`\`javascript
+function estimarLectura(texto) {
+  const palabras = texto.trim().split(/\\s+/).filter(Boolean).length;
+  const minutos = Math.max(1, Math.ceil(palabras / 200));
+  return \`\${minutos} min de lectura\`;
+}
+\`\`\`
+
+Consulta más detalles sobre la sintaxis en la [Guía oficial de Markdown](https://www.markdownguide.org/).
+`;
+
+      // Referencias a elementos del DOM
+      const markdownInput = document.getElementById('markdown-input');
+      const markdownPreview = document.getElementById('markdown-preview');
+      const previewScrollContainer = document.getElementById('preview-scroll-container');
+      const editorPane = document.getElementById('editor-pane');
+      const previewPane = document.getElementById('preview-pane');
+
+      const statWords = document.getElementById('stat-words');
+      const statChars = document.getElementById('stat-chars');
+      const statReading = document.getElementById('stat-reading');
+      const saveIndicator = document.getElementById('save-indicator');
+      const saveText = document.getElementById('save-text');
+
+      const resetModal = document.getElementById('reset-modal');
+      const toastContainer = document.getElementById('toast-container');
+
+      let saveTimeout = null;
+      let isSyncingScroll = false;
+
+      // Configuración de Marked.js para soporte GFM y saltos de línea naturales
+      if (window.marked) {
+        marked.setOptions({
+          gfm: true,
+          breaks: true,
+        });
+      }
+
+      /**
+       * Muestra una notificación temporal (toast) en pantalla.
+       * @param {string} message - Mensaje a mostrar
+       */
+      function showToast(message) {
+        const toast = document.createElement('div');
+        toast.className =
+          'bg-slate-900 dark:bg-slate-800 text-white text-xs font-medium px-3.5 py-2.5 rounded-xl shadow-lg border border-slate-700/80 flex items-center gap-2 transition-all duration-300 opacity-0 translate-y-2';
+        toast.innerHTML = `
+          <svg class="w-4 h-4 text-emerald-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <span>${message}</span>
+        `;
+        toastContainer.appendChild(toast);
+
+        // Animación de entrada
+        requestAnimationFrame(() => {
+          toast.classList.remove('opacity-0', 'translate-y-2');
+        });
+
+        // Desaparición automática tras 2.5 segundos
+        setTimeout(() => {
+          toast.classList.add('opacity-0', 'translate-y-2');
+          setTimeout(() => toast.remove(), 300);
+        }, 2500);
+      }
+
+      /**
+       * Copia un texto al portapapeles utilizando document.execCommand('copy')
+       * para asegurar compatibilidad total en entornos embebidos e iframes.
+       * @param {string} text - Texto a copiar
+       * @param {string} successMessage - Mensaje de confirmación
+       */
+      function copyToClipboard(text, successMessage) {
+        try {
+          const tempTextarea = document.createElement('textarea');
+          tempTextarea.value = text;
+          tempTextarea.setAttribute('readonly', '');
+          tempTextarea.style.position = 'fixed';
+          tempTextarea.style.left = '-9999px';
+          document.body.appendChild(tempTextarea);
+          tempTextarea.select();
+          const copied = document.execCommand('copy');
+          document.body.removeChild(tempTextarea);
+
+          if (copied) {
+            showToast(successMessage);
+          } else {
+            showToast('No se pudo copiar automáticamente.');
+          }
+        } catch (err) {
+          console.error('Error al copiar al portapapeles:', err);
+          showToast('Error al intentar copiar el contenido.');
+        }
+      }
+
+      /**
+       * Renderiza el contenido Markdown a HTML sanitizado y actualiza estadísticas.
+       */
+      function renderAndUpdateStats() {
+        const rawText = markdownInput.value;
+
+        // 1. Renderizar HTML de forma segura con marked + DOMPurify
+        try {
+          if (rawText.trim() === '') {
+            markdownPreview.innerHTML =
+              '<p class="text-slate-400 dark:text-slate-600 italic select-none">La vista previa aparecerá aquí mientras escribes...</p>';
+          } else {
+            const parsedHtml = marked.parse(rawText);
+            const cleanHtml = DOMPurify.sanitize(parsedHtml);
+            markdownPreview.innerHTML = cleanHtml;
+          }
+        } catch (error) {
+          console.error('Error al procesar Markdown:', error);
+        }
+
+        // 2. Calcular estadísticas (palabras, caracteres y tiempo de lectura)
+        const charCount = rawText.length;
+        const wordsArray = rawText.trim().split(/\s+/).filter(Boolean);
+        const wordCount = wordsArray.length;
+        const readingMinutes = wordCount === 0 ? 0 : Math.max(1, Math.ceil(wordCount / 200));
+
+        statWords.textContent = wordCount.toLocaleString('es-ES');
+        statChars.textContent = charCount.toLocaleString('es-ES');
+        statReading.textContent = `${readingMinutes} min`;
+      }
+
+      /**
+       * Guarda el contenido en localStorage con retroalimentación visual.
+       */
+      function scheduleAutoSave() {
+        saveText.textContent = 'Guardando...';
+        saveIndicator.classList.remove('text-emerald-600', 'dark:text-emerald-400');
+        saveIndicator.classList.add('text-amber-500', 'dark:text-amber-400');
+
+        clearTimeout(saveTimeout);
+        saveTimeout = setTimeout(() => {
+          try {
+            localStorage.setItem(STORAGE_CONTENT_KEY, markdownInput.value);
+            saveText.textContent = 'Guardado';
+            saveIndicator.classList.remove('text-amber-500', 'dark:text-amber-400');
+            saveIndicator.classList.add('text-emerald-600', 'dark:text-emerald-400');
+          } catch (e) {
+            console.warn('No se pudo guardar en localStorage:', e);
+            saveText.textContent = 'Sin almacenamiento';
+          }
+        }, 350);
+      }
+
+      /**
+       * Inserta o envuelve sintaxis Markdown alrededor de la selección actual.
+       * @param {string} type - Tipo de formato ('h1', 'h2', 'bold', 'italic', 'ul', 'ol', 'quote', 'inline-code', 'code-block', 'link')
+       */
+      function applyMarkdownFormat(type) {
+        const start = markdownInput.selectionStart;
+        const end = markdownInput.selectionEnd;
+        const value = markdownInput.value;
+        const selectedText = value.substring(start, end);
+
+        let replacement = '';
+        let cursorOffsetStart = 0;
+        let cursorOffsetEnd = 0;
+
+        // Helper para prefijos de inicio de línea
+        const applyLinePrefix = (prefix, placeholder) => {
+          const lineStart = value.lastIndexOf('\n', start - 1) + 1;
+          const beforeLine = value.substring(0, lineStart);
+          const afterLineStart = value.substring(lineStart);
+
+          if (selectedText.includes('\n')) {
+            // Aplicar a múltiples líneas seleccionadas
+            const lines = selectedText.split('\n');
+            const formattedLines = lines
+              .map((line, idx) => {
+                const actualPrefix = prefix === '1. ' ? `${idx + 1}. ` : prefix;
+                return `${actualPrefix}${line}`;
+              })
+              .join('\n');
+            markdownInput.setRangeText(formattedLines, start, end, 'select');
+          } else if (selectedText.length > 0) {
+            replacement = `${prefix}${selectedText}`;
+            markdownInput.setRangeText(replacement, start, end, 'select');
+          } else {
+            // Insertar al inicio de la línea actual
+            const needsNewline = lineStart > 0 && value[lineStart - 1] !== '\n' ? '\n' : '';
+            const textToInsert = `${needsNewline}${prefix}${placeholder}`;
+            markdownInput.value = beforeLine + textToInsert + afterLineStart;
+            const newSelectStart = lineStart + needsNewline.length + prefix.length;
+            markdownInput.setSelectionRange(newSelectStart, newSelectStart + placeholder.length);
+          }
+        };
+
+        switch (type) {
+          case 'h1':
+            applyLinePrefix('# ', 'Título principal');
+            break;
+          case 'h2':
+            applyLinePrefix('## ', 'Subtítulo');
+            break;
+          case 'ul':
+            applyLinePrefix('- ', 'Elemento de lista');
+            break;
+          case 'ol':
+            applyLinePrefix('1. ', 'Primer elemento');
+            break;
+          case 'quote':
+            applyLinePrefix('> ', 'Cita destacada');
+            break;
+          case 'bold': {
+            const text = selectedText || 'texto en negrita';
+            replacement = `**${text}**`;
+            markdownInput.setRangeText(replacement, start, end, 'end');
+            cursorOffsetStart = start + 2;
+            cursorOffsetEnd = cursorOffsetStart + text.length;
+            markdownInput.setSelectionRange(cursorOffsetStart, cursorOffsetEnd);
+            break;
+          }
+          case 'italic': {
+            const text = selectedText || 'texto en cursiva';
+            replacement = `*${text}*`;
+            markdownInput.setRangeText(replacement, start, end, 'end');
+            cursorOffsetStart = start + 1;
+            cursorOffsetEnd = cursorOffsetStart + text.length;
+            markdownInput.setSelectionRange(cursorOffsetStart, cursorOffsetEnd);
+            break;
+          }
+          case 'inline-code': {
+            const text = selectedText || 'código';
+            replacement = `\`${text}\``;
+            markdownInput.setRangeText(replacement, start, end, 'end');
+            cursorOffsetStart = start + 1;
+            cursorOffsetEnd = cursorOffsetStart + text.length;
+            markdownInput.setSelectionRange(cursorOffsetStart, cursorOffsetEnd);
+            break;
+          }
+          case 'code-block': {
+            const text = selectedText || '// Escribe tu código aquí';
+            const prefix = start > 0 && value[start - 1] !== '\n' ? '\n' : '';
+            replacement = `${prefix}\`\`\`javascript\n${text}\n\`\`\`\n`;
+            markdownInput.setRangeText(replacement, start, end, 'end');
+            cursorOffsetStart = start + prefix.length + 14;
+            cursorOffsetEnd = cursorOffsetStart + text.length;
+            markdownInput.setSelectionRange(cursorOffsetStart, cursorOffsetEnd);
+            break;
+          }
+          case 'link': {
+            const text = selectedText || 'texto del enlace';
+            replacement = `[${text}](https://ejemplo.com)`;
+            markdownInput.setRangeText(replacement, start, end, 'end');
+            // Seleccionar la URL para que el usuario pueda pegarla directamente
+            const urlStart = start + text.length + 3;
+            const urlEnd = urlStart + 'https://ejemplo.com'.length;
+            markdownInput.setSelectionRange(urlStart, urlEnd);
+            break;
+          }
+        }
+
+        markdownInput.focus();
+        renderAndUpdateStats();
+        scheduleAutoSave();
+      }
+
+      /**
+       * Cambia la distribución de paneles ('split', 'editor', 'preview').
+       * @param {string} mode
+       */
+      function setViewMode(mode) {
+        const validModes = ['split', 'editor', 'preview'];
+        const activeMode = validModes.includes(mode) ? mode : 'split';
+
+        // Actualizar estilos de los botones del selector
+        document.querySelectorAll('.view-btn').forEach((btn) => {
+          const isSelected = btn.dataset.view === activeMode;
+          if (isSelected) {
+            btn.classList.add(
+              'bg-white',
+              'dark:bg-slate-900',
+              'text-indigo-600',
+              'dark:text-indigo-400',
+              'shadow-xs'
+            );
+            btn.classList.remove('text-slate-600', 'dark:text-slate-400');
+          } else {
+            btn.classList.remove(
+              'bg-white',
+              'dark:bg-slate-900',
+              'text-indigo-600',
+              'dark:text-indigo-400',
+              'shadow-xs'
+            );
+            btn.classList.add('text-slate-600', 'dark:text-slate-400');
+          }
+        });
+
+        // Mostrar u ocultar paneles según el modo
+        if (activeMode === 'split') {
+          editorPane.classList.remove('hidden');
+          previewPane.classList.remove('hidden');
+          editorPane.classList.add('border-b', 'md:border-b-0', 'md:border-r');
+        } else if (activeMode === 'editor') {
+          editorPane.classList.remove('hidden', 'border-b', 'md:border-r');
+          previewPane.classList.add('hidden');
+        } else if (activeMode === 'preview') {
+          editorPane.classList.add('hidden');
+          previewPane.classList.remove('hidden');
+        }
+
+        try {
+          localStorage.setItem(STORAGE_VIEW_KEY, activeMode);
+        } catch (e) {}
+      }
+
+      /**
+       * Aplica el tema claro u oscuro al documento.
+       * @param {'light'|'dark'} theme
+       */
+      function setTheme(theme) {
+        const htmlEl = document.documentElement;
+        if (theme === 'dark') {
+          htmlEl.classList.add('dark');
+          htmlEl.classList.remove('light');
+        } else {
+          htmlEl.classList.remove('dark');
+          htmlEl.classList.add('light');
+        }
+        try {
+          localStorage.setItem(STORAGE_THEME_KEY, theme);
+        } catch (e) {}
+      }
+
+      /**
+       * Descarga el contenido actual como un archivo .md.
+       */
+      function downloadMarkdownFile() {
+        const content = markdownInput.value;
+        const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+
+        // Intentar extraer un nombre de archivo desde el primer H1 si existe
+        const h1Match = content.match(/^#\s+(.+)$/m);
+        let fileName = 'documento.md';
+        if (h1Match && h1Match[1]) {
+          const slug = h1Match[1]
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-+|-+$/g, '');
+          if (slug) fileName = `${slug}.md`;
+        }
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        showToast(`Descargando "${fileName}"`);
+      }
+
+      // ===================================================================
+      // ASIGNACIÓN DE EVENTOS
+      // ===================================================================
+
+      // Entrada de texto en tiempo real
+      markdownInput.addEventListener('input', () => {
+        renderAndUpdateStats();
+        scheduleAutoSave();
+      });
+
+      // Atajos de teclado dentro del editor (Tab, Ctrl+B, Ctrl+I, Ctrl+K)
+      markdownInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Tab') {
+          e.preventDefault();
+          const start = markdownInput.selectionStart;
+          const end = markdownInput.selectionEnd;
+          markdownInput.setRangeText('  ', start, end, 'end');
+          renderAndUpdateStats();
+          scheduleAutoSave();
+          return;
+        }
+
+        if (e.ctrlKey || e.metaKey) {
+          const key = e.key.toLowerCase();
+          if (key === 'b') {
+            e.preventDefault();
+            applyMarkdownFormat('bold');
+          } else if (key === 'i') {
+            e.preventDefault();
+            applyMarkdownFormat('italic');
+          } else if (key === 'k') {
+            e.preventDefault();
+            applyMarkdownFormat('link');
+          }
+        }
+      });
+
+      // Desplazamiento sincronizado proporcional entre editor y vista previa
+      markdownInput.addEventListener('scroll', () => {
+        if (isSyncingScroll) return;
+        isSyncingScroll = true;
+        const maxScroll = markdownInput.scrollHeight - markdownInput.clientHeight;
+        if (maxScroll > 0) {
+          const ratio = markdownInput.scrollTop / maxScroll;
+          const targetMax = previewScrollContainer.scrollHeight - previewScrollContainer.clientHeight;
+          previewScrollContainer.scrollTop = ratio * targetMax;
+        }
+        requestAnimationFrame(() => {
+          isSyncingScroll = false;
+        });
+      });
+
+      // Botones de formato de la barra superior
+      document.querySelectorAll('.format-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          applyMarkdownFormat(btn.dataset.format);
+        });
+      });
+
+      // Botones del selector de vista
+      document.querySelectorAll('.view-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          setViewMode(btn.dataset.view);
+        });
+      });
+
+      // Botones de exportación
+      document.getElementById('btn-copy-md').addEventListener('click', () => {
+        copyToClipboard(markdownInput.value, 'Markdown copiado al portapapeles');
+      });
+
+      document.getElementById('btn-copy-html').addEventListener('click', () => {
+        const cleanHtml = DOMPurify.sanitize(marked.parse(markdownInput.value));
+        copyToClipboard(cleanHtml, 'HTML copiado al portapapeles');
+      });
+
+      document.getElementById('btn-download-md').addEventListener('click', downloadMarkdownFile);
+
+      // Alternar modo claro / oscuro
+      document.getElementById('btn-theme-toggle').addEventListener('click', () => {
+        const isDark = document.documentElement.classList.contains('dark');
+        setTheme(isDark ? 'light' : 'dark');
+      });
+
+      // Gestión del modal personalizado de reinicio
+      const openResetModal = () => {
+        resetModal.classList.remove('hidden');
+        resetModal.classList.add('flex');
+      };
+
+      const closeResetModal = () => {
+        resetModal.classList.add('hidden');
+        resetModal.classList.remove('flex');
+      };
+
+      document.getElementById('btn-reset-modal').addEventListener('click', openResetModal);
+      document.getElementById('btn-modal-cancel').addEventListener('click', closeResetModal);
+
+      resetModal.addEventListener('click', (e) => {
+        if (e.target === resetModal) closeResetModal();
+      });
+
+      document.getElementById('btn-modal-sample').addEventListener('click', () => {
+        markdownInput.value = DEFAULT_MARKDOWN;
+        renderAndUpdateStats();
+        scheduleAutoSave();
+        closeResetModal();
+        showToast('Plantilla de ejemplo restaurada');
+      });
+
+      document.getElementById('btn-modal-clear').addEventListener('click', () => {
+        markdownInput.value = '';
+        renderAndUpdateStats();
+        scheduleAutoSave();
+        closeResetModal();
+        markdownInput.focus();
+        showToast('Documento vaciado');
+      });
+
+      // ===================================================================
+      // INICIALIZACIÓN AL CARGAR LA PÁGINA
+      // ===================================================================
+      function init() {
+        // 1. Cargar tema guardado o detectar preferencia del sistema
+        let savedTheme = null;
+        try {
+          savedTheme = localStorage.getItem(STORAGE_THEME_KEY);
+        } catch (e) {}
+
+        if (savedTheme === 'dark' || savedTheme === 'light') {
+          setTheme(savedTheme);
+        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          setTheme('dark');
+        } else {
+          setTheme('light');
+        }
+
+        // 2. Cargar modo de vista guardado
+        let savedView = 'split';
+        try {
+          savedView = localStorage.getItem(STORAGE_VIEW_KEY) || 'split';
+        } catch (e) {}
+        setViewMode(savedView);
+
+        // 3. Cargar contenido guardado o mostrar ejemplo inicial
+        let savedContent = null;
+        try {
+          savedContent = localStorage.getItem(STORAGE_CONTENT_KEY);
+        } catch (e) {}
+
+        markdownInput.value = savedContent !== null ? savedContent : DEFAULT_MARKDOWN;
+        renderAndUpdateStats();
+      }
+
+      init();
+    })();
+  </script>
+</body>
+</html>
