@@ -207,6 +207,24 @@ pre.txt .cf{color:var(--bad)}
 .term{background:var(--code-bg);color:var(--code-ink);border-radius:10px;padding:10px 12px;font:400 .8rem/1.5 var(--f-mono);height:220px;overflow:auto;white-space:pre-wrap}
 .term .p{color:#ff9e64} .term .e{color:#ff7a90} .term .k{color:#9ece6a} .term .m{color:#8a93b8}
 .statusbar{font:600 .85rem var(--f-mono);background:var(--surface-2);border-radius:8px;padding:.45em .7em;margin:.5em 0;display:flex;gap:16px;flex-wrap:wrap}
+.simz small{display:block;color:var(--muted);font-size:.78rem;margin:-.3em 0 .5em;line-height:1.25}
+.simz{transition:box-shadow .2s}
+.simz.chg{box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 45%,transparent)}
+.simz.chg h4::after{content:" · cambia";color:var(--accent);text-transform:none;letter-spacing:0}
+.simcols{display:grid;grid-template-columns:1fr 1.15fr;gap:18px;align-items:start;margin-top:.6em}
+.simh{font:800 .78rem var(--f-display);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:.4em 0 .4em}
+.simsteps{margin:0;padding:0 0 0 1.6em;max-height:250px;overflow:auto;font-size:.9rem;border:1px solid var(--line);border-radius:10px;padding:8px 8px 8px 2.2em;background:var(--surface)}
+.simsteps li{margin:.2em 0;color:var(--muted)}
+.simsteps li code{white-space:normal}
+.simsteps li.done{opacity:.65}
+.simsteps li.done::marker{content:"✓  ";color:var(--ok)}
+.simsteps li.now{color:var(--ink);font-weight:600;background:var(--accent-soft);border-radius:6px;padding:.1em .4em}
+.simrow{display:flex;gap:8px;margin:.6em 0 .2em;flex-wrap:wrap}
+.simwhy{border-left:5px solid var(--accent);background:var(--accent-soft);border-radius:0 var(--r) var(--r) 0;padding:12px 16px;min-height:110px}
+.simwhy>b{font-family:var(--f-display);display:block;margin-bottom:.3em}
+.sim .term{height:260px}
+.sRefSel{font:500 .8rem var(--f-mono);padding:.3em;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+@media (max-width:980px){ .simcols{grid-template-columns:1fr} }
 
 /* grafos */
 .graphbox{background:var(--surface-2);border-radius:12px;padding:10px}
@@ -243,7 +261,53 @@ body.present .pres-ui{display:flex;position:fixed;left:0;right:0;bottom:0;z-inde
 .pres-ui .prog i{display:block;height:100%;background:var(--accent);width:0;transition:width .2s}
 .pres-ui .count{font:600 .9rem var(--f-mono);min-width:5.5em;text-align:center}
 
+/* ── laboratorio (lab.js): un ejercicio por página + terminal simulada ── */
+.lab-open{margin-top:1em;border-color:var(--indigo);color:var(--indigo)}
+body.lab-on{overflow:hidden}
+.lab{position:fixed;inset:0;z-index:60;background:var(--bg);display:flex;flex-direction:column}
+.lab[hidden]{display:none}
+.lab-top{display:flex;align-items:center;gap:8px;padding:8px 14px;border-bottom:1px solid var(--line);background:var(--surface)}
+.lab-title{font:600 1rem var(--f-display);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lab-top .sp{flex:1}
+.lab-body{flex:1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);min-height:0}
+.lab-ex{overflow:auto;padding:20px 24px 40px;border-right:1px solid var(--line)}
+.lab-ex .cols,.lab-ex .cols.wide-l,.lab-ex .cols.wide-r{grid-template-columns:1fr}
+.lab-ex h2{font-size:1.45rem}
+.lab-tw{display:flex;flex-direction:column;min-height:0;padding:12px;gap:8px;position:relative}
+.lab-note{font-size:.92rem;background:var(--accent-soft);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:8px 12px}
+.lab-note:empty{display:none}
+.lab-term{flex:1;min-height:0;overflow:auto;background:var(--code-bg);color:var(--code-ink);border-radius:12px;padding:12px 14px;font:400 .84rem/1.5 var(--f-mono);cursor:text}
+#labOut{white-space:pre-wrap;word-break:break-word}
+.lab-in{display:flex;align-items:baseline}
+.lab-in input{flex:1;background:transparent;border:0;color:inherit;font:inherit;outline:none;padding:0;min-width:4em}
+.lab-term .ps{color:#9ece6a} .lab-term .ps b{color:#7aa2f7;font-weight:400} .lab-term .br{color:#ff9e64}
+.lab-term .e,.lab-term .del,.lab-term .rd{color:#ff7a90} .lab-term .m{color:#8a93b8} .lab-term .y{color:#e0af68} .lab-term .dc,.lab-term .hk{color:#7dcfff}
+.lab-term .add,.lab-term .ok{color:#9ece6a} .lab-term .b{font-weight:600} .lab-term .gr{color:#bb9af7}
+.lab-ed{position:absolute;inset:12px;display:flex;flex-direction:column;gap:8px;background:var(--surface);border:2px solid var(--accent);border-radius:12px;padding:10px;z-index:2}
+.lab-ed[hidden]{display:none}
+.lab-ed textarea{flex:1;font:400 .9rem/1.5 var(--f-mono);background:var(--code-bg);color:var(--code-ink);border-radius:8px;border:0;padding:10px;resize:none}
+.lab-ed-h{display:flex;justify-content:space-between;gap:8px;font-size:.85rem;color:var(--muted);flex-wrap:wrap}
+.lab-ed-b{display:flex;gap:8px}
+.lab-res{margin-top:18px;border:2px solid var(--line);border-radius:14px;padding:14px 16px;background:var(--surface)}
+.lab-res:empty{display:none}
+.lab-res.all{border-color:var(--ok)}
+.lab-res h3{margin:0 0 .5em} .lab-res h4{margin:1em 0 .3em}
+.lab-res .mut{color:var(--muted);font-size:.88rem;margin:0 0 .4em}
+.lab-chk{list-style:none;padding:0;margin:0;display:grid;gap:4px}
+.lab-chk li{display:flex;gap:.6em;align-items:baseline;padding:.35em .7em;border-radius:8px}
+.lab-chk li.ok{background:var(--ok-soft)} .lab-chk li.bad{background:var(--bad-soft)}
+.lab-chk li>span{font-weight:800} .lab-chk li.ok>span{color:var(--ok)} .lab-chk li.bad>span{color:var(--bad)}
+.lab-chk small{display:block;color:var(--muted)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.lab-cmds{display:flex;flex-wrap:wrap;gap:6px}
+.lab-cmds code{background:var(--surface-2);border:1px solid var(--line);border-radius:6px;padding:.15em .5em;white-space:normal}
+.lab-cmds code.ok{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
+.lab-cmds code.err{background:var(--bad-soft);border-color:var(--bad);color:var(--bad)}
+
 @media (max-width:980px){
+  .lab-body{grid-template-columns:1fr;grid-template-rows:minmax(0,40vh) minmax(0,1fr)}
+  .lab-ex{border-right:0;border-bottom:1px solid var(--line)}
+  .lab-top{flex-wrap:wrap}
   .layout{grid-template-columns:1fr}
   .sidebar{display:none}
   .cols,.cols.wide-l,.cols.wide-r{grid-template-columns:1fr}
@@ -426,51 +490,26 @@ git status -sb                  # comando (lo que escribes)
   </div>
 </section>
 
-<section class="slide" id="sim" data-title="Simulador de zonas">
-  <span class="kicker">1.4 · Simulador</span>
-  <h2>Simulador: mueve un cambio entre zonas</h2>
-  <p class="lead" style="margin-bottom:.6em">Un proyecto con un único archivo, <code>index.html</code>. Pulsa los comandos y observa qué zona cambia, el <code>git status -sb</code> y el historial. No hay nada que romper: <b>Reiniciar</b> lo deja como al principio.</p>
-  <div class="widget" id="simW">
-    <div class="wt">Laboratorio de zonas · index.html</div>
-    <div class="simgrid">
-      <div class="simz z1"><h4>Working directory</h4><div id="sWs"></div></div>
-      <div class="simz z2"><h4>Staging</h4><div id="sIdx"></div></div>
-      <div class="simz z3"><h4>Repositorio local</h4><div id="sLoc" class="clist"></div></div>
-      <div class="simz z4"><h4>Remoto (origin)</h4><div id="sRem" class="clist"></div></div>
-    </div>
-    <div class="statusbar"><span id="sStatus"></span><span id="sStash" style="color:var(--muted)"></span></div>
-    <div class="cols wide-l" style="gap:14px">
-      <div>
-        <div class="simbtns" id="sBtns">
-          <span class="grp">Trabajo normal</span>
-          <button class="btn" data-a="edit">✏️ editar index.html</button>
-          <button class="btn" data-a="add">git add index.html</button>
-          <button class="btn" data-a="commit">git commit -m "…"</button>
-          <button class="btn" data-a="push">git push</button>
-          <button class="btn" data-a="mate">👤 un compañero hace push</button>
-          <button class="btn" data-a="pull">git pull</button>
-          <span class="grp">Deshacer</span>
-          <button class="btn d" data-a="restore">git restore index.html</button>
-          <button class="btn" data-a="unstage">git restore --staged index.html</button>
-          <button class="btn" data-a="amend">git commit --amend --no-edit</button>
-          <button class="btn" data-a="soft">git reset --soft HEAD~1</button>
-          <button class="btn" data-a="mixed">git reset HEAD~1</button>
-          <button class="btn d" data-a="hard">git reset --hard HEAD~1</button>
-          <button class="btn" data-a="revert">git revert HEAD</button>
-          <button class="btn d" data-a="force">git push --force-with-lease</button>
-          <span class="grp">Guardar y recuperar</span>
-          <button class="btn" data-a="stash">git stash</button>
-          <button class="btn" data-a="pop">git stash pop</button>
-          <button class="btn" data-a="reflog">git reflog</button>
-          <span style="display:inline-flex;gap:4px;align-items:center"><select id="sRefSel" style="font:500 .8rem var(--f-mono);padding:.3em;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink)" aria-label="Commit del reflog"></select><button class="btn d" data-a="hardto">git reset --hard &lt;hash&gt;</button></span>
-          <span class="grp"></span>
-          <button class="btn" data-a="reset" style="font-family:var(--f-body)">↺ Reiniciar</button>
-        </div>
-      </div>
-      <div><div class="term" id="sTerm" aria-live="polite"></div></div>
-    </div>
-  </div>
-  <p style="font-size:.9em;color:var(--muted);margin-top:.6em">Prueba: edita → add → commit → push. Después: commit → <code>reset --hard HEAD~1</code> → <code>reflog</code> → recupéralo. O: compañero hace push → intenta push → pull.</p>
+<section class="slide" id="sim" data-title="Simulador (1): trabajo normal">
+  <span class="kicker">1.4 · Simulador de zonas (1/3)</span>
+  <h2>Del editor a GitHub: el viaje de un cambio</h2>
+  <p class="lead">Un proyecto con un único archivo, <code>index.html</code>. Pulsa <b>▶ Siguiente paso</b> y observa en cada paso <b>qué zona cambia</b> (se resalta), la explicación y el <b>comando real</b> que lo haría en la terminal. No hace falta escribir nada.</p>
+  <div class="callout copper"><b>Cómo leerlo.</b> Las cuatro cajas son las cuatro zonas de Git, de izquierda a derecha: lo que editas → lo preparado → lo guardado en tu PC → lo subido. Cada versión del archivo tiene un nombre (<code>v1</code>, <code>v2</code>…) para que veas dónde está cada una.</div>
+  <div class="widget sim" data-sim="trabajo"></div>
+</section>
+
+<section class="slide" id="sim2" data-title="Simulador (2): deshacer">
+  <span class="kicker">1.4 · Simulador de zonas (2/3)</span>
+  <h2>Deshacer: cada comando actúa sobre una zona distinta</h2>
+  <p class="lead"><code>restore</code> toca la carpeta o staging; <code>reset</code> mueve la rama hacia atrás (y según la opción arrastra staging y carpeta); <code>revert</code> añade un commit nuevo. Sigue el recorrido y compara qué zonas se resaltan en cada caso.</p>
+  <div class="widget sim" data-sim="deshacer"></div>
+</section>
+
+<section class="slide" id="sim3" data-title="Simulador (3): guardar y recuperar">
+  <span class="kicker">1.4 · Simulador de zonas (3/3)</span>
+  <h2>Guardar a medias, recuperar lo perdido y forzar con seguridad</h2>
+  <p class="lead"><code>stash</code> aparta cambios para poder actualizarte, <code>reflog</code> encuentra commits que ya no salen en el log y <code>--force-with-lease</code> sobrescribe el remoto solo si nadie ha subido nada que no hayas visto.</p>
+  <div class="widget sim" data-sim="guardar"></div>
 </section>
 
 <!-- ═════════════════════════════ UNIDAD 2 ═════════════════════════════ -->
@@ -1295,7 +1334,7 @@ git log --author="Beñat" --since="1 week ago" --oneline</code></pre></div>
       <tr><td>Recuperar algo tras un reset o borrar una rama</td><td>—</td><td><code>git reflog</code></td></tr>
     </table></div>
   </div>
-  <p style="margin-top:.8em;color:var(--muted)">Pruébalos sin riesgo en el <a href="#sim">simulador de zonas</a>.</p>
+  <p style="margin-top:.8em;color:var(--muted)">Pruébalos sin riesgo en el <a href="#sim2">simulador de deshacer</a>.</p>
 </section>
 
 <section class="slide ex" id="e-restore" data-title="Descartar cambios en la carpeta" data-level="1">
@@ -2792,7 +2831,7 @@ $('#pPrev').addEventListener('click',()=>show(cur-1)); $('#pNext').addEventListe
 function full(){ try{ if(!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{}); else document.exitFullscreen().catch(()=>{}); }catch(e){} }
 $('#pFull').addEventListener('click',full);
 document.addEventListener('keydown',e=>{
-  const tag=(e.target.tagName||'').toLowerCase(); if(['input','select','textarea'].includes(tag)) return;
+  const tag=(e.target.tagName||'').toLowerCase(); if(['input','select','textarea'].includes(tag)||document.body.classList.contains('lab-on')) return;
   if(!present && (e.key==='p'||e.key==='P')){ enter(); e.preventDefault(); return; }
   if(!present) return;
   if(['ArrowRight','PageDown',' '].includes(e.key)){ show(cur+1); e.preventDefault(); }
@@ -2865,84 +2904,168 @@ function gRebase(){ const s=GSTATES[gIdx]; graph($('#gRebase'),s.n.map(([id,x,y,
 $('#gTabs').innerHTML=GSTATES.map((s,i)=>`<button type="button" role="tab" aria-selected="${i===0}" data-i="${i}">${s.t}</button>`).join('');
 $$('#gTabs button').forEach(b=>b.addEventListener('click',()=>{ gIdx=+b.dataset.i; $$('#gTabs button').forEach(x=>x.setAttribute('aria-selected',x===b)); gRebase(); }));
 
-/* ══ simulador de zonas ══ */
-const S={};
-const hx=()=>{ let h; do{ h=Math.floor(Math.random()*0xfffffff).toString(16).padStart(7,'0'); }while(S.C&&S.C[h]); return h; };
-function mk(msg,content,parents,mate){ const h=hx(); S.C[h]={h,msg,content,parents,t:++S.t,mate:!!mate}; return h; }
-function anc(h){ const s=new Set(), st=[h]; while(st.length){ const x=st.pop(); if(x==null||s.has(x)) continue; s.add(x); st.push(...S.C[x].parents); } return s; }
-function logOf(h,max){ return [...anc(h)].map(x=>S.C[x]).sort((a,b)=>b.t-a.t).slice(0,max||7); }
-const HC=()=>S.C[S.head].content;
-function rlog(a){ S.reflog.unshift({h:S.head,a}); }
-function out(cmd,txt,cls){ S.term.push({cmd,txt,cls}); }
-function simReset(){ Object.assign(S,{C:{},t:0,ver:1,cn:1,mate:0,stash:[],term:[],reflog:[]});
-  const c1=mk('Primera versión','v1',[]); Object.assign(S,{head:c1,remote:c1,seen:c1,ws:'v1',idx:'v1',known:new Set([c1])});
-  rlog('clone: from origin'); out(null,'# Has clonado el proyecto: index.html (v1), sincronizado con origin.','m'); }
-const ACT={
- edit(){ S.ver++; S.ws='v'+S.ver; out(null,`# Editas index.html en el editor → ahora es la versión ${S.ws}`,'m'); },
- add(){ out('git add index.html', S.ws===S.idx?'# (nada nuevo: staging ya tenía esta versión)':'', 'm'); S.idx=S.ws; },
- commit(){ const c='git commit -m "Cambio '+(S.cn+1)+'"'; if(S.idx===HC()){ out(c,S.ws!==S.idx?'no changes added to commit (use "git add" and/or "git commit -a")':'nothing to commit, working tree clean','e'); return; }
-   S.cn++; const h=mk('Cambio '+S.cn,S.idx,[S.head]); S.head=h; S.known.add(h); rlog('commit: Cambio '+S.cn); out(c,`[main ${h}] Cambio ${S.cn}\n 1 file changed, 1 insertion(+), 1 deletion(-)`); },
- push(){ const c='git push';
-   if(S.head===S.remote){ out(c,'Everything up-to-date'); return; }
-   if(anc(S.head).has(S.remote)){ out(c,`   ${S.remote}..${S.head}  main -> main`,'k'); S.remote=S.seen=S.head; return; }
-   if(!S.known.has(S.remote)) out(c,` ! [rejected]        main -> main (fetch first)\nhint: Updates were rejected because the remote contains work that you do\nhint: not have locally. Integra antes con git pull.`,'e');
-   else out(c,` ! [rejected]        main -> main (non-fast-forward)\nhint: Updates were rejected because the tip of your current branch is behind\nhint: its remote counterpart. (Tu rama ha perdido commits que el remoto sí tiene:\nhint: git pull para recuperarlos, o git push --force-with-lease para borrarlos del remoto.)`,'e'); },
- force(){ const c='git push --force-with-lease';
-   if(S.head===S.remote){ out(c,'Everything up-to-date'); return; }
-   if(S.remote!==S.seen){ out(c,` ! [rejected]        main -> main (stale info)\n# Un compañero subió algo que no has visto (origin/main está desactualizado).\n# --force-with-lease se niega a borrarlo. Haz git pull primero.`,'e'); return; }
-   out(c,` + ${S.remote}...${S.head} main -> main (forced update)`,'k'); S.remote=S.seen=S.head; },
- mate(){ S.mate++; const m=mk('Compañero: cambio '+S.mate,'c'+S.mate,[S.remote],true); S.remote=m; out(null,`# (en otro PC) un compañero sube el commit ${m} a origin.\n# Tu origin/main no lo sabe hasta que hagas fetch o pull.`,'m'); },
- pull(){ const c='git pull'; let o='';
-   if(S.remote!==S.seen){ o+=`From origin\n   ${S.seen}..${S.remote}  main -> origin/main\n`; anc(S.remote).forEach(x=>S.known.add(x)); S.seen=S.remote; }
-   const H=anc(S.head), R=anc(S.seen); const dirty=S.ws!==HC()||S.idx!==HC();
-   if(H.has(S.seen)){ out(c,o+'Already up to date.'); return; }
-   if(dirty){ out(c,o+'error: Your local changes to the following files would be overwritten by merge:\n\tindex.html\nPlease commit your changes or stash them before you merge.','e'); return; }
-   if(R.has(S.head)){ o+=`Updating ${S.head}..${S.seen}\nFast-forward\n index.html | 2 +-`; S.head=S.seen; S.ws=S.idx=HC(); rlog('pull: Fast-forward'); out(c,o,'k'); return; }
-   const cont=S.C[S.head].content+'+'+S.C[S.seen].content; const h=mk("Merge branch 'main' of origin",cont,[S.head,S.seen]); S.head=h; S.known.add(h); S.ws=S.idx=cont;
-   rlog("pull: Merge made by the 'ort' strategy."); out(c,o+"Auto-merging index.html\nMerge made by the 'ort' strategy.\n# (el compañero tocó otra parte del archivo: sin conflicto)",'k'); },
- restore(){ out('git restore index.html', S.ws===S.idx?'# (nada que descartar)':'# ⚠️ cambios sin añadir descartados: no se pueden recuperar','m'); S.ws=S.idx; },
- unstage(){ out('git restore --staged index.html', S.idx===HC()?'# (no había nada en staging)':'# fuera de staging; el cambio sigue en tu carpeta','m'); S.idx=HC(); },
- amend(){ const p=S.C[S.head]; const h=mk(p.msg,S.idx,p.parents); S.head=h; S.known.add(h); rlog('commit (amend): '+p.msg);
-   out('git commit --amend --no-edit',`[main ${h}] ${p.msg}\n# commit sustituido: ${p.h} → ${h}`+(anc(S.remote).has(p.h)?'\n# ⚠️ el commit original ya estaba en el remoto: un push normal será rechazado':'')); },
- soft(){ resetTo('soft'); }, mixed(){ resetTo('mixed'); }, hard(){ resetTo('hard'); },
- revert(){ const c='git revert HEAD', p=S.C[S.head];
-   if(S.ws!==HC()||S.idx!==HC()){ out(c,'error: your local changes would be overwritten by revert.\nhint: commit your changes or stash them to proceed.','e'); return; }
-   if(!p.parents.length){ out(c,'# No hay commit anterior que restaurar','e'); return; }
-   const prev=S.C[p.parents[0]].content; const msg=`Revert "${p.msg}"`; const h=mk(msg,prev,[S.head]); S.head=h; S.known.add(h); S.ws=S.idx=prev; rlog('revert: '+msg);
-   out(c,`[main ${h}] ${msg}\n 1 file changed, 1 insertion(+), 1 deletion(-)`); },
- stash(){ const c='git stash'; if(S.ws===HC()&&S.idx===HC()){ out(c,'No local changes to save'); return; }
-   S.stash.unshift({ws:S.ws}); const p=S.C[S.head]; S.ws=S.idx=HC(); out(c,`Saved working directory and index state WIP on main: ${p.h} ${p.msg}`); },
- pop(){ const c='git stash pop'; if(!S.stash.length){ out(c,'No stash entries found.','e'); return; }
-   if(S.ws!==HC()||S.idx!==HC()){ out(c,'error: Your local changes to the following files would be overwritten by merge:\n\tindex.html\nThe stash entry is kept in case you need it again.','e'); return; }
-   const s=S.stash.shift(); S.ws=s.ws; S.idx=HC(); out(c,` M index.html\nDropped refs/stash@{0}`); },
- reflog(){ out('git reflog',S.reflog.slice(0,12).map((r,i)=>`${r.h} HEAD@{${i}}: ${r.a}`).join('\n')); },
- hardto(){ const h=$('#sRefSel').value; if(!h) return; S.head=h; S.ws=S.idx=HC(); rlog('reset: moving to '+h); out('git reset --hard '+h,`HEAD is now at ${h} ${S.C[h].msg}`,'k'); },
- reset(){ simReset(); }
-};
-function resetTo(m){ const c={soft:'git reset --soft HEAD~1',mixed:'git reset HEAD~1',hard:'git reset --hard HEAD~1'}[m]; const p=S.C[S.head];
-  if(!p.parents.length){ out(c,"fatal: ambiguous argument 'HEAD~1': unknown revision or path not in the working tree.",'e'); return; }
-  S.head=p.parents[0]; rlog('reset: moving to HEAD~1');
-  if(m==='mixed'){ S.idx=HC(); out(c,S.ws!==S.idx?'Unstaged changes after reset:\nM\tindex.html':''); }
-  else if(m==='hard'){ S.idx=S.ws=HC(); out(c,`HEAD is now at ${S.head} ${S.C[S.head].msg}\n# ⚠️ el commit ${p.h} ya no está en git log (búscalo con git reflog)`,'k'); }
-  else out(c,'# el commit se deshace; sus cambios siguen preparados en staging'); }
-function simRender(){
-  const hc=HC(), mod=S.ws!==S.idx, stg=S.idx!==hc;
-  $('#sWs').innerHTML=`<div class="file ${mod?'mod':''}"><span>index.html</span><span class="v">${S.ws}</span></div><small class="empty" style="display:block;margin-top:.4em">${mod?'modificado, sin añadir':'igual que staging'}</small>`;
-  $('#sIdx').innerHTML=stg?`<div class="file stg"><span>index.html</span><span class="v">${S.idx}</span></div><small class="empty" style="display:block;margin-top:.4em">listo para commit</small>`:'<span class="empty">(nada preparado)</span>';
-  const L=logOf(S.head,6);
-  $('#sLoc').innerHTML=L.map(c=>`<div><span class="h">${c.h}</span>${c.h===S.head?'<span class="ref head">HEAD → main</span>':''}${c.h===S.seen?'<span class="ref rem">origin/main</span>':''}<span>${c.msg}</span><span class="v" style="color:var(--muted)">(${c.content})</span></div>`).join('')
-    +(L.some(c=>c.h===S.seen)?'':`<div style="color:var(--muted)"><span class="ref rem">origin/main</span> → ${S.seen}</div>`);
-  $('#sRem').innerHTML=logOf(S.remote,6).map(c=>`<div><span class="h">${c.h}</span>${c.h===S.remote?'<span class="ref rem">main</span>':''}<span>${c.msg}</span></div>`).join('');
-  const A=anc(S.head), R=anc(S.seen); const ah=[...A].filter(x=>!R.has(x)).length, bh=[...R].filter(x=>!A.has(x)).length;
-  const ab=ah||bh?` [${[ah?'ahead '+ah:'',bh?'behind '+bh:''].filter(Boolean).join(', ')}]`:'';
-  const xy=(stg?'M':' ')+(mod?'M':' ');
-  $('#sStatus').textContent=`$ git status -sb  →  ## main...origin/main${ab}${xy.trim()?'   '+xy+' index.html':''}`;
-  $('#sStash').textContent=S.stash.length?`stash: ${S.stash.length} entrada(s)`:'';
-  const seen=new Set(); $('#sRefSel').innerHTML=S.reflog.filter(r=>!seen.has(r.h)&&seen.add(r.h)).map(r=>`<option value="${r.h}">${r.h} ${S.C[r.h].msg}</option>`).join('');
-  const T=$('#sTerm'); T.innerHTML=S.term.slice(-30).map(e=>(e.cmd?`<span class="p">$ ${esc(e.cmd)}</span>\n`:'')+(e.txt?`<span class="${e.cls||''}">${esc(e.txt)}</span>\n`:'')).join(''); T.scrollTop=T.scrollHeight;
+/* ══ simulador de zonas (3 diapositivas) ══
+   Un proyecto con un único archivo. Cada acción = un comando: se explica qué zona cambia y se muestra el comando real. */
+const SIM_B={edit:'✏️ editar index.html',add:'git add index.html',commit:'git commit -m "…"',push:'git push',mate:'👤 un compañero hace push',pull:'git pull',
+ restore:'git restore index.html',unstage:'git restore --staged index.html',amend:'git commit --amend --no-edit',soft:'git reset --soft HEAD~1',mixed:'git reset HEAD~1',hard:'git reset --hard HEAD~1',
+ revert:'git revert HEAD',force:'git push --force-with-lease',stash:'git stash',pop:'git stash pop',reflog:'git reflog',hardto:'git reset --hard <hash>'};
+const SIM_D=['restore','hard','force','hardto'];
+const SIMS={
+ trabajo:{acts:['edit','add','commit','push','mate','pull'],tour:[
+  ['edit','Cambias el archivo en tu editor.'],['add','Preparas el cambio para el próximo commit.'],['commit','Guardas una versión en tu PC.'],['push','La subes al remoto.'],
+  ['mate','Mientras, un compañero sube un commit desde su PC.'],['edit','Tú sigues trabajando sin saberlo…'],['add',''],['commit',''],
+  ['push','Intentas subir…'],['pull','Traes lo del compañero.'],['push','Ahora sí.']]},
+ deshacer:{acts:['edit','add','commit','push','restore','unstage','amend','soft','mixed','hard','revert'],tour:[
+  ['edit','Estropeas el archivo sin querer.'],['restore','Descartas ese cambio.'],['edit','Haces un cambio bueno…'],['add','…y lo preparas.'],
+  ['unstage','Mejor no incluirlo todavía: lo sacas de staging.'],['add','Lo vuelves a preparar.'],['commit','Lo guardas.'],
+  ['edit','Te faltaba algo en ese commit…'],['add',''],['amend','Lo metes en el mismo commit, sin crear otro.'],
+  ['soft','Quieres rehacer el commit conservando lo preparado.'],['commit','Lo vuelves a guardar.'],
+  ['mixed','Ahora lo deshaces dejando el cambio fuera de staging.'],['add',''],['commit',''],['push','Lo subes.'],
+  ['revert','Ese commit era malo y ya está subido: lo deshaces con un commit nuevo.'],['push','Push normal, sin forzar.'],
+  ['edit','Un experimento que nunca vas a subir…'],['add',''],['commit',''],['hard','…lo tiras entero.']]},
+ guardar:{acts:['edit','add','commit','push','mate','pull','stash','pop','amend','hard','reflog','hardto','force'],tour:[
+  ['edit','Estás a medias con un cambio.'],['mate','Un compañero sube algo.'],['pull','Intentas actualizarte…'],
+  ['stash','Apartas tu trabajo a medias.'],['pull','Ahora el pull funciona.'],['pop','Recuperas tu trabajo.'],['add',''],['commit','Lo guardas.'],
+  ['hard','Por error: reset --hard. Tu commit desaparece del log.'],['reflog','Lo buscas en el reflog.'],['hardto','Vuelves al commit perdido.'],['push','Lo subes.'],
+  ['edit','Ves un fallo en lo que acabas de subir…'],['add',''],['amend','Corriges el último commit, que YA estaba subido.'],
+  ['push','Push normal…'],['force','La rama es solo tuya: fuerzas de forma segura.']]}};
+function makeSim(root,cfg){
+  const S={};
+  root.innerHTML=`<div class="wt">Proyecto con un archivo: index.html</div>
+   <div class="simgrid">
+    <div class="simz z1" data-z="ws"><h4>1 · Carpeta de trabajo</h4><small>lo que ves en el editor</small><div class="sWs"></div></div>
+    <div class="simz z2" data-z="idx"><h4>2 · Staging</h4><small>lo preparado para el próximo commit</small><div class="sIdx"></div></div>
+    <div class="simz z3" data-z="loc"><h4>3 · Repositorio local</h4><small>commits en tu PC (.git)</small><div class="sLoc clist"></div></div>
+    <div class="simz z4" data-z="rem"><h4>4 · Remoto (origin)</h4><small>GitHub o el servidor</small><div class="sRem clist"></div></div>
+   </div>
+   <div class="statusbar"><span class="sStatus"></span><span class="sStash" style="color:var(--muted)"></span></div>
+   <div class="simcols">
+    <div>
+     <h4 class="simh">Recorrido guiado <span class="sProg"></span></h4>
+     <ol class="simsteps sSteps"></ol>
+     <div class="simrow"><button type="button" class="btn primary sNext">▶ Siguiente paso</button><button type="button" class="btn sReset">↺ Reiniciar</button></div>
+     <h4 class="simh">Prueba libre</h4>
+     <div class="simbtns sBtns">${cfg.acts.map(a=>`<button type="button" class="btn${SIM_D.includes(a)?' d':''}" data-a="${a}">${esc(SIM_B[a])}</button>`).join('')}${cfg.acts.includes('hardto')?'<select class="sRefSel" aria-label="Commit del reflog para reset --hard"></select>':''}</div>
+    </div>
+    <div class="stack">
+     <div class="simwhy" aria-live="polite"><b>¿Qué ha pasado?</b><div class="sWhy"></div></div>
+     <div><div class="simh">Así sería en la terminal</div><div class="term sTerm"></div></div>
+    </div>
+   </div>`;
+  const q=s=>root.querySelector(s);
+  const hx=()=>{ let h; do{ h=Math.floor(Math.random()*0xfffffff).toString(16).padStart(7,'0'); }while(S.C[h]); return h; };
+  const mk=(msg,content,parents,mate)=>{ const h=hx(); S.C[h]={h,msg,content,parents,t:++S.t,mate:!!mate}; return h; };
+  const anc=h=>{ const s=new Set(), st=[h]; while(st.length){ const x=st.pop(); if(x==null||s.has(x)) continue; s.add(x); st.push(...S.C[x].parents); } return s; };
+  const logOf=(h,max)=>[...anc(h)].map(x=>S.C[x]).sort((a,b)=>b.t-a.t).slice(0,max||6);
+  const HC=()=>S.C[S.head].content, rlog=a=>S.reflog.unshift({h:S.head,a});
+  const out=(cmd,txt,cls)=>S.term.push({cmd,txt,cls}), why=h=>{ S.why=h; };
+  const dirty=()=>S.ws!==HC()||S.idx!==HC();
+  function reset(){ Object.assign(S,{C:{},t:0,ver:1,cn:1,mate:0,stash:[],term:[],reflog:[],step:0,why:'',lost:null,chg:[]});
+    const c1=mk('Primera versión','v1',[]); Object.assign(S,{head:c1,remote:c1,seen:c1,ws:'v1',idx:'v1',known:new Set([c1])});
+    rlog('clone: from origin'); out(null,'# Has clonado el proyecto: index.html (v1), igual en las cuatro zonas.','m');
+    why('Punto de partida: acabas de clonar el proyecto. Las cuatro zonas tienen la misma versión, <code>v1</code>. Pulsa <b>▶ Siguiente paso</b>.'); }
+  const ACT={
+   edit(){ S.ver++; S.ws='v'+S.ver; out(null,`# (en el editor) index.html pasa a ser ${S.ws}`,'m');
+     why(`Has cambiado <b>index.html</b> en tu editor: ahora es <code>${S.ws}</code>. Solo cambia la <b>carpeta de trabajo</b>. Git lo ve como modificado (<code> M</code> en rojo), pero todavía no está guardado en ninguna versión.`); },
+   add(){ if(S.ws===S.idx){ out('git add index.html','# nada nuevo que preparar','m'); return why('No había nada nuevo: staging ya tenía esta versión.'); }
+     S.idx=S.ws; out('git add index.html',''); why(`<code>${S.idx}</code> pasa a <b>staging</b>: es exactamente lo que entrará en el próximo commit. Si ahora volvieras a editar, tendrías que hacer <code>git add</code> otra vez.`); },
+   commit(){ const c='git commit -m "Cambio '+(S.cn+1)+'"';
+     if(S.idx===HC()){ out(c,S.ws!==S.idx?'no changes added to commit (use "git add" and/or "git commit -a")':'nothing to commit, working tree clean','e'); return why(S.ws!==S.idx?'Staging está vacío: el cambio sigue solo en tu carpeta. Primero <code>git add</code>.':'No hay nada que guardar.'); }
+     S.cn++; const h=mk('Cambio '+S.cn,S.idx,[S.head]); S.head=h; S.known.add(h); rlog('commit: Cambio '+S.cn);
+     out(c,`[main ${h}] Cambio ${S.cn}\n 1 file changed, 1 insertion(+), 1 deletion(-)`);
+     why(`Se crea el commit <code>${h}</code> con <code>${S.idx}</code> en tu <b>repositorio local</b> y HEAD avanza a él. El remoto todavía no lo tiene: <code>git status -sb</code> dice <i>ahead</i>.`); },
+   push(){ const c='git push';
+     if(S.head===S.remote){ out(c,'Everything up-to-date'); return why('No había nada que subir: el remoto ya tiene todos tus commits.'); }
+     if(anc(S.head).has(S.remote)){ out(c,`   ${S.remote}..${S.head}  main -> main`,'k'); S.remote=S.seen=S.head; return why('Tus commits viajan al <b>remoto</b> y <code>origin/main</code> se actualiza. Local y remoto vuelven a estar iguales.'); }
+     if(!S.known.has(S.remote)){ out(c,` ! [rejected]        main -> main (fetch first)\nhint: Updates were rejected because the remote contains work that you do\nhint: not have locally. Integrate the remote changes (git pull) first.`,'e');
+       return why('<b>Rechazado.</b> El remoto tiene commits que tú no tienes (los del compañero). Si Git aceptara tu push, los borraría. Primero tienes que traerlos con <code>git pull</code>.'); }
+     out(c,` ! [rejected]        main -> main (non-fast-forward)\nhint: Updates were rejected because the tip of your current branch is behind\nhint: its remote counterpart.`,'e');
+     why('<b>Rechazado.</b> Has reescrito un commit que ya estaba subido (con amend o reset), así que tu rama ya no "continúa" la del remoto. O <code>git pull</code> para recuperar lo del remoto, o <code>git push --force-with-lease</code> si quieres sustituirlo.'); },
+   mate(){ S.mate++; const m=mk('Compañero: cambio '+S.mate,'c'+S.mate,[S.remote],true); S.remote=m; out(null,`# (en otro PC) un compañero sube el commit ${m} a origin`,'m');
+     why(`Un compañero ha subido el commit <code>${m}</code> al <b>remoto</b>. Fíjate: tu repositorio local <b>no se entera</b> (sigue marcando <code>origin/main</code> en el commit antiguo) hasta que hagas <code>git fetch</code> o <code>git pull</code>.`); },
+   pull(){ const c='git pull'; let o='';
+     if(S.remote!==S.seen){ o+=`From origin\n   ${S.seen}..${S.remote}  main -> origin/main\n`; anc(S.remote).forEach(x=>S.known.add(x)); S.seen=S.remote; }
+     const H=anc(S.head), R=anc(S.seen);
+     if(H.has(S.seen)){ out(c,o+'Already up to date.'); return why('Ya estabas al día: no había nada nuevo en el remoto.'); }
+     if(dirty()){ out(c,o+'error: Your local changes to the following files would be overwritten by merge:\n\tindex.html\nPlease commit your changes or stash them before you merge.\nAborting','e');
+       return why('<b>Bloqueado.</b> Tienes cambios sin commit en index.html y el pull los pisaría. Fíjate: sí ha descargado la información (<code>origin/main</code> ya se ha movido), pero no la ha aplicado. Haz commit o apártalos con <code>git stash</code>.'); }
+     if(R.has(S.head)){ o+=`Updating ${S.head}..${S.seen}\nFast-forward\n index.html | 2 +-`; S.head=S.seen; S.ws=S.idx=HC(); rlog('pull: Fast-forward'); out(c,o,'k');
+       return why('Te faltaban commits del remoto y tú no tenías nada nuevo: Git solo <b>adelanta</b> tu rama (<i>fast-forward</i>). Las zonas 1, 2 y 3 se ponen al día.'); }
+     const cont=S.C[S.head].content+'+'+S.C[S.seen].content, h=mk("Merge branch 'main' of origin",cont,[S.head,S.seen]); S.head=h; S.known.add(h); S.ws=S.idx=cont;
+     rlog("pull: Merge made by the 'ort' strategy."); out(c,o+"Auto-merging index.html\nMerge made by the 'ort' strategy.",'k');
+     why(`Los dos teníais commits distintos. Git descarga el del compañero y crea un <b>commit de merge</b> (<code>${h}</code>) que une los dos (<code>${cont}</code>). En este ejemplo tocasteis partes distintas del archivo, así que no hay conflicto. Ahora vas por delante: falta <code>git push</code>.`); },
+   restore(){ if(S.ws===S.idx){ out('git restore index.html','','m'); return why('No había cambios en la carpeta que descartar.'); }
+     const lost=S.ws; S.ws=S.idx; out('git restore index.html','');
+     why(`La carpeta vuelve a ser igual que staging (<code>${S.ws}</code>). ⚠️ <code>${lost}</code> no estaba en ningún commit ni en staging: <b>se ha perdido para siempre</b>.`); },
+   unstage(){ if(S.idx===HC()){ out('git restore --staged index.html','','m'); return why('Staging ya era igual que el último commit: no había nada que sacar.'); }
+     S.idx=HC(); out('git restore --staged index.html','');
+     why(`Staging vuelve a ser igual que el último commit. El cambio <b>no se pierde</b>: sigue en tu carpeta (<code>${S.ws}</code>), sin preparar.`); },
+   amend(){ const p=S.C[S.head], h=mk(p.msg,S.idx,p.parents); S.head=h; S.known.add(h); rlog('commit (amend): '+p.msg);
+     const up=anc(S.remote).has(p.h);
+     out('git commit --amend --no-edit',`[main ${h}] ${p.msg}`);
+     why(`El último commit se <b>sustituye</b> por otro nuevo (<code>${p.h}</code> → <code>${h}</code>) con lo que hay en staging. ${up?'⚠️ El original <b>ya estaba en el remoto</b>: has reescrito historia publicada y el próximo <code>git push</code> normal será rechazado.':'Como no estaba subido, no hay ningún problema.'}`); },
+   soft(){ resetTo('soft'); }, mixed(){ resetTo('mixed'); }, hard(){ resetTo('hard'); },
+   revert(){ const c='git revert HEAD', p=S.C[S.head];
+     if(dirty()){ out(c,'error: your local changes would be overwritten by revert.\nhint: commit your changes or stash them to proceed.','e'); return why('Tienes cambios sin commit: haz commit o stash antes de revertir.'); }
+     if(!p.parents.length){ out(c,'# No hay commit anterior','e'); return why('No hay un commit anterior al que volver.'); }
+     const prev=S.C[p.parents[0]].content, msg=`Revert "${p.msg}"`, h=mk(msg,prev,[S.head]); S.head=h; S.known.add(h); S.ws=S.idx=prev; rlog('revert: '+msg);
+     out(c,`[main ${h}] ${msg}\n 1 file changed, 1 insertion(+), 1 deletion(-)`);
+     why(`Se crea un commit <b>nuevo</b> (<code>${h}</code>) que deshace el anterior: el archivo vuelve a <code>${prev}</code>. No se borra nada del historial, por eso es la forma segura de deshacer algo que <b>ya está subido</b>: se sube con un push normal.`); },
+   force(){ const c='git push --force-with-lease';
+     if(S.head===S.remote){ out(c,'Everything up-to-date'); return why('No había nada que subir.'); }
+     if(S.remote!==S.seen){ out(c,` ! [rejected]        main -> main (stale info)`,'e'); return why('<b>Rechazado.</b> Alguien ha subido algo que tú no has visto. <code>--force-with-lease</code> se niega a borrarlo (un <code>--force</code> a secas lo habría borrado sin avisar). Haz <code>git pull</code> primero.'); }
+     out(c,` + ${S.remote}...${S.head} main -> main (forced update)`,'k'); S.remote=S.seen=S.head;
+     why('El remoto se <b>sobrescribe</b> con tu historia: el commit antiguo deja de estar en él. Úsalo solo en ramas en las que trabajes tú solo: si alguien ya lo tenía, le romperías su copia.'); },
+   stash(){ if(!dirty()){ out('git stash','No local changes to save'); return why('No había cambios sin commit que apartar.'); }
+     S.stash.unshift({ws:S.ws}); const p=S.C[S.head]; S.ws=S.idx=HC(); out('git stash',`Saved working directory and index state WIP on main: ${p.h} ${p.msg}`);
+     why('Tus cambios sin commit se guardan <b>aparte</b> (en el stash, bajo las zonas) y la carpeta queda <b>limpia</b>, igual que el último commit. Ya puedes hacer <code>pull</code> o cambiar de rama.'); },
+   pop(){ if(!S.stash.length){ out('git stash pop','No stash entries found.','e'); return why('El stash está vacío.'); }
+     if(dirty()){ out('git stash pop','error: Your local changes to the following files would be overwritten by merge:\n\tindex.html\nThe stash entry is kept in case you need it again.','e'); return why('Tienes cambios sin commit que chocarían con los del stash. El stash no se borra.'); }
+     const s=S.stash.shift(); S.ws=s.ws; S.idx=HC(); out('git stash pop',` M index.html\nDropped refs/stash@{0}`);
+     why(`Tu trabajo a medias (<code>${s.ws}</code>) vuelve a la carpeta, encima de lo que acabas de traer, y se borra del stash.`); },
+   reflog(){ out('git reflog',S.reflog.slice(0,10).map((r,i)=>`${r.h} HEAD@{${i}}: ${r.a}`).join('\n'));
+     why('El <b>reflog</b> es el diario de HEAD en tu PC: cada commit, reset, pull… Ahí siguen los commits que ya no salen en <code>git log</code>. Con su hash puedes volver a ellos con <code>git reset --hard &lt;hash&gt;</code> (en la prueba libre, elige uno en la lista).'); },
+   hardto(){ const sel=q('.sRefSel'), h=sel&&sel.value; if(!h) return; S.head=h; S.ws=S.idx=HC(); rlog('reset: moving to '+h); out('git reset --hard '+h,`HEAD is now at ${h} ${S.C[h].msg}`,'k');
+     why(`HEAD vuelve al commit <code>${h}</code> ("${esc(S.C[h].msg)}"): lo que parecía perdido vuelve a estar en tu rama y en las zonas 1 y 2.`); }
+  };
+  function resetTo(m){ const c={soft:'git reset --soft HEAD~1',mixed:'git reset HEAD~1',hard:'git reset --hard HEAD~1'}[m], p=S.C[S.head];
+    if(!p.parents.length){ out(c,"fatal: ambiguous argument 'HEAD~1': unknown revision or path not in the working tree.",'e'); return why('No hay commit anterior.'); }
+    S.head=p.parents[0]; rlog('reset: moving to HEAD~1'); S.lost=p.h;
+    if(m==='soft'){ out(c,''); return why(`La rama retrocede un commit (<code>${p.h}</code> → <code>${S.head}</code>). Sus cambios (<code>${S.idx}</code>) <b>siguen en staging</b>, listos para otro commit. La carpeta no se toca.`); }
+    S.idx=HC();
+    if(m==='mixed'){ out(c,S.ws!==S.idx?'Unstaged changes after reset:\nM\tindex.html':''); return why(`La rama retrocede un commit y staging se iguala a él. Los cambios <b>siguen en tu carpeta</b> (<code>${S.ws}</code>), sin preparar. Es el reset por defecto.`); }
+    S.ws=HC(); out(c,`HEAD is now at ${S.head} ${S.C[S.head].msg}`,'k');
+    why(`La rama retrocede y <b>staging y carpeta</b> se igualan a <code>${S.head}</code>. El commit <code>${p.h}</code> ya no sale en <code>git log</code> (se puede recuperar con <code>git reflog</code>). ⚠️ Los cambios <b>sin commit</b> que tuvieras sí se habrían perdido.`); }
+  function render(){
+    const hc=HC(), mod=S.ws!==S.idx, stg=S.idx!==hc;
+    q('.sWs').innerHTML=`<div class="file ${mod?'mod':''}"><span>index.html</span><span class="v">${S.ws}</span></div><small class="empty" style="display:block;margin-top:.4em">${mod?'modificado, sin preparar':'igual que staging'}</small>`;
+    q('.sIdx').innerHTML=stg?`<div class="file stg"><span>index.html</span><span class="v">${S.idx}</span></div><small class="empty" style="display:block;margin-top:.4em">listo para commit</small>`:'<span class="empty">(nada preparado)</span>';
+    const L=logOf(S.head);
+    q('.sLoc').innerHTML=L.map(c=>`<div><span class="h">${c.h}</span>${c.h===S.head?'<span class="ref head">HEAD → main</span>':''}${c.h===S.seen?'<span class="ref rem">origin/main</span>':''}<span>${esc(c.msg)}</span><span style="color:var(--muted)">(${c.content})</span></div>`).join('')
+      +(L.some(c=>c.h===S.seen)?'':`<div style="color:var(--muted)"><span class="ref rem">origin/main</span> → ${S.seen}</div>`);
+    q('.sRem').innerHTML=logOf(S.remote).map(c=>`<div><span class="h">${c.h}</span>${c.h===S.remote?'<span class="ref rem">main</span>':''}<span>${esc(c.msg)}</span></div>`).join('');
+    const A=anc(S.head), R=anc(S.seen), ah=[...A].filter(x=>!R.has(x)).length, bh=[...R].filter(x=>!A.has(x)).length;
+    const ab=ah||bh?` [${[ah?'ahead '+ah:'',bh?'behind '+bh:''].filter(Boolean).join(', ')}]`:'', xy=(stg?'M':' ')+(mod?'M':' ');
+    q('.sStatus').textContent=`$ git status -sb  →  ## main...origin/main${ab}${xy.trim()?'   '+xy+' index.html':''}`;
+    q('.sStash').textContent=S.stash.length?`stash: ${S.stash.length} entrada(s) guardada(s)`:'';
+    const sel=q('.sRefSel'); if(sel){ const seen=new Set(); sel.innerHTML=S.reflog.filter(r=>!seen.has(r.h)&&seen.add(r.h)).map(r=>`<option value="${r.h}">${r.h} ${esc(S.C[r.h].msg)}</option>`).join(''); }
+    root.querySelectorAll('.simz').forEach(z=>z.classList.toggle('chg',S.chg.includes(z.dataset.z)));
+    q('.sWhy').innerHTML=S.why;
+    const T=q('.sTerm'); T.innerHTML=S.term.slice(-40).map(e=>(e.cmd?`<span class="p">$ ${esc(e.cmd)}</span>\n`:'')+(e.txt?`<span class="${e.cls||''}">${esc(e.txt)}</span>\n`:'')).join(''); T.scrollTop=T.scrollHeight;
+    const tour=cfg.tour;
+    q('.sSteps').innerHTML=tour.map(([a,t],i)=>`<li class="${i<S.step?'done':i===S.step?'now':''}"><code>${esc(SIM_B[a])}</code>${t?` <span>${esc(t)}</span>`:''}</li>`).join('');
+    q('.sProg').textContent=`· ${Math.min(S.step,tour.length)} / ${tour.length}`;
+    const nx=q('.sNext'); nx.disabled=S.step>=tour.length; nx.textContent=S.step>=tour.length?'✓ Recorrido completado':'▶ Siguiente paso';
+    const now=q('.sSteps .now'), ol=q('.sSteps'); if(now) ol.scrollTop=now.offsetTop-ol.offsetTop-ol.clientHeight/2; }
+  function act(a){ const snap=()=>({ws:S.ws,idx:S.idx,loc:S.head,rem:S.remote}), before=snap();
+    if(a==='hardto'&&S.lost&&q('.sRefSel')){ render(); q('.sRefSel').value=S.lost; }
+    ACT[a](); const after=snap(); S.chg=Object.keys(before).filter(k=>before[k]!==after[k]); render(); }
+  root.querySelectorAll('.sBtns [data-a]').forEach(b=>b.addEventListener('click',()=>act(b.dataset.a)));
+  q('.sNext').addEventListener('click',()=>{ const st=cfg.tour[S.step]; if(!st) return; S.step++; act(st[0]); });
+  q('.sReset').addEventListener('click',()=>{ reset(); render(); });
+  reset(); render();
 }
-$$('#sBtns [data-a]').forEach(b=>b.addEventListener('click',()=>{ ACT[b.dataset.a](); simRender(); }));
-simReset(); simRender();
+$$('[data-sim]').forEach(r=>makeSim(r,SIMS[r.dataset.sim]));
 
 /* ── mapa de comandos ── */
 const CMDS=[
@@ -3028,5 +3151,6 @@ if(location.hash){ const el=document.getElementById(location.hash.slice(1)); if(
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redrawAll);
 })();
 </script>
+<script src="lab.js"></script>
 </body>
 </html>
