@@ -10,7 +10,7 @@ Módulo Cloud, IoT and Quantum Computing · CFGS ASIR · Centro San Luis. Autor:
 Situación → Tareas → Comandos → Solución desplegable (comando · `# comentario breve` · salida esperada marcada con │). Se usa `git status` / `git status -sb` / `git log --oneline` al inicio y al final. Nivel básico / medio / avanzado. Tecla **S** abre la solución en modo presentación; botón "Soluciones" abre todas.
 
 ## Laboratorio (lab.js)
-Cada ejercicio tiene el botón **🧪 Practicar en el laboratorio** (y en la barra superior, **Laboratorio**): se abre a pantalla completa un ejercicio por página, con el enunciado a la izquierda y una **terminal simulada** a la derecha. Enlace directo: `index.html#lab/<id>` (por ejemplo `#lab/e-conf-pull`).
+Cada ejercicio tiene el botón **🧪 Practicar en el laboratorio** (y en la barra superior, **Laboratorio**): se abre a pantalla completa un ejercicio por página, con el enunciado a la izquierda y una **terminal simulada** a la derecha. Enlace directo: `index.html#lab-<id>` (por ejemplo `#lab-e-conf-pull`).
 - Git simulado en el navegador (sin servidor): archivos, ramas, merge/conflictos con marcas reales, rebase e `rebase -i` (editor integrado, también `nano`), stash, tags, reflog, remotos y un GitHub simulado (`git@github.com:usuario/<repo>.git`). `help` lista lo disponible.
 - Cada ejercicio arranca con su escenario ya preparado (repos, commits, compañeros, GitHub). **Reiniciar** vuelve al punto de partida.
 - **Comprobar**: revisa el estado final (✓/✗) y lista los comandos que fallaron. **Solución**: además muestra qué comandos de la solución has usado y la solución completa.

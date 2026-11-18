@@ -1306,7 +1306,7 @@ function open(i){ cur=(i+EX.length)%EX.length; const s=EX[cur], id=s.id, spec=SP
   $('#labEx').replaceChildren(st,res); wireTabs(res); $('#labEx').scrollTop=0;
   $('#labNote').innerHTML=(spec.note?'<b>Punto de partida.</b> '+spec.note:'')||'';
   flush(); setPs();
-  document.body.classList.add('lab-on'); $('#lab').hidden=false; history.replaceState(null,'','#lab/'+id);
+  document.body.classList.add('lab-on'); $('#lab').hidden=false; history.replaceState(null,'','#lab-'+id);
   if(env.E.edit) showEd(); else In.focus(); }
 function close(){ if(cur<0) return; $('#lab').hidden=true; document.body.classList.remove('lab-on'); const s=EX[cur]; history.replaceState(null,'','#'+s.id); s.scrollIntoView({block:'start'}); }
 function exec(line,body){ env.run(line,body); flush(); setPs(); if(env.E.edit) showEd(); }
@@ -1329,7 +1329,9 @@ $('#labEdTa').addEventListener('keydown',e=>{ if(e.key==='s'&&(e.ctrlKey||e.meta
   else if(e.key==='Tab'){ e.preventDefault(); const t=e.target, p=t.selectionStart; t.value=t.value.slice(0,p)+'    '+t.value.slice(t.selectionEnd); t.selectionStart=t.selectionEnd=p+4; } });
 $('#labEdSave').addEventListener('click',()=>closeEd(true)); $('#labEdCancel').addEventListener('click',()=>closeEd(false));
 $('#labPrev').addEventListener('click',()=>open(cur-1)); $('#labNext').addEventListener('click',()=>open(cur+1)); $('#labClose').addEventListener('click',close);
-$('#labReset').addEventListener('click',()=>{ if(env.ih.length&&!confirm('¿Volver al punto de partida? Se pierde lo hecho en este ejercicio.')) return; delete envs[EX[cur].id]; open(cur); });
+// confirm() está bloqueado en la web publicada: se confirma pulsando dos veces
+const rb=$('#labReset'), rbHtml=rb.innerHTML; let rbArm=0;
+rb.addEventListener('click',()=>{ if(env.ih.length&&Date.now()-rbArm>4000){ rbArm=Date.now(); rb.textContent='¿Seguro? Pulsa otra vez'; setTimeout(()=>rb.innerHTML=rbHtml,4000); return; } rbArm=0; rb.innerHTML=rbHtml; delete envs[EX[cur].id]; open(cur); });
 $('#labCheck').addEventListener('click',()=>evaluate(false)); $('#labSol').addEventListener('click',()=>evaluate(true));
 document.addEventListener('keydown',e=>{ if($('#lab').hidden||e.target===In||e.target.tagName==='TEXTAREA') return; if(e.key==='Escape') close(); },true);
 
@@ -1351,6 +1353,6 @@ function evaluate(showSol){ const s=EX[cur], spec=SPECS[s.id]||{}, A=env.A;
     h+='</div>'; const d=sol.cloneNode(true); d.open=true; d.querySelectorAll('.copy').forEach(x=>x.remove()); d.querySelector('summary').innerHTML='Solución'; h+=d.outerHTML; }
   else h+=(n<rs.length?`<p class="mut" style="margin:.6em 0 0">¿Atascado? <b>Solución</b> muestra los comandos y qué te falta.</p>`:'')+'</div>';
   env.res=h; const res=$('#labRes'); res.innerHTML=h; wireTabs(res); res.scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'}); }
-const m=location.hash.match(/^#lab\/(.+)$/); if(m){ const k=EX.findIndex(s=>s.id===m[1]); if(k>=0) open(k); }
+const m=location.hash.match(/^#lab-(e-.+)$/); if(m){ const k=EX.findIndex(s=>s.id===m[1]); if(k>=0) open(k); }
 }
 })();
