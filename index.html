@@ -1866,7 +1866,11 @@ git fetch --prune                           # olvida origin/login
 git branch -vv
 │   login 6f32983 [origin/login: gone] Login
 │ * main  6ad3fce [origin/main: behind 1] Lista inicial
-git branch -d login && git pull             # situación final</code></pre></div>
+git pull                                    # primero: trae a main el merge de Ana (que incluye login)
+git branch -d login                         # ahora sí (antes del pull: "not fully merged")
+│ Deleted branch login (was 6f32983).
+git status -sb                              # situación final
+│ ## main...origin/main</code></pre></div>
   </details>
 </section>
 
