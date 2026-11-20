@@ -1,49 +1,65 @@
-# Bienvenido a tu Editor Markdown ✨
+# Git y GitHub en la práctica
 
-Este editor funciona tanto en **local (`file:///`)** como publicado en **GitHub Pages**, con vista dividida en tiempo real, rutas relativas por defecto para imágenes e índice navegable.
+<img src="imagenes/logo-centro-san-luis.jpg" alt="Centro San Luis" width="200">
 
-En GitHub https://jc-csl.github.io/editor-markdown/
+**Cloud, IoT and Quantum Computing · CFGS ASIR · Centro San Luis · curso 2026-27 · Juan Carlos San Román**
 
-📚 **Apuntes de Git y GitHub:** empieza por el [itinerario de los apuntes](apuntes/README.md).
+> <img src="imagenes/semaforo-ia-verde.png" alt="Semáforo IA: nivel verde" width="28" align="left">
+> **Declaración de uso de IA** · Guía de uso de la IA en el aula, Centro San Luis (nivel verde). Este material parte de los apuntes propios del profesorado (resúmenes de comandos Git y taller Git/GitHub); se ha utilizado IA para la redacción de los ejercicios, el formateo, el simulador y la comprobación de los comandos en una terminal real, con revisión y validación del profesorado.
 
+Un único repositorio práctico para aprender Git y GitHub, con tres partes independientes que se enlazan entre sí:
 
-## Tabla de contenidos
+| Parte | Qué es | Abrir |
+|---|---|---|
+| 🧪 [laboratorio/](laboratorio/) | Web de **50 ejercicios por situaciones** en 12 unidades, con **terminal Git simulada** en el navegador, botón *Comprobar* y **soluciones** con la salida esperada. Modo presentación para el aula. | [Web](https://jc-csl.github.io/git-github-practico/laboratorio/) |
+| 📚 [apuntes/](apuntes/README.md) | **Apuntes en Markdown**: chuleta de bolsillo, resumen completo de comandos, **17 ejercicios guiados** para la terminal real con soluciones desplegables, y retos finales. Cada ejercicio enlaza con su laboratorio. | [Itinerario](apuntes/README.md) |
+| ✎ [editor/](editor/) | **Editor Markdown** de vista dividida para escribir apuntes y README (abrir/guardar `.md`, imágenes relativas, tablas, índice). | [Web](https://jc-csl.github.io/git-github-practico/editor/) |
 
-- [Características principales](#características-principales)
-- [Flujo con GitHub Pages](#flujo-con-github-pages)
-- [Imágenes con ruta relativa](#imágenes-con-ruta-relativa)
-- [Bloques de código y tablas](#bloques-de-código-y-tablas)
+Portada publicada: **<https://jc-csl.github.io/git-github-practico/>**
 
-## Características principales
+## Cómo estudiar cada tema
 
-- **Vista dividida sincronizada**: Escribe Markdown a la izquierda y revisa el resultado formateado a la derecha.
-- **Archivos locales**: Abre archivos `.md` con `Ctrl+O` y guárdalos con `Ctrl+S`.
-- **Índice automático y anclas**: Haz clic en cualquier enlace del índice superior o usa el botón **Índice** en la barra de herramientas.
-- **Atajos rápidos**: Negrita (`Ctrl+B`), cursiva (`Ctrl+I`), enlace (`Ctrl+K`) e imagen (`Ctrl+Shift+I`).
+1. **Teoría:** la sección correspondiente de la [chuleta](apuntes/GIT_acciones_habituales.md) o del [resumen completo](apuntes/GIT_Resumen_comandos_de_interes.md).
+2. **Práctica sin riesgo:** el ejercicio del [laboratorio](https://jc-csl.github.io/git-github-practico/laboratorio/). Si algo se rompe, *Reiniciar*.
+3. **Práctica real:** el ejercicio guiado de los [apuntes](apuntes/README.md), en Git Bash o en Linux.
+4. **Comprobación:** *Comprobar* en el laboratorio y las soluciones desplegables de los apuntes. Al final, los [retos finales](apuntes/ejercicio_17_retos_finales.md).
 
-## Flujo con GitHub Pages
+## Estructura
 
-1. Guarda este archivo como `index.html` en la raíz de tu repositorio.
-2. Edita tu documento `notas.md` y guarda tus imágenes en la carpeta `img/`.
-3. Sube los cambios con:
-
-```bash
-git add .
-git commit -m "Actualizar contenido e imágenes"
-git push
+```text
+git-github-practico/
+├── index.html          portada (GitHub Pages)
+├── laboratorio/        web de ejercicios y simulador
+│   ├── index.html      diapositivas: situación → tareas → solución
+│   ├── lab.js          terminal simulada (Git, gh, bash) y comprobaciones (SPECS)
+│   ├── lab.test.js     autocomprobación: node lab.test.js
+│   └── img/
+├── apuntes/            Markdown
+│   ├── README.md                       itinerario y mapa apuntes ↔ laboratorio
+│   ├── GIT_acciones_habituales.md      chuleta de bolsillo
+│   ├── GIT_Resumen_comandos_de_interes.md  referencia completa
+│   ├── ejercicio_*.md                  17 ejercicios guiados con soluciones
+│   └── recursos/                       PDF del ejercicio 2, solución, scripts
+├── editor/             editor Markdown (index.html)
+└── imagenes/           logo, semáforo IA y diagramas
 ```
 
-## Imágenes con ruta relativa
+## Mantenimiento
 
-Al pulsar **Imagen** (o arrastrar/pegar una captura), el editor selecciona **Ruta relativa** por defecto (por ejemplo, `./img/captura.png`) y muestra la imagen al instante en la vista previa durante tu sesión.
+- **Comprobar el laboratorio** tras tocar `laboratorio/lab.js` o sus ejercicios (necesita Node.js):
 
-> "La simplicidad es la máxima sofisticación." — *Leonardo da Vinci*
+  ```bash
+  cd laboratorio
+  node lab.test.js
+  ```
 
-## Bloques de código y tablas
+  Ejecuta una solución modelo por ejercicio, exige que pasen todas las comprobaciones, que ningún ejercicio se apruebe sin hacer nada y que los scripts del ejercicio de configuración persistente coincidan con los de `apuntes/recursos/scripts/`.
+- **Enlaces de los apuntes al laboratorio:** apuntan a `https://jc-csl.github.io/git-github-practico/laboratorio/#lab-<id>`; el `<id>` es el de la sección del ejercicio en `laboratorio/index.html`.
+- **GitHub Pages** publica la rama `main` desde la raíz. El archivo `.nojekyll` hace que los archivos se sirvan tal cual.
 
-| Atajo | Acción |
-| :--- | :--- |
-| `Ctrl + O` | Abrir archivo `.md` |
-| `Ctrl + S` | Guardar documento |
-| `Ctrl + Shift + I` | Importar / insertar imagen |
-| `Ctrl + K` | Insertar enlace |
+## Origen
+
+Este repositorio fusiona, **conservando el historial de ambos**, dos repositorios anteriores que siguen disponibles sin cambios:
+
+- [jc-csl/Git_Github_apuntes_practicos](https://github.com/jc-csl/Git_Github_apuntes_practicos) → `laboratorio/`
+- [jc-csl/editor-markdown-git](https://github.com/jc-csl/editor-markdown-git) → `apuntes/`, `editor/` e `imagenes/`

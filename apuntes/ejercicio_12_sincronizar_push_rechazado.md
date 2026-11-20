@@ -17,6 +17,8 @@ No hace falta GitHub: el "remoto" será un repositorio *bare* en una carpeta (co
 
 **Teoría de apoyo:** [8. Inspeccionar](GIT_Resumen_comandos_de_interes.md#8-inspeccionar-status-log-diff) · [11. Sincronizar con el remoto](GIT_Resumen_comandos_de_interes.md#11-sincronizar-con-el-remoto-y-resolver-divergencias)
 
+🧪 **Laboratorio** (terminal simulada en el navegador, con *Comprobar* y solución): [Actualizar antes de trabajar](https://jc-csl.github.io/git-github-practico/laboratorio/#lab-e-actualizar) · [Push rechazado: pull con conflicto](https://jc-csl.github.io/git-github-practico/laboratorio/#lab-e-conf-pull) · [Push rechazado: pull --rebase](https://jc-csl.github.io/git-github-practico/laboratorio/#lab-e-conf-rebase)
+
 ```text
              remoto.git  (hace de GitHub)
             ▲          ▲
@@ -170,3 +172,13 @@ En una copia nueva del escenario (o con cuidado), prueba las dos salidas "sin t�
 2. ¿Por qué conviene hacer `git fetch` + `git status -sb` **antes** de `pull`?
 3. ¿Qué diferencia hay entre `git pull` y `git pull --rebase` en el historial que queda?
 4. ¿Qué costumbre evita casi todos estos rechazos? (Pista: [rutina recomendada, sección 7](GIT_Resumen_comandos_de_interes.md#7-ciclo-diario-add-commit-push-pull)).
+
+<details>
+<summary><b>Soluciones</b></summary>
+
+1. `[ahead 1, behind 1]`: tienes 1 commit sin subir y el remoto 1 que no tienes (historias divergentes). `[behind 2]`: el remoto tiene 2 commits nuevos y tú ninguno; basta un `git pull` (*fast-forward*).
+2. Porque `fetch` no toca tu rama y `status -sb` te dice qué hay antes de fusionar nada: si toca `push`, `pull` o las dos cosas.
+3. `git pull` (merge) crea un commit de merge y el grafo muestra la bifurcación; `git pull --rebase` coloca tus commits encima de los del remoto: historial lineal.
+4. Hacer `git pull` **antes** de empezar a trabajar y subir a menudo, con commits pequeños.
+
+</details>

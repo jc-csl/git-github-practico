@@ -1,6 +1,6 @@
 // Autocomprobación del laboratorio: node lab.test.js
 // Para cada ejercicio: prepara el escenario, ejecuta una solución modelo y exige que pasen todas las comprobaciones.
-const {Env,SPECS}=require('./lab.js');
+const {Env,SPECS,SCRIPT_GUARDAR,SCRIPT_RESTAURAR,README_TIENDA}=require('./lab.js');
 const ed=f=>({ed:f});                      // respuesta al editor (nano, commit, rebase -i)
 const put=(p,c)=>({put:[p,c]});            // escribir un archivo "a mano"
 const S={
@@ -49,11 +49,18 @@ const S={
 'e-rebase-i2':['git log --oneline -3','git rebase -i HEAD~3',ed(t=>{ const L=t.split('\n'); return [L[2],L[1].replace(/^pick/,'reword'),L[0],...L.slice(3)].join('\n'); }),ed(()=> 'Añade tabla de tarifas\n'),'git log --oneline -3'],
 'e-fork':['git clone git@github.com:TU_USUARIO/apuntes-redes.git','cd apuntes-redes','git switch -c corrige-mascara','nano tema3.md',ed(t=>t.replace('255.255.255.0','255.255.255.192')),'git add tema3.md && git commit -m "Corrige máscara /26 en el ejemplo"','git push -u origin corrige-mascara','git remote add upstream https://github.com/profe/apuntes-redes.git','git remote -v','git switch main','git fetch upstream','git merge upstream/main','git push origin main'],
 'e-equipo':['git clone git@github.com:supervisor/web-instituto.git && cd web-instituto','git switch main && git pull','git switch -c ana/pagina-ciclos','echo "<h2>Ciclos</h2>" > ciclos.html','git add . && git commit -m "Añade página de ciclos formativos"','git push -u origin ana/pagina-ciclos'],
+'e-readme':['git status -s','nano README.md',ed(()=>README_TIENDA),'git add README.md','git commit -m "Añade README con la documentación del proyecto"','git status -s','git log --oneline'],
+'e-persist':['ls','cat ~/.gitconfig','bash guardar-config.sh','ls -a /d/git_backup /d/git_backup/.ssh','reiniciar-equipo','git config --global user.name','ssh -T git@github.com','cd /d/git-scripts','bash restaurar-config.sh','git config --global user.name','ssh -T git@github.com'],
+'e-gh':['gh auth status','gh auth login','gh auth status','gh repo create practica-gh --private --source=. --remote=origin --push','git remote -v','gh issue create --title "Añadir sección de autoría" --body "El README debe indicar quién ha hecho la práctica."','gh issue list','git switch -c autoria','echo "Autor: Alumno" >> README.md','git commit -am "Añade autoría. Closes #1"','git push -u origin autoria','gh pr create --fill','gh pr list','gh pr merge 2 --merge --delete-branch','git pull','git log --oneline --graph','gh issue list --state closed'],
+'e-pages':['cd mi-web-markdown','git init','git add .','git commit -m "Primera versión de la web"','gh repo create mi-web-markdown --public --source=. --remote=origin --push','gh api repos/{owner}/{repo}/pages -X POST -f "source[branch]=main" -f "source[path]=/"','gh api repos/{owner}/{repo}/pages','echo "Última actualización: noviembre" >> README.md','git commit -am "Actualiza README"','git push','gh repo view --web'],
 'e-grande':['git push','git rm --cached docs/demo.mp4','echo "*.mp4" >> .gitignore && git add .gitignore','git commit --amend --no-edit','git show --stat HEAD','git push','git status -sb'],
 'e-lfs':['git lfs install','git lfs track "*.iso"','git lfs track "modelos/*.bin"','cat .gitattributes','git add .gitattributes','git commit -m "Configura Git LFS"','git add debian.iso','git commit -m "Añade imagen Debian"','git lfs ls-files','git push'],
 'e-crlf':['file scripts/backup.sh',"sed -i 's/\\r$//' scripts/*.sh",'file scripts/backup.sh','echo "*.sh text eol=lf" >> .gitattributes','git add .gitattributes scripts/ && git commit -m "Fuerza LF en scripts"','git config --global core.autocrlf input']
 };
 let bad=0;
+{ const fs=require('fs'), path=require('path'), dir=path.join(__dirname,'..','apuntes','recursos','scripts');
+  for(const [f,c] of [['guardar-config.sh',SCRIPT_GUARDAR],['restaurar-config.sh',SCRIPT_RESTAURAR]]){ const p=path.join(dir,f);
+    if(!fs.existsSync(p)) continue; if(fs.readFileSync(p,'utf8')!==c){ bad++; console.log(`✗ ${f}: el script del laboratorio no coincide con apuntes/recursos/scripts/${f}`); } else console.log(`✓ ${f} = apuntes/recursos/scripts/${f}`); } }
 for(const id of Object.keys(SPECS)){ const env=Env(), err=env.setup(SPECS[id]); const log=[];
   if(err){ console.log(`✗ ${id}: preparación → ${err.message}`); bad++; continue; }
   const dump=()=>env.takeOut().forEach(o=>log.push(o.s));

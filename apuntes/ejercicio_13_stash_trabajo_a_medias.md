@@ -15,6 +15,8 @@ Estás a mitad de una función y te piden un **arreglo urgente** en `main`. No q
 
 **Teoría de apoyo:** [12. Stash](GIT_Resumen_comandos_de_interes.md#12-stash-guardar-trabajo-a-medias)
 
+🧪 **Laboratorio** (terminal simulada en el navegador, con *Comprobar* y solución): [Stash: trabajo a medias](https://jc-csl.github.io/git-github-practico/laboratorio/#lab-e-stash)
+
 ---
 
 ## Parte A: preparación
@@ -117,3 +119,13 @@ git stash list
 2. ¿Qué pasa con `boceto.txt` si haces `git stash` **sin** `-u`?
 3. ¿Qué diferencia hay entre `pop` y `apply`?
 4. ¿Qué alternativa a `stash` tenías? ¿Qué inconveniente tiene?
+
+<details>
+<summary><b>Soluciones</b></summary>
+
+1. Porque `app.txt` tiene cambios sin confirmar y en `main` ese archivo es distinto: cambiar de rama los sobrescribiría. Si `app.txt` fuera igual en las dos ramas, Git sí te dejaría cambiar y tus cambios irían contigo.
+2. Sin `-u`, `boceto.txt` (*untracked*) no entra en el stash: se queda en la carpeta y te acompaña al cambiar de rama.
+3. `pop` aplica el stash y lo borra de la lista; `apply` lo aplica y lo conserva (se borra después con `drop`).
+4. Un commit provisional ("WIP") que luego deshaces con `git reset HEAD~1` o completas con `--amend`. Inconveniente: si se te olvida, ensucias el historial.
+
+</details>

@@ -8,7 +8,7 @@ const HOME='/home/alumno', PRACT=HOME+'/practicas-git', GH='/.github';
 class Fail extends Error{}
 const die=m=>{ throw new Fail(m); };
 const dirname=p=>p.replace(/\/[^/]*$/,'')||'/', basename=p=>p.replace(/\/+$/,'').replace(/.*\//,'');
-function resolve(cwd,p){ if(p==='~'||p.startsWith('~/')) p=HOME+p.slice(1); const out=[];
+function resolve(cwd,p){ p=p.replace(/^([A-Za-z]):(?=\/|$)/,(m,d)=>'/'+d.toLowerCase()); if(p==='~'||p.startsWith('~/')) p=HOME+p.slice(1); const out=[];
   for(const s of (p.startsWith('/')?p:cwd+'/'+p).split('/')){ if(!s||s==='.') continue; if(s==='..') out.pop(); else out.push(s); }
   return '/'+out.join('/'); }
 const first=m=>(m||'').split('\n')[0];
@@ -74,8 +74,22 @@ function splitCmds(line){ const T=tokenize(line), out=[]; let cur=[];
 
 /* ════════════════════════ entorno: FS + Git ════════════════════════ */
 function Env(){
-const E={files:{},dirs:new Set(['/','/home',HOME]),cwd:HOME,repos:{},C:{},cfg:{},t:0,hist:[],out:[],agent:[],agentOn:false,cred:false,mark:{},quiet:false,edit:null,stdin:null,clearReq:false};
+const E={files:{},dirs:new Set(['/','/home',HOME]),cwd:HOME,repos:{},C:{},cfg:{},t:0,hist:[],out:[],agent:[],agentOn:false,cred:false,mark:{},quiet:false,edit:null,stdin:null,clearReq:false,gh:{auth:false,proto:null,scopes:[]}};
 let cap=null;
+const GITCONFIG=HOME+'/.gitconfig';
+function cfgText(){ const S={}; for(const [k,v] of Object.entries(E.cfg)){ const i=k.indexOf('.'), j=k.lastIndexOf('.');
+    const sec=i===j?k.slice(0,i):`${k.slice(0,i)} "${k.slice(i+1,j)}"`; (S[sec]=S[sec]||[]).push(`\t${k.slice(j+1)} = ${v}`); }
+  return Object.entries(S).map(([s,l])=>`[${s}]\n${l.join('\n')}\n`).join(''); }
+function cfgParse(t){ const o={}; let sec='';
+  for(const raw of (t||'').split('\n')){ const l=raw.trim(); if(!l||/^[#;]/.test(l)) continue;
+    let m=l.match(/^\[([\w.-]+)(?:\s+"([^"]*)")?\]$/); if(m){ sec=m[1].toLowerCase()+(m[2]!=null?'.'+m[2]:''); continue; }
+    m=l.match(/^([\w-]+)\s*=\s*(.*)$/); if(m&&sec) o[(sec+'.'+m[1]).toLowerCase()]=m[2].replace(/^"(.*)"$/,'$1'); }
+  return o; }
+let cfgSeen, cfgSnap='{}';
+function cfgSync(){ const f=E.files[GITCONFIG];
+  if(f!==cfgSeen&&!(f==null&&cfgSeen===undefined)) E.cfg=f==null?{}:cfgParse(f);          // el archivo cambió desde la shell (cp, rm, nano…)
+  else if(JSON.stringify(E.cfg)!==cfgSnap){ if(Object.keys(E.cfg).length) E.files[GITCONFIG]=cfgText(); else delete E.files[GITCONFIG]; } // cambió con git config
+  cfgSeen=E.files[GITCONFIG]; cfgSnap=JSON.stringify(E.cfg); }
 const put=(s,c)=>{ if(cap!==null){ cap+=s; return; } if(!E.quiet) E.out.push({s,c}); };
 const say=(s,c)=>{ if(s!=null&&s!=='') put(s.endsWith('\n')?s:s+'\n',c); };
 const hint=s=>say(s,'m');
@@ -717,7 +731,14 @@ const SH={
   for(const f of Object.keys(E.files)) if(f.startsWith(sp+'/')){ write(dp+f.slice(sp.length),E.files[f]); delete E.files[f]; }
   for(const x of [...E.dirs]) if(x===sp||x.startsWith(sp+'/')){ E.dirs.delete(x); mkdirp(dp+x.slice(sp.length)); }
   if(E.repos[sp]){ E.repos[dp]=E.repos[sp]; E.repos[dp].root=dp; delete E.repos[sp]; } },
- cp(a){ const [s,d]=a.filter(x=>!/^-/.test(x)); const sp=abs(s); let dp=abs(d||''); if(!isFile(sp)) die(`cp: cannot stat '${s}': No such file or directory`); if(isDir(dp)) dp+='/'+basename(sp); write(dp,E.files[sp]); },
+ cp(a){ const fl=a.filter(x=>/^-/.test(x)).join(''), rec=/[rRa]/.test(fl); const [s,d]=a.filter(x=>!/^-/.test(x));
+  if(!d) die(`cp: missing destination file operand after '${s||''}'`); const sp=abs(s); let dp=abs(d);
+  if(isDir(sp)){ if(!rec) die(`cp: -r not specified; omitting directory '${s}'`); if(isDir(dp)) dp+='/'+basename(sp);
+    if(dp===sp||dp.startsWith(sp+'/')) die(`cp: cannot copy a directory, '${s}', into itself`); mkdirp(dp);
+    for(const x of [...E.dirs]) if(x.startsWith(sp+'/')) mkdirp(dp+x.slice(sp.length));
+    for(const f of Object.keys(E.files)) if(f.startsWith(sp+'/')) write(dp+f.slice(sp.length),E.files[f]); return; }
+  if(!isFile(sp)) die(`cp: cannot stat '${s}': No such file or directory`); if(isDir(dp)) dp+='/'+basename(sp);
+  else if(!isDir(dirname(dp))) die(`cp: cannot create regular file '${d}': No such file or directory`); write(dp,E.files[sp]); },
  sed(a){ const inPlace=a.includes('-i'), r=a.filter(x=>x!=='-i'&&x!=='-e'), ex=r[0]||'';
   const m=ex.match(/^s(.)(.*?)\1(.*?)\1(g?)$/); if(!m) die(`sed: -e expression #1: comando no soportado en el simulador (solo s/patrón/reemplazo/)`);
   const re=new RegExp(m[2].replace(/\\r/g,'\r').replace(/\\([(){}+?|])/g,'$1'),m[4]), rep=m[3].replace(/\$/g,'$$$$').replace(/&/g,'$$&');
@@ -742,18 +763,177 @@ const SH={
   E.agent.push(p); say(`Identity added: ${x} (${(E.files[p+'.pub']||'').trim().split(' ')[2]||'alumno@aula'})`); },
  ssh(a){ const host=a.filter(v=>!/^-/.test(v))[0]||'';
   if(!/github\.com/.test(host)) die(`ssh: connect to host ${host.replace(/^.*@/,'')} port 22: Connection timed out (simulador: solo github.com)`);
-  if(!E.agent.length&&!Object.keys(E.files).some(f=>/\/\.ssh\/id_\w+$/.test(f))) die('git@github.com: Permission denied (publickey).');
+  if(!E.agent.length&&!Object.keys(E.files).some(f=>f.startsWith(HOME+'/.ssh/id_')&&!f.endsWith('.pub'))) die('git@github.com: Permission denied (publickey).');
   hint('# (simulado: se supone que ya has pegado la clave pública en GitHub → Settings → SSH and GPG keys)'); say("Hi usuario! You've successfully authenticated, but GitHub does not provide shell access."); },
  history(){ say(E.hist.map((h,i)=>String(i+1).padStart(4)+'  '+h.cmd).join('\n')); },
  git(a){ const sub=a[0]; if(!sub||sub==='--help') return G.help(); const g=G[sub]; if(!g) die(`git: '${sub}' is not a git command. See 'git --help'.`); return g(a.slice(1)); }
 };
 SH.vim=SH.vi=SH.code=SH.notepad=SH.nano;
+/* ── scripts de bash (subconjunto: variables, if [ -f|-d|-e ], else, fi, exit) ── */
+function runScript(text){ E.inScript=(E.inScript||0)+1; try{ runScript0(text); } finally{ E.inScript--; } }
+function runScript0(text){ const vars={HOME}, st=[]; const on=()=>st.every(x=>x);
+  const sub=s=>s.replace(/\$\{(\w+):-([^}]*)\}/g,(m,k,d)=>vars[k]?vars[k]:d).replace(/\$\{(\w+)\}|\$(\w+)/g,(m,a,b)=>vars[a||b]??'');
+  const unq=s=>s.replace(/^"(.*)"$/,'$1').replace(/^'(.*)'$/,'$1');
+  for(const raw of text.replace(/\r/g,'').split('\n')){ const l=raw.trim(); if(!l||l.startsWith('#')||l==='then') continue;
+    let m=l.match(/^if \[ (!\s+)?-([fde]) (.+?) \](?:\s*;\s*then)?$/);
+    if(m){ const p=abs(unq(sub(m[3]))); let ok=m[2]==='f'?isFile(p):m[2]==='d'?isDir(p):isFile(p)||isDir(p); st.push(m[1]?!ok:ok); continue; }
+    if(l==='else'){ st[st.length-1]=!st[st.length-1]; continue; } if(l==='fi'){ st.pop(); continue; }
+    if(!on()) continue;
+    m=l.match(/^(\w+)=(.*)$/); if(m){ vars[m[1]]=unq(sub(m[2])); continue; }
+    m=l.match(/^exit(?:\s+(\d+))?$/); if(m){ if(+m[1]) die(''); return; }
+    runLine(sub(l)); } }
+SH.bash=SH.sh=a=>{ const x=a.filter(v=>!/^-/.test(v))[0]; if(!x) die('bash: (simulador) no hay shell interactiva; usa: bash script.sh');
+  const p=abs(x); if(!isFile(p)) die(`bash: ${x}: No such file or directory`); runScript(E.files[p]); };
+SH['reiniciar-equipo']=()=>{ for(const f of Object.keys(E.files)) if(f===GITCONFIG||f.startsWith(HOME+'/.ssh/')) delete E.files[f];
+  for(const d of [...E.dirs]) if(d===HOME+'/.ssh'||d.startsWith(HOME+'/.ssh/')) E.dirs.delete(d);
+  E.cfg={}; E.agent=[]; E.agentOn=false; E.cred=false; E.gh={auth:false,proto:null,scopes:[]}; E.cwd=HOME;
+  hint('# (simulado) Reinicio del equipo del aula: la unidad C: vuelve a su estado original.\n# Se pierden ~/.gitconfig, ~/.ssh y la sesión de gh. La unidad D: (/d) se conserva.'); };
+
+/* ── GitHub CLI simulado ── */
+const GHUSER='usuario';
+const ghMeta=S=>S.gh||(S.gh={num:0,issues:[],prs:[],releases:[],visibility:'public',pages:null,desc:''});
+const ghUrl=(o,n)=>E.gh.proto==='https'?`https://github.com/${o}/${n}.git`:`git@github.com:${o}/${n}.git`;
+const ghPath=(o,n)=>`${GH}/${o}/${n}.git`;
+function ghSplit(x){ const m=String(x||'').match(/^(?:https:\/\/github\.com\/|git@github\.com:)?(?:([\w.-]+)\/)?([\w.-]+?)(?:\.git)?$/); if(!m) die(`expected the "[HOST/]OWNER/REPO" format, got "${x}"`); return {o:m[1]||GHUSER,n:m[2]}; }
+function ghCur(arg){ if(arg){ const {o,n}=ghSplit(arg), S=E.repos[ghPath(o,n)]; if(!S) die(`GraphQL: Could not resolve to a Repository with the name '${o}/${n}'. (repository)`); return {S,o,n,R:findRepo(),remote:null}; }
+  const R=findRepo(); if(!R) die('failed to run git: fatal: not a git repository (or any of the parent directories): .git');
+  for(const r of ['origin',...Object.keys(R.remotes)]){ const u=R.remotes[r]; if(u&&isGHurl(u)){ const S=repoByUrl(u,R.root); if(S){ const m=S.root.match(/\/([^/]+)\/([^/]+)\.git$/); return {S,o:m[1],n:m[2],R,remote:r}; } } }
+  die('no git remotes found'); }
+function quietly(fn){ const q=E.quiet; E.quiet=true; try{ return fn(); } finally{ E.quiet=q; } }
+function ghFlags(a){ const f={}, args=[]; for(let i=0;i<a.length;i++){ const x=a[i]; let m=x.match(/^--([\w-]+)(?:=(.*))?$/);
+    const V=['title','body','base','head','state','source','remote','description','git-protocol','hostname','scopes','notes','target','method','field','raw-field','repo','B','t','b','s','X','f','F','R','p','h','d','r','n'];
+    if(m){ f[m[1]]=m[2]!=null?m[2]:V.includes(m[1])&&a[i+1]!=null&&!/^-/.test(a[i+1])?a[++i]:true; if(m[1]==='field'||m[1]==='raw-field'){ (f.fields=f.fields||[]).push(f[m[1]]); } continue; }
+    m=x.match(/^-(\w)$/); if(m){ const k=m[1]; if(V.includes(k)&&a[i+1]!=null){ const v=a[++i]; if(k==='f'||k==='F') (f.fields=f.fields||[]).push(v); else f[k]=v; } else f[k]=true; continue; }
+    args.push(x); } return {f,args}; }
+const ago=' about 1 minute ago';
+function ghClose(S,text){ const M=ghMeta(S); for(const m of String(text).matchAll(/\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#(\d+)/gi)){ const i=M.issues.find(x=>x.n===+m[1]); if(i) i.state='CLOSED'; } }
+SH.gh=a=>{ const [c,s,...r]=a; const {f,args}=ghFlags(r);
+  if(!c||c==='help'||c==='--help') return say(GHHELP);
+  if(c==='--version'||c==='version') return say('gh version 2.63.0 (simulado)\nhttps://github.com/cli/cli/releases/latest');
+  if(c==='auth'){
+    if(s==='login'){ const key=Object.keys(E.files).find(x=>x.startsWith(HOME+'/.ssh/id_')&&x.endsWith('.pub'));
+      const proto=(f['git-protocol']||f.p||(key?'ssh':'https')).toLowerCase(); if(!/^(ssh|https)$/.test(proto)) die(`invalid argument "${proto}" for "-p, --git-protocol" flag: valid values are {ssh|https}`);
+      if(!f['git-protocol']&&!f.p) hint(`# (simulado: el asistente elige ${proto.toUpperCase()}${key?' porque ya tienes clave SSH':''}; para fijarlo: gh auth login --git-protocol ${proto==='ssh'?'https':'ssh'})`);
+      say(`? Where do you use GitHub? GitHub.com\n? What is your preferred protocol for Git operations on this host? ${proto.toUpperCase()}`);
+      if(proto==='ssh'&&key) say(`? Upload your SSH public key to your GitHub account? ${key.replace(HOME,'~')}`);
+      if(proto==='https') say('? Authenticate Git with your GitHub credentials? Yes');
+      say('? How would you like to authenticate GitHub CLI? Login with a web browser\n\n! First copy your one-time code: A198-8F37\nPress Enter to open https://github.com/login/device in your browser...');
+      hint('# (simulado: has pegado el código en el navegador y autorizado el acceso)');
+      say(`✓ Authentication complete.\n- gh config set -h github.com git_protocol ${proto}\n✓ Configured git protocol`+(proto==='ssh'&&key?`\n✓ Uploaded the SSH key to your GitHub account: ${key.replace(HOME,'~')}`:'')+`\n✓ Logged in as ${GHUSER}`);
+      E.gh.auth=true; E.gh.proto=proto; E.gh.scopes=['gist','read:org','repo'].concat(proto==='ssh'?['admin:public_key']:[]); if(proto==='https') E.cred=true; return; }
+    if(s==='status'){ if(!E.gh.auth) die('You are not logged into any GitHub hosts. To log in, run: gh auth login');
+      return say(`github.com\n  ✓ Logged in to github.com account ${GHUSER} (keyring)\n  - Active account: true\n  - Git operations protocol: ${E.gh.proto}\n  - Token: gho_************************************\n  - Token scopes: ${E.gh.scopes.map(x=>`'${x}'`).join(', ')}`); }
+    if(s==='logout'){ if(!E.gh.auth) die('not logged in to any hosts'); E.gh.auth=false; return say(`✓ Logged out of github.com account ${GHUSER}`); }
+    if(s==='refresh'){ if(!E.gh.auth) die('not logged in to any hosts'); String(f.s||f.scopes||'').split(',').filter(Boolean).forEach(x=>{ if(!E.gh.scopes.includes(x)) E.gh.scopes.push(x); }); return say('✓ Authentication complete.'); }
+    die(`unknown command "${s}" for "gh auth"`); }
+  if(!E.gh.auth) die('To get started with GitHub CLI, please run:  gh auth login\nAlternatively, populate the GH_TOKEN environment variable with a GitHub API authentication token.');
+  if(c==='repo'){
+    if(s==='create'){ const src=f.source||f.s; let name=args[0];
+      if(!name&&src){ const R=findRepo(abs(src)); if(R) name=basename(R.root); }
+      if(!name) die('(simulador) el asistente interactivo no está disponible: indica el nombre y las opciones,\np. ej.: gh repo create mi-repo --private --source=. --remote=origin --push');
+      const vis=f.public?'public':f.private?'private':f.internal?'internal':null;
+      if(!vis) die('X `--public`, `--private`, or `--internal` required when not running interactively');
+      const {o,n}=ghSplit(name), p=ghPath(o,n); if(E.repos[p]) die('GraphQL: Name already exists on this account (createRepository)');
+      quietly(()=>G.init(['--bare','-b','main',p])); const S=E.repos[p], M=ghMeta(S); M.visibility=vis; M.desc=f.description||f.d||'';
+      say(`✓ Created repository ${o}/${n} on GitHub\n  https://github.com/${o}/${n}`);
+      if(f['add-readme']&&!src){ const h=mkCommit(S,{'README.md':`# ${n}\n`},[],'Initial commit',{name:GHUSER,email:GHUSER+'@users.noreply.github.com'}); S.heads.main=h; }
+      if(src){ const R=findRepo(abs(src)); if(!R||R.bare) die(`X current directory is not a git repository. Run \`git init\` to initialize it`);
+        const remote=f.remote||f.r||'origin'; if(R.remotes[remote]) die(`X Unable to add remote "${remote}"\nerror: remote ${remote} already exists.`);
+        const url=ghUrl(o,n); R.remotes[remote]=url; say(`✓ Added remote ${url}`);
+        if(f.push){ if(!R.head||R.heads[R.head]==null) die(`X --push enabled but no commits found in ${src}`); const back=E.cwd; E.cwd=R.root;
+          try{ quietly(()=>G.push(['-u',remote,R.head])); } finally{ E.cwd=back; } say(`✓ Pushed commits to ${url}`); } }
+      else if(f.clone||f.c) G.clone([ghUrl(o,n)]);
+      return; }
+    if(s==='clone'){ if(!args[0]) die('cannot clone: repository argument required'); const {o,n}=ghSplit(args[0]); return G.clone([ghUrl(o,n),...args.slice(1)]); }
+    if(s==='view'){ const {S,o,n}=ghCur(args[0]); if(f.web||f.w) return say(`Opening https://github.com/${o}/${n} in your browser.`);
+      const M=ghMeta(S), t=tree(S.heads.main); return say(`${o}/${n}\n${M.desc||'No description provided'}\n\n`+(t['README.md']!=null?t['README.md']:'This repository does not have a README')+`\n\nView this repository on GitHub: https://github.com/${o}/${n}`); }
+    if(s==='list'){ const L=Object.keys(E.repos).filter(p=>p.startsWith(`${GH}/${GHUSER}/`)).map(p=>{ const nm=p.slice(GH.length+1).replace(/\.git$/,''), M=ghMeta(E.repos[p]); return `${nm}\t${M.desc}\t${M.visibility}${ago}`; });
+      return say(L.length?`\nShowing ${L.length} of ${L.length} repositories in @${GHUSER}\n\n${L.join('\n')}`:`no repositories found for @${GHUSER}`); }
+    if(s==='delete'){ const {S,o,n}=ghCur(args[0]); if(!E.gh.scopes.includes('delete_repo')) die('HTTP 403: Must have admin rights to Repository.\nThis API operation needs the "delete_repo" scope. To request it, run:  gh auth refresh -h github.com -s delete_repo');
+      if(!f.yes) die('--yes required when not running interactively'); delete E.repos[S.root]; rmPath(S.root); return say(`✓ Deleted repository ${o}/${n}`); }
+    die(`(simulador) "gh repo ${s||''}" no está simulado. Disponibles: create, clone, view, list, delete`); }
+  if(c==='issue'){ const {S,o,n}=ghCur(f.repo||f.R), M=ghMeta(S);
+    if(s==='create'){ const t=f.title||f.t; if(!t) die('must provide `--title` and `--body` when not running interactively');
+      const k=++M.num; M.issues.push({n:k,title:t,body:f.body||f.b||'',state:'OPEN'}); return say(`\nCreating issue in ${o}/${n}\n\nhttps://github.com/${o}/${n}/issues/${k}`); }
+    if(s==='list'){ const st=(f.state||f.s||'open').toUpperCase(), L=M.issues.filter(x=>st==='ALL'||x.state===st);
+      if(!L.length) return say(`no ${st==='ALL'?'':st.toLowerCase()+' '}issues match your search in ${o}/${n}`);
+      return say(`\nShowing ${L.length} of ${L.length} ${st==='ALL'?'':st.toLowerCase()+' '}issues in ${o}/${n}\n\n`+L.map(x=>`#${x.n}\t${x.state==='OPEN'?'':'['+x.state+'] '}${x.title}\t${ago}`).join('\n')); }
+    if(s==='close'||s==='view'){ const i=M.issues.find(x=>x.n===+String(args[0]).replace('#','')); if(!i) die(`GraphQL: Could not resolve to an issue or pull request with the number of ${args[0]}. (repository.issue)`);
+      if(s==='close'){ i.state='CLOSED'; return say(`✓ Closed issue ${o}/${n}#${i.n} (${i.title})`); }
+      return say(`${i.title} ${o}/${n}#${i.n}\n${i.state==='OPEN'?'Open':'Closed'}\n\n${i.body||'No description provided'}`); }
+    die(`(simulador) "gh issue ${s||''}" no está simulado. Disponibles: create, list, view, close`); }
+  if(c==='pr'){ const cur=ghCur(f.repo||f.R), {S,o,n,R,remote}=cur, M=ghMeta(S);
+    const find=x=>{ const p=M.prs.find(q=>q.n===+String(x).replace('#','')); if(!p) die(`GraphQL: Could not resolve to a PullRequest with the number of ${x}. (repository.pullRequest)`); return p; };
+    if(s==='create'){ if(!R||R.bare) die('could not determine the current branch'); const head=R.head, base=f.base||f.B||'main';
+      if(head===base) die(`must be on a branch named differently than "${base}"`);
+      if(S.heads[head]==null) die('aborted: you must first push the current branch to a remote, or use the --head flag');
+      const ex=M.prs.find(q=>q.head===head&&q.state==='OPEN'); if(ex) die(`a pull request for branch "${head}" into branch "${base}" already exists:\nhttps://github.com/${o}/${n}/pull/${ex.n}`);
+      let t=f.title||f.t, b=f.body||f.b||'';
+      if(f.fill||f.f){ const B=anc(S.heads[base]), cs=[...anc(S.heads[head])].filter(x=>!B.has(x)).sort((x,y)=>E.C[x].t-E.C[y].t).map(x=>E.C[x].msg);
+        if(!cs.length) die(`could not compute title or body defaults: no commits between ${base} and ${head}`);
+        if(cs.length===1){ t=t||first(cs[0]); b=b||cs[0].split('\n').slice(1).join('\n').trim(); } else { t=t||head; b=b||cs.map(x=>'- '+first(x)).join('\n'); } }
+      if(!t) die('must provide `--title` and `--body` (or `--fill`) when not running interactively');
+      const k=++M.num; M.prs.push({n:k,head,base,title:t,body:b,state:'OPEN'});
+      return say(`\nCreating pull request for ${head} into ${base} in ${o}/${n}\n\nhttps://github.com/${o}/${n}/pull/${k}`); }
+    if(s==='list'){ const st=(f.state||f.s||'open').toUpperCase(), L=M.prs.filter(x=>st==='ALL'||x.state===st);
+      if(!L.length) return say(`no ${st==='ALL'?'':st.toLowerCase()+' '}pull requests match your search in ${o}/${n}`);
+      return say(`\nShowing ${L.length} of ${L.length} ${st==='ALL'?'':st.toLowerCase()+' '}pull requests in ${o}/${n}\n\n`+L.map(x=>`#${x.n}\t${x.title}\t${x.head}\t${x.state}${ago}`).join('\n')); }
+    if(s==='view'){ const p=find(args[0]); return say(`${p.title} #${p.n}\n${p.state[0]+p.state.slice(1).toLowerCase()} • ${GHUSER} wants to merge into ${p.base} from ${p.head}\n\n${p.body||'No description provided'}\n\nView this pull request on GitHub: https://github.com/${o}/${n}/pull/${p.n}`); }
+    if(s==='checkout'){ const p=find(args[0]); if(!R||R.bare) die('not a git repository'); quietly(()=>fetchRemote(R,remote||'origin'));
+      return G.switch([p.head]); }
+    if(s==='merge'){ const p=find(args[0]); if(p.state!=='OPEN') die(`X Pull request ${o}/${n}#${p.n} (${p.title}) can't be merged because it is ${p.state.toLowerCase()}`);
+      const how=f.merge||f.m?'merge':f.squash||f.s?'squash':f.rebase||f.r?'rebase':null;
+      if(!how) die('--merge, --rebase, or --squash required when not running interactively'); if(how==='rebase') die('(simulador) usa --merge o --squash');
+      const bh=S.heads[p.base], hh=S.heads[p.head]; if(hh==null) die(`X Pull request ${o}/${n}#${p.n} is not mergeable: the head branch was deleted`);
+      const mb=mergeBase(bh,hh), Mg=mergeTrees(tree(mb),tree(bh),tree(hh),[p.base,p.head]);
+      if(Mg.conf.length) die(`X Pull request ${o}/${n}#${p.n} is not mergeable: the merge commit cannot be cleanly created.\nTo have the pull request merged after all the requirements have been met, add the \`--auto\` flag.\nRun the following to resolve the merge conflicts locally:\n  gh pr checkout ${p.n} && git fetch origin ${p.base} && git merge origin/${p.base}`);
+      const who=ident(R||S); const msgs=[...anc(hh)].filter(x=>!anc(bh).has(x)).map(x=>E.C[x].msg).join('\n');
+      S.heads[p.base]=how==='merge'?mkCommit(S,Mg.tree,[bh,hh],`Merge pull request #${p.n} from ${o}/${p.head}\n\n${p.title}`,who):mkCommit(S,Mg.tree,[bh],`${p.title} (#${p.n})`,who);
+      p.state='MERGED'; ghClose(S,p.title+'\n'+p.body+'\n'+msgs);
+      say(`✓ ${how==='merge'?'Merged':'Squashed and merged'} pull request ${o}/${n}#${p.n} (${p.title})`);
+      if(f['delete-branch']||f.d){ delete S.heads[p.head]; if(R&&!R.bare&&R.heads[p.head]!=null){ if(R.head===p.head) quietly(()=>G.switch([p.base])); delete R.heads[p.head]; delete R.upstream[p.head];
+          say(`✓ Deleted local branch ${p.head} and switched to branch ${R.head}`); }
+        say(`✓ Deleted remote branch ${p.head}`); }
+      return; }
+    if(s==='close'){ const p=find(args[0]); p.state='CLOSED'; return say(`✓ Closed pull request ${o}/${n}#${p.n} (${p.title})`); }
+    die(`(simulador) "gh pr ${s||''}" no está simulado. Disponibles: create, list, view, checkout, merge, close`); }
+  if(c==='release'){ const {S,o,n}=ghCur(f.repo||f.R), M=ghMeta(S);
+    if(s==='create'){ const tg=args[0]; if(!tg) die('could not create: no tag name provided'); if(M.releases.some(x=>x.tag===tg)) die(`HTTP 422: Validation Failed (release tag_name already exists)`);
+      if(!S.tags[tg]){ const h=S.heads[f.target||'main']; if(!h) die('HTTP 422: Validation Failed (target_commitish is invalid)'); S.tags[tg]={h}; }
+      M.releases.push({tag:tg,title:f.title||f.t||tg,notes:f.notes||f.n||''}); return say(`https://github.com/${o}/${n}/releases/tag/${tg}`); }
+    if(s==='list'){ if(!M.releases.length) return say('no releases found'); return say(M.releases.slice().reverse().map((x,i)=>`${x.title}\t${i?'':'Latest'}\t${x.tag}${ago}`).join('\n')); }
+    die(`(simulador) "gh release ${s||''}" no está simulado. Disponibles: create, list`); }
+  if(c==='api'){ const ep=s||''; const cur=/\{owner\}|\{repo\}/.test(ep)?ghCur():null;
+    const path=ep.replace('{owner}',cur?cur.o:'').replace('{repo}',cur?cur.n:''), m=path.match(/^\/?repos\/([\w.-]+)\/([\w.-]+)\/pages$/);
+    if(!m) die('(simulador) solo está simulado: gh api repos/{owner}/{repo}/pages  (GET y POST)');
+    const S=E.repos[ghPath(m[1],m[2])]; if(!S) die('gh: Not Found (HTTP 404)'); const M=ghMeta(S), fields={};
+    (f.fields||[]).forEach(x=>{ const i=x.indexOf('='); fields[x.slice(0,i)]=x.slice(i+1); });
+    const method=String(f.X||f.method||(Object.keys(fields).length?'POST':'GET')).toUpperCase();
+    const js=st=>`{\n  "url": "https://api.github.com/repos/${m[1]}/${m[2]}/pages",\n  "status": ${st},\n  "html_url": "https://${m[1]}.github.io/${m[2]}/",\n  "source": {\n    "branch": "${M.pages.branch}",\n    "path": "${M.pages.path}"\n  },\n  "public": true\n}`;
+    if(method==='GET'){ if(!M.pages) die('gh: Not Found (HTTP 404)'); return say(js('"built"')); }
+    if(method==='POST'){ if(M.pages) die('gh: GitHub Pages is already enabled. (HTTP 409)'); if(M.visibility!=='public') die('gh: Your current plan does not support GitHub Pages for this repository. (HTTP 422)');
+      const br=fields['source[branch]']||'main', pa=fields['source[path]']||'/'; if(S.heads[br]==null) die(`gh: The branch ${br} does not exist in the repository. (HTTP 422)`);
+      M.pages={branch:br,path:pa}; return say(js('null')); }
+    die(`(simulador) método ${method} no simulado`); }
+  if(c==='browse'){ const {o,n}=ghCur(); return say(`Opening https://github.com/${o}/${n} in your browser.`); }
+  die(`unknown command "${c}" for "gh"\n\n(simulador) Disponibles: auth, repo, issue, pr, release, api, browse`); };
+const GHHELP=`GitHub CLI simulado (gh). Comandos disponibles:
+  gh auth login [--git-protocol ssh|https] · gh auth status · gh auth logout · gh auth refresh -s delete_repo
+  gh repo create NOMBRE --public|--private [--source=. --remote=origin --push] [--description "…"] [--add-readme]
+  gh repo clone usuario/repo · gh repo view [--web] · gh repo list · gh repo delete usuario/repo --yes
+  gh issue create --title "…" --body "…" · gh issue list [--state closed|all] · gh issue view|close N
+  gh pr create --fill | --title "…" --body "…" · gh pr list · gh pr view N · gh pr checkout N
+  gh pr merge N --merge|--squash [--delete-branch]
+  gh release create v1.0 --title "…" --notes "…" · gh release list
+  gh api repos/{owner}/{repo}/pages -X POST -f "source[branch]=main" -f "source[path]=/"   (activa GitHub Pages)`;
 const HELP=`Terminal simulada (Git 2.43 en memoria; nada sale de tu navegador).
   Archivos: ls, cd, pwd, mkdir, touch, cat, echo, printf, rm, mv, cp, sed -i 's/a/b/', nano (editor), file, dos2unix
   Git:      init, config, status, add, commit, log, show, diff, restore, rm, mv, clean, reset, revert,
             branch, switch, checkout, merge, rebase (-i), cherry-pick, stash, tag, reflog, blame,
             remote, clone, fetch, pull, push, check-ignore, ls-files, lfs
-  Otros:    ssh-keygen, ssh-agent, ssh-add, ssh -T, history, clear
+  Otros:    ssh-keygen, ssh-agent, ssh-add, ssh -T, bash script.sh, history, clear
+  GitHub:   gh (auth, repo, issue, pr, release, api…; "gh help")
+  Aula:     reiniciar-equipo (simula el reinicio que borra C: y conserva D:)
   Teclas:   ↑/↓ historial · Tab completa · Ctrl+L limpia · Ctrl+C cancela la línea
   GitHub simulado: git@github.com:usuario/<repo>.git  (o https://github.com/usuario/<repo>.git)`;
 const GITHELP=`usage: git <command> [<args>]\n\n${HELP}`;
@@ -762,7 +942,7 @@ function expand(t){ if(t.q||!/[*?]/.test(t.v)) return [t.v];
   const dir=t.v.includes('/')?t.v.replace(/\/[^/]*$/,''):'', pat=t.v.slice(dir?dir.length+1:0), re=globRe(pat), d=abs(dir||'.');
   const m=children(d).filter(n=>re.test(n)&&(pat.startsWith('.')||!n.startsWith('.'))).map(n=>dir?dir+'/'+n:n);
   return m.length?m:[t.v]; }
-function runWords(words){ const f=SH[words[0]]; if(!f) die(`bash: ${words[0]}: command not found`); return f(words.slice(1)); }
+function runWords(words){ const f=SH[words[0]]; if(!f){ if(/^\.{0,2}\//.test(words[0])&&isFile(abs(words[0]))) return runScript(E.files[abs(words[0])]); die(`bash: ${words[0]}: command not found`); } return f(words.slice(1)); }
 function runSimple(toks){ const words=[]; let redir=null, pipe=false;
   for(let i=0;i<toks.length;i++){ const t=toks[i];
     if(t.op==='>'||t.op==='>>'){ const nx=toks[++i]; if(!nx||nx.op) die('bash: syntax error near unexpected token `newline\''); redir={append:t.op==='>>',file:nx.v}; }
@@ -781,7 +961,8 @@ function runLine(line){ const T=tokenize(line); const segs=[[]], ops=[];
     const entry={cmd:textOf(s),shape:shapeOf(s),ok:true};
     try{ runSimple(s); ok=true; }
     catch(e){ ok=false; entry.ok=false; if(e instanceof Fail){ E.lastErr=e.message; if(e.message) say(e.message,'e'); } else { say('error interno del simulador: '+e.message,'e'); if(typeof console!=='undefined') console.error(e); } }
-    if(!E.quiet) E.hist.push(entry);
+    cfgSync();
+    if(!E.quiet&&!E.inScript) E.hist.push(entry);
     if(E.edit) E.edit.entry=entry; });
   return ok; }
 function guard(fn){ try{ fn(); } catch(e){ if(e instanceof Fail){ if(e.message) say(e.message,'e'); return false; } say('error interno del simulador: '+e.message,'e'); if(typeof console!=='undefined') console.error(e); return false; } return true; }
@@ -826,14 +1007,18 @@ const A={
  C:h=>E.C[h], isAnc,
  used:re=>E.hist.some(h=>h.ok&&re.test(h.cmd)),
  tried:re=>E.hist.some(h=>re.test(h.cmd)),
- failed:re=>E.hist.some(h=>!h.ok&&re.test(h.cmd))
+ failed:re=>E.hist.some(h=>!h.ok&&re.test(h.cmd)),
+ path:p=>E.files[resolve(HOME,p)],
+ isDir:p=>isDir(resolve(HOME,p)),
+ ghm:(o,n)=>{ const S=E.repos[`${GH}/${o}/${n}.git`]; return S?ghMeta(S):null; },
+ ghAuth:()=>E.gh.auth
 };
 
 return {
  E, A,
  setup(spec){ E.quiet=true; let err=null; try{ spec&&spec.setup&&spec.setup(T); } catch(e){ err=e; } E.quiet=false; E.hist=[]; E.out=[]; E.edit=null; return err; },
  run(line,stdin){ E.stdin=stdin||null; runLine(line); E.stdin=null; },
- saveEdit(text){ const ed=E.edit; E.edit=null; if(!guard(()=>ed.cb(text))&&ed.entry) ed.entry.ok=false; },
+ saveEdit(text){ const ed=E.edit; E.edit=null; if(!guard(()=>ed.cb(text))&&ed.entry) ed.entry.ok=false; cfgSync(); },
  cancelEdit(){ const ed=E.edit; E.edit=null; if(/^COMMIT|^TAG/.test(ed.title)){ say('Aborting commit due to empty commit message.','e'); if(ed.entry) ed.entry.ok=false; } else if(/^nano/.test(ed.title)) hint('# (sin guardar)'); else if(ed.title==='git-rebase-todo') hint('# rebase cancelado: no se ha cambiado nada'); else guard(()=>ed.cb(ed.text)); },
  prompt(){ const R=findRepo(); let br='';
   if(R&&!R.bare){ const op=R.op; br=R.head||'('+(R.detached||'').slice(0,7)+'...)'; if(op) br+='|'+{merge:'MERGING',rebase:'REBASE','cherry-pick':'CHERRY-PICKING',revert:'REVERTING'}[op.type]; }
@@ -851,9 +1036,13 @@ return {
 }
 
 /* ════════════════ ejercicios ════════════════ */
+const SCRIPT_GUARDAR='#!/bin/bash\n# --- SCRIPT PARA GUARDAR LA CONFIGURACIÓN DE GIT Y SSH ---\n# Uso (Git Bash):  bash guardar-config.sh\n# Copia ~/.gitconfig y ~/.ssh/ a una carpeta de un disco que NO se borra (por defecto D:/git_backup).\n# Para usar otra carpeta:  BACKUP_DIR="E:/mi_backup" bash guardar-config.sh\n\necho "================================================="\necho "Iniciando copia de seguridad de Git y SSH..."\necho "================================================="\n\n# Directorio de destino (se puede cambiar con la variable BACKUP_DIR)\nBACKUP_DIR="${BACKUP_DIR:-D:/git_backup}"\n\n# Crea el directorio de backup si no existe (-p evita errores si ya existe)\necho "1. Asegurando que el directorio de destino existe en $BACKUP_DIR..."\nmkdir -p "$BACKUP_DIR"\necho "   ...Directorio listo."\n\n# Copia el archivo de configuración global de Git\nif [ -f ~/.gitconfig ]; then\n    echo "2. Encontrado .gitconfig. Copiando a $BACKUP_DIR..."\n    cp ~/.gitconfig "$BACKUP_DIR/"\n    echo "   ...Copia de .gitconfig completada."\nelse\n    echo "2. ADVERTENCIA: No se encontró el archivo ~/.gitconfig."\nfi\n\n# Copia la carpeta de configuración de SSH de forma recursiva\nif [ -d ~/.ssh ]; then\n    echo "3. Encontrada carpeta .ssh. Copiando a $BACKUP_DIR..."\n    # -r: recursivo · -f: sobrescribe si ya existe\n    cp -rf ~/.ssh "$BACKUP_DIR/"\n    echo "   ...Copia de .ssh completada."\nelse\n    echo "3. ADVERTENCIA: No se encontró la carpeta ~/.ssh."\nfi\n\necho "================================================="\necho "¡Copia de seguridad finalizada con éxito!"\necho "Tus archivos están a salvo en $BACKUP_DIR"\necho "================================================="\n';
+const SCRIPT_RESTAURAR='#!/bin/bash\n# --- SCRIPT PARA RESTAURAR LA CONFIGURACIÓN DE GIT Y SSH ---\n# Uso (Git Bash):  bash restaurar-config.sh\n# Copia la configuración guardada (por defecto en D:/git_backup) de vuelta a tu carpeta de usuario.\n# Para usar otra carpeta:  BACKUP_DIR="E:/mi_backup" bash restaurar-config.sh\n\necho "==================================================="\necho "Restaurando la configuración de Git y SSH..."\necho "==================================================="\n\n# Directorio de origen (se puede cambiar con la variable BACKUP_DIR)\nBACKUP_DIR="${BACKUP_DIR:-D:/git_backup}"\n\n# Comprueba si el directorio de backup existe antes de continuar\nif [ ! -d "$BACKUP_DIR" ]; then\n    echo "ERROR: ¡El directorio de backup $BACKUP_DIR no existe!"\n    echo "Asegúrate de haber guardado la configuración al menos una vez."\n    exit 1\nfi\n\n# Restaura el archivo de configuración global de Git\nif [ -f "$BACKUP_DIR/.gitconfig" ]; then\n    echo "1. Encontrado .gitconfig en el backup. Restaurando a ~/.gitconfig..."\n    cp "$BACKUP_DIR/.gitconfig" ~/\n    echo "   ...Restauración de .gitconfig completada."\nelse\n    echo "1. ADVERTENCIA: No se encontró .gitconfig en el backup."\nfi\n\n# Restaura la carpeta de configuración de SSH\nif [ -d "$BACKUP_DIR/.ssh" ]; then\n    echo "2. Encontrada carpeta .ssh en el backup. Restaurando a ~/.ssh..."\n    cp -rf "$BACKUP_DIR/.ssh" ~/\n    echo "   ...Restauración de .ssh completada."\nelse\n    echo "2. ADVERTENCIA: No se encontró la carpeta .ssh en el backup."\nfi\n\necho "==================================================="\necho "¡Restauración finalizada!"\necho "Comprueba:  git config --global user.name   y   ssh -T git@github.com"\necho "==================================================="\n';
+const README_TIENDA='# Tienda online\n\nWeb de la **tienda del aula**. Se abre con `index.html`.\n\n## Estado\n\n- [x] Página de inicio\n- [ ] Carrito de la compra\n\n## Precios\n\n| Producto | Precio |\n|---|---:|\n| Camiseta | 12 € |\n| Taza | 6 € |\n\n## Instalación\n\n```bash\ngit clone git@github.com:usuario/web-tienda.git\n```\n\nMás información en [GitHub](https://github.com/usuario/web-tienda).\n';
 const HTML_TIENDA='<html>\n<head><title>Tienda</title></head>\n<body>\n<h1>Tienda</h1>\n</body>\n</html>\n';
 const eq=(a,b)=>a.length===b.length&&a.every((x,i)=>x===b[i]);
 const SRV='equipo/servidor/proyecto.git', srv=A=>A.repo(SRV);
+const rdm=A=>A.tree('web-tienda')['README.md']||'';
 const noMarks=s=>!/^(<{7}|={7}|>{7})/m.test(s||'');
 const SPECS={
 'e-config':{ note:'Equipo recién instalado: Git todavía no tiene ninguna configuración.',
@@ -1223,6 +1412,48 @@ const SPECS={
   ['Rama con formato nombre/tarea',A=>Object.keys(A.repo('web-instituto').heads).some(b=>/^[\w-]+\/[\w-]+$/.test(b))],
   ['Commit nuevo en esa rama',A=>{ const R=A.repo('web-instituto'), b=Object.keys(R.heads).find(b=>b.includes('/')); return R.heads[b]!==A.gh('supervisor','web-instituto').heads.main; }],
   ['Rama subida a GitHub y vinculada (-u)',A=>{ const R=A.repo('web-instituto'), b=Object.keys(R.heads).find(b=>b.includes('/')); return A.gh('supervisor','web-instituto').heads[b]===R.heads[b]&&!!R.upstream[b]; }]]},
+'e-readme':{ note:'Repositorio <code>web-tienda</code> con un commit (index.html). Falta documentarlo: no hay README.md. Ya estás dentro.',
+ setup:T=>{ T.base(); T.repo('web-tienda',[['Primera versión de la web',{'index.html':HTML_TIENDA}]]); },
+ checks:[
+  ['README.md confirmado en un commit',A=>'README.md' in A.tree('web-tienda')],
+  ['Título de nivel 1 (# …)',A=>/^# \S/m.test(rdm(A))],
+  ['Al menos dos secciones de nivel 2 (## …)',A=>(rdm(A).match(/^## \S/gm)||[]).length>=2],
+  ['Negrita (**…**) y código en línea (`…`)',A=>/\*\*[^*\n]+\*\*/.test(rdm(A))&&/(^|[^`])`[^`\n]+`/.test(rdm(A))],
+  ['Lista de tareas (- [x] y - [ ])',A=>/^- \[[xX]\] /m.test(rdm(A))&&/^- \[ \] /m.test(rdm(A))],
+  ['Tabla con fila separadora (|---|)',A=>/^\|.+\|\s*$/m.test(rdm(A))&&/^\|\s*:?-{3,}/m.test(rdm(A))],
+  ['Bloque de código con lenguaje (```bash … ```)',A=>/^```\w+\s*\n[\s\S]*?\n```\s*$/m.test(rdm(A))],
+  ['Enlace [texto](url)',A=>/\[[^\]]+\]\([^)\s]+\)/.test(rdm(A))],
+  ['Carpeta limpia',A=>A.clean('web-tienda')]]},
+'e-persist':{ note:'Equipo del aula cuya unidad C: se restaura en cada reinicio. Ya tienes identidad de Git y clave SSH (subida a GitHub). En <code>/d/git-scripts</code> (unidad D:, persistente) están los dos scripts. Estás en esa carpeta.',
+ setup:T=>{ T.base(); T.sh('ssh-keygen -t ed25519 -C "alumno@ejemplo.com"'); T.put('/d/git-scripts/guardar-config.sh',SCRIPT_GUARDAR); T.put('/d/git-scripts/restaurar-config.sh',SCRIPT_RESTAURAR); T.sh('cd /d/git-scripts'); },
+ checks:[
+  ['Copia en D:/git_backup con .gitconfig y la clave SSH',A=>A.path('/d/git_backup/.gitconfig')!=null&&A.path('/d/git_backup/.ssh/id_ed25519')!=null],
+  ['La copia guarda tu identidad (name = Alumno)',A=>/name\s*=\s*Alumno/.test(A.path('/d/git_backup/.gitconfig')||'')],
+  ['Has simulado el reinicio (reiniciar-equipo)',A=>A.used(/^reiniciar-equipo/)],
+  ['Has comprobado que se había perdido la configuración',A=>A.failed(/^(git config (--global )?user\.name|ssh -T)/)],
+  ['Restaurado: user.name y ~/.ssh/id_ed25519 de vuelta',A=>A.cfg('user.name')==='Alumno'&&A.path('~/.ssh/id_ed25519')!=null],
+  ['Conexión SSH verificada tras restaurar',A=>{ const h=A.env.hist.filter(x=>/^ssh -T/.test(x.cmd)); return !!h.length&&h[h.length-1].ok; }]]},
+'e-gh':{ note:'Proyecto local <code>practica-gh</code> con un commit y clave SSH creada. GitHub CLI está instalado pero <b>no has iniciado sesión</b>. En GitHub aún no existe la repo. Ya estás dentro.',
+ setup:T=>{ T.base(); T.sh('ssh-keygen -t ed25519 -C "alumno@ejemplo.com"'); T.repo('practica-gh',[['Commit inicial',{'README.md':'# Práctica con GitHub CLI\n'}]]); },
+ checks:[
+  ['Sesión iniciada y comprobada (gh auth status)',A=>A.ghAuth()&&A.used(/^gh auth status/)],
+  ['Repo usuario/practica-gh creada en GitHub con tu commit',A=>{ const S=A.gh('usuario','practica-gh'); return !!S&&!!S.heads.main&&A.logOf(S.heads.main).some(c=>/Commit inicial/.test(c.msg)); }],
+  ['origin apunta a la repo de GitHub',A=>/github\.com[:/]usuario\/practica-gh/.test(A.repo('practica-gh').remotes.origin||'')],
+  ['Incidencia #1 creada',A=>{ const m=A.ghm('usuario','practica-gh'); return !!m&&m.issues.some(i=>i.n===1); }],
+  ['Pull Request fusionado en GitHub',A=>{ const m=A.ghm('usuario','practica-gh'); return !!m&&m.prs.some(p=>p.state==='MERGED'); }],
+  ['La incidencia #1 se cerró sola al fusionar (Closes #1)',A=>{ const m=A.ghm('usuario','practica-gh'), i=m&&m.issues.find(x=>x.n===1); return !!i&&i.state==='CLOSED'; }],
+  ['Rama del PR borrada en GitHub',A=>{ const S=A.gh('usuario','practica-gh'), m=A.ghm('usuario','practica-gh'), p=m&&m.prs.find(x=>x.state==='MERGED'); return !!p&&S.heads[p.head]==null; }],
+  ['En main y actualizado con GitHub',A=>{ const R=A.repo('practica-gh'), S=A.gh('usuario','practica-gh'); return !!S&&R.head==='main'&&R.heads.main===S.heads.main; }]]},
+'e-pages':{ note:'Carpeta <code>mi-web-markdown</code> con <code>index.html</code>, <code>README.md</code> e <code>img/logo.png</code>; todavía <b>no</b> es un repositorio. Ya has iniciado sesión con <code>gh</code> (SSH).',
+ setup:T=>{ T.base(); T.sh('ssh-keygen -t ed25519 -C "alumno@ejemplo.com"'); T.sh('gh auth login --git-protocol ssh');
+  T.put('mi-web-markdown/index.html','<!DOCTYPE html>\n<html lang="es">\n<head><title>Mi web</title></head>\n<body><h1>Mi web en GitHub Pages</h1></body>\n</html>\n');
+  T.put('mi-web-markdown/README.md','# Mi web\n\nPublicada con **GitHub Pages**.\n'); T.put('mi-web-markdown/img/logo.png','[imagen PNG] logo\n'); },
+ checks:[
+  ['Repositorio local en main con los 3 archivos confirmados',A=>{ const R=A.repo('mi-web-markdown'); if(!R||!R.heads.main) return false; const t=A.tree('mi-web-markdown'); return R.head==='main'&&'index.html' in t&&'README.md' in t&&'img/logo.png' in t; }],
+  ['Repo PÚBLICA usuario/mi-web-markdown en GitHub',A=>{ const m=A.ghm('usuario','mi-web-markdown'); return !!m&&m.visibility==='public'; }],
+  ['GitHub Pages activado desde main, carpeta raíz (/)',A=>{ const m=A.ghm('usuario','mi-web-markdown'); return !!m&&!!m.pages&&m.pages.branch==='main'&&m.pages.path==='/'; }],
+  ['Has consultado el estado de Pages',A=>A.env.hist.some(h=>h.ok&&/^gh api \S*pages/.test(h.cmd)&&!/POST|-f /.test(h.cmd))],
+  ['Web actualizada: segundo commit subido a GitHub',A=>{ const S=A.gh('usuario','mi-web-markdown'); return !!S&&!!S.heads.main&&A.logOf(S.heads.main).length>=2&&S.heads.main===A.br('mi-web-markdown','main'); }]]},
 'e-grande':{ note:'<code>web</code>: el último commit (sin subir) incluye docs/demo.mp4 (150 MB simulados).',
  setup:T=>{ T.base(); T.gh('usuario','web'); T.repo('web',[['Inicio',{'index.html':'<h1>Web</h1>\n'}]]); T.sh('git remote add origin git@github.com:usuario/web.git'); T.sh('git push -u origin main');
   T.ci('Añade documentación',{'docs/manual.md':'# Manual\n','docs/demo.mp4':'[binario 150 MB] vídeo de demostración\n'}); },
@@ -1251,7 +1482,7 @@ const SPECS={
   ['Carpeta limpia',A=>A.clean('servidor')]]}
 };
 
-if(typeof module!=='undefined'&&module.exports) module.exports={Env,SPECS,splitCmds};
+if(typeof module!=='undefined'&&module.exports) module.exports={Env,SPECS,splitCmds,SCRIPT_GUARDAR,SCRIPT_RESTAURAR,README_TIENDA};
 if(typeof document!=='undefined') initUI();
 
 /* ════════════════ interfaz ════════════════ */

@@ -17,6 +17,8 @@ Provocar un conflicto al rebasar una rama sobre `main` y terminar el proceso con
 
 **Teoría de apoyo:** [15.1 Rebase](GIT_Resumen_comandos_de_interes.md#151-rebase) · **Requisito:** [Ejercicio 4](ejercicio_4_conflictos_en_merge.md)
 
+🧪 **Laboratorio** (terminal simulada en el navegador, con *Comprobar* y solución): [Recolocar una rama con rebase](https://jc-csl.github.io/git-github-practico/laboratorio/#lab-e-rebase) · [Push rechazado: pull --rebase](https://jc-csl.github.io/git-github-practico/laboratorio/#lab-e-conf-rebase)
+
 ---
 
 ## Parte A: preparar el escenario
@@ -113,3 +115,13 @@ Provocar un conflicto al rebasar una rama sobre `main` y terminar el proceso con
 2. ¿Qué rama representa `HEAD` en los marcadores de un rebase? ¿Y en los de un merge?
 3. Si `feature-linux` tuviera **3** commits que tocan `config.txt`, ¿cuántas veces podría detenerse el rebase?
 4. ¿Qué tendrías que hacer para que `main` incluya ahora el cambio de `feature-linux`? (Pista: Parte C del [ejercicio 1](ejercicio_1_git_merge_vs_rebase.md)).
+
+<details>
+<summary><b>Soluciones</b></summary>
+
+1. Porque el rebase está **re-aplicando un commit que ya existe**: `git rebase --continue` crea ese commit (con su mensaje) y sigue con el siguiente. Un `git commit` manual crearía un commit de más.
+2. En un rebase, `HEAD` es la rama **base** (`main`) y abajo aparece **tu** commit. En un merge es al revés: `HEAD` es tu rama actual.
+3. Hasta **3** veces: una por cada commit de `feature-linux` que entre en conflicto.
+4. `git switch main` y `git merge feature-linux`: será un *fast-forward*.
+
+</details>

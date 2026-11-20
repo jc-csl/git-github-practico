@@ -26,6 +26,8 @@ En Git, equivocarse es normal. Git es como un **Ctrl+Z con superpoderes**: permi
 
 **Teoría de apoyo:** [9. Deshacer cambios](GIT_Resumen_comandos_de_interes.md#9-deshacer-cambios-restore-reset-revert-amend) · [15.4 Reflog](GIT_Resumen_comandos_de_interes.md#154-reflog-recuperar-commits-perdidos)
 
+🧪 **Laboratorio** (terminal simulada en el navegador, con *Comprobar* y solución): [Descartar cambios](https://jc-csl.github.io/git-github-practico/laboratorio/#lab-e-restore) · [Sacar del staging](https://jc-csl.github.io/git-github-practico/laboratorio/#lab-e-unstage) · [Corregir el último commit](https://jc-csl.github.io/git-github-practico/laboratorio/#lab-e-amend) · [Reset conservando el trabajo](https://jc-csl.github.io/git-github-practico/laboratorio/#lab-e-resetsoft) · [Revertir un commit antiguo](https://jc-csl.github.io/git-github-practico/laboratorio/#lab-e-revertold) · [Reflog](https://jc-csl.github.io/git-github-practico/laboratorio/#lab-e-reflog)
+
 > Después de **cada** paso ejecuta `git status`, `git log --oneline` y `cat config.txt`: así ves qué ha cambiado y en qué zona.
 
 ---
@@ -237,3 +239,14 @@ git revert --continue             # o git revert --abort para cancelar
 3. Tras `git reset HEAD~2`, ¿dónde estaban los cambios? ¿Y tras `git reset --hard HEAD~1`?
 4. ¿Por qué `revert` es la opción correcta en una rama compartida y `reset` no?
 5. ¿Podrías recuperar con `reflog` la línea "admin_user: root_MAL" de la Parte B? ¿Por qué?
+
+<details>
+<summary><b>Soluciones</b></summary>
+
+1. `git restore config.txt` **descarta** los cambios del archivo (no se pueden recuperar). `git restore --staged config.txt` lo **saca de staging** y conserva el cambio en el archivo.
+2. El hash se calcula a partir del contenido, el mensaje, la fecha y el commit padre: cualquier cambio produce otro commit. Si ya estaba subido, GitHub tiene el antiguo: tu `push` sería rechazado y, si lo fuerzas, tus compañeros quedarían con historias divergentes.
+3. Tras `git reset HEAD~2` (mixto), en el **working directory** como cambios sin preparar. Tras `git reset --hard HEAD~1`, **borrados** de la carpeta (solo recuperables con `reflog`, porque estaban en un commit).
+4. `revert` **añade** un commit y no reescribe nada: los demás hacen `pull` sin problemas. `reset` **reescribe** la historia: obliga a forzar el `push` y rompe la copia de los demás.
+5. No: esa línea nunca llegó a un commit. El reflog solo registra movimientos de `HEAD` (commits, resets, cambios de rama).
+
+</details>

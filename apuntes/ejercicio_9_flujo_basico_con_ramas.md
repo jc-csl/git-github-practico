@@ -19,6 +19,8 @@ Recorrer el **ciclo de vida completo de una rama**: crearla para una nueva funci
 
 **Teoría de apoyo:** [10. Ramas y merge](GIT_Resumen_comandos_de_interes.md#10-ramas-y-merge)
 
+🧪 **Laboratorio** (terminal simulada en el navegador, con *Comprobar* y solución): [Rama de funcionalidad y merge](https://jc-csl.github.io/git-github-practico/laboratorio/#lab-e-rama-ff) · [Eliminar ramas: -d y -D](https://jc-csl.github.io/git-github-practico/laboratorio/#lab-e-borrar-ramas)
+
 ---
 
 ## Preparación
@@ -171,5 +173,15 @@ git branch -D experimento
 2. ¿En qué rama tienes que estar para fusionar `feature/x` en `main`?
 3. ¿Qué es un merge *fast-forward*? ¿Por qué no se creó commit de merge?
 4. ¿Qué diferencia hay entre `git branch -d` y `git branch -D`?
+
+<details>
+<summary><b>Soluciones</b></summary>
+
+1. No se ha borrado: solo existe en el commit de la otra rama. Al cambiar a `main`, Git deja la carpeta exactamente como está `main`.
+2. En `main`, la que recibe: `git switch main` y después `git merge feature/x`.
+3. Que `main` no había avanzado desde que se creó la rama: Git solo mueve el puntero de `main` hasta el último commit. No hay dos historias que unir, así que no hace falta commit de merge.
+4. `-d` solo borra ramas ya fusionadas; `-D` la borra aunque tenga commits sin fusionar (recuperables durante un tiempo con `git reflog`).
+
+</details>
 
 ▶ **Siguiente:** ¿qué ocurre si `main` **sí** ha avanzado mientras trabajabas en la rama? → [Ejercicio 1. Merge vs rebase](ejercicio_1_git_merge_vs_rebase.md).

@@ -344,6 +344,9 @@ body.lab-on{overflow:hidden}
       <button class="btn" type="button" data-present>▶ Presentar desde aquí</button>
       <a class="btn" href="#sim">Simulador de zonas</a>
       <a class="btn" href="#indice-ej">Índice de ejercicios</a>
+      <a class="btn" href="../">⌂ Portada del curso</a>
+      <a class="btn" href="https://github.com/jc-csl/git-github-practico/blob/main/apuntes/README.md">📚 Apuntes</a>
+      <a class="btn" href="../editor/">✎ Editor Markdown</a>
     </div>
     <div class="logos-main">
       <div class="main"><img src="img/logo-sanluis.png" alt="Centro San Luis" width="500" height="110"></div>
@@ -358,15 +361,15 @@ body.lab-on{overflow:hidden}
   <h2>Hoja de ruta</h2>
   <div class="units">
     <a href="#u1"><b>1</b><span>Conceptos</span><small>Zonas, estados, HEAD, ramas y simulador</small></a>
-    <a href="#u2"><b>2</b><span>Repositorio local</span><small>config, init, add, commit, .gitignore</small></a>
-    <a href="#u3"><b>3</b><span>Autenticación</span><small>SSH y HTTPS con token</small></a>
+    <a href="#u2"><b>2</b><span>Repositorio local</span><small>config, init, README.md, add, commit, .gitignore</small></a>
+    <a href="#u3"><b>3</b><span>Autenticación</span><small>SSH, HTTPS con token, configuración persistente</small></a>
     <a href="#u4"><b>4</b><span>Repositorios remotos</span><small>GitHub, clone, historias no relacionadas, --bare</small></a>
     <a href="#u5"><b>5</b><span>Día a día</span><small>Subir, actualizar, stash, tags, historial</small></a>
     <a href="#u6"><b>6</b><span>Deshacer cambios</span><small>restore, amend, reset, revert, reflog</small></a>
     <a href="#u7"><b>7</b><span>Ramas</span><small>merge, ramas remotas, borrar, cherry-pick</small></a>
     <a href="#u8"><b>8</b><span>Conflictos</span><small>Entre ramas y con el remoto</small></a>
     <a href="#u9"><b>9</b><span>Rebase</span><small>rebase y rebase interactivo</small></a>
-    <a href="#u10"><b>10</b><span>Colaborar en GitHub</span><small>Fork, Pull Request, equipo</small></a>
+    <a href="#u10"><b>10</b><span>Colaborar y publicar en GitHub</span><small>Fork, PR, equipo, GitHub CLI, GitHub Pages</small></a>
     <a href="#u11"><b>11</b><span>Archivos grandes</span><small>Límite de 100 MB, Git LFS, CRLF</small></a>
     <a href="#u12"><b>12</b><span>Referencia</span><small>Chuleta, mapa de comandos, glosario</small></a>
   </div>
@@ -519,7 +522,7 @@ git status -sb                  # comando (lo que escribes)
     <span class="kicker">Unidad 2</span>
     <h2>Crear y configurar un repositorio local</h2>
     <p class="lead">Todo lo que se puede hacer sin conexión: configurar Git, crear el repositorio, guardar versiones y decidir qué archivos no se versionan.</p>
-    <ul><li>Configuración inicial (una vez por equipo)</li><li><code>git init</code> y primer commit</li><li>Ciclo <code>status → diff → add → commit → log</code></li><li><code>.gitignore</code>, <code>git rm --cached</code>, <code>git mv</code>, <code>git clean</code></li></ul>
+    <ul><li>Configuración inicial (una vez por equipo)</li><li><code>git init</code> y primer commit</li><li>Documentar con <code>README.md</code> (Markdown)</li><li>Ciclo <code>status → diff → add → commit → log</code></li><li><code>.gitignore</code>, <code>git rm --cached</code>, <code>git mv</code>, <code>git clean</code></li></ul>
   </div>
 </section>
 
@@ -607,6 +610,70 @@ git log --oneline                              # situación final
 │ 2b41d1f (HEAD -&gt; main) Primera versión de la web
 git status
 │ nothing to commit, working tree clean</code></pre></div>
+  </details>
+</section>
+
+<section class="slide ex" id="e-readme" data-title="Documentar con README.md (Markdown)" data-level="1">
+  <span class="kicker">Repositorio local</span>
+  <h2>Documentar el proyecto con un <code>README.md</code> en Markdown</h2>
+  <div class="cols wide-l">
+    <div class="prose">
+      <p class="sit"><b>Situación.</b> La repo <code>web-tienda</code> funciona, pero quien llegue a ella en GitHub no sabe qué es ni cómo usarla. GitHub muestra automáticamente el archivo <code>README.md</code> en la portada de cada repo.</p>
+      <ol class="goal">
+        <li>Crea <code>README.md</code> con: un título, dos secciones, una <b>negrita</b> y un <code>código en línea</code>.</li>
+        <li>Añade una lista de tareas (una hecha y otra pendiente), una tabla y un bloque de código <code>bash</code>.</li>
+        <li>Incluye un enlace y confírmalo en un commit.</li>
+      </ol>
+      <div class="cmds"><span>Comandos</span><code>nano README.md</code><code>git add README.md</code><code>git commit</code></div>
+    </div>
+    <div class="tw"><table>
+      <tr><th>Quiero…</th><th>Escribo…</th></tr>
+      <tr><td>Título / sección</td><td><code># Título</code> · <code>## Sección</code></td></tr>
+      <tr><td>Negrita / cursiva</td><td><code>**texto**</code> · <code>*texto*</code></td></tr>
+      <tr><td>Código en línea</td><td><code>`código`</code></td></tr>
+      <tr><td>Tareas</td><td><code>- [x] hecha</code> · <code>- [ ] pendiente</code></td></tr>
+      <tr><td>Tabla</td><td><code>| A | B |</code> + <code>|---|---:|</code></td></tr>
+      <tr><td>Bloque de código</td><td><code>```bash</code> … <code>```</code></td></tr>
+      <tr><td>Enlace / imagen</td><td><code>[texto](url)</code> · <code>![alt](img/x.png)</code></td></tr>
+    </table></div>
+  </div>
+  <div class="callout copper" style="margin-top:1em"><b>Practica también con vista previa:</b> abre el <a href="../editor/">editor Markdown</a> (escribes a la izquierda y ves el resultado a la derecha) y haz el <a href="https://github.com/jc-csl/git-github-practico/blob/main/apuntes/ejercicio_2_markdown_desde_pdf.md">ejercicio 2 de los apuntes</a>: reproducir en Markdown un documento PDF.</div>
+  <details class="sol"><summary>Solución</summary>
+<div class="codewrap"><pre class="sh"><code>git status -s                                # situación inicial: limpia
+nano README.md                               # escribe el contenido de abajo, Ctrl+O y Ctrl+X
+git add README.md
+git commit -m "Añade README con la documentación del proyecto"
+│ [main 5c1e2d7] Añade README con la documentación del proyecto
+│  1 file changed, 22 insertions(+)
+│  create mode 100644 README.md
+git status -s                                # situación final: limpia
+git log --oneline
+│ 5c1e2d7 (HEAD -&gt; main) Añade README con la documentación del proyecto
+│ 9a9bb7a Primera versión de la web</code></pre></div>
+<div class="codewrap"><pre><code># Tienda online
+
+Web de la **tienda del aula**. Se abre con `index.html`.
+
+## Estado
+
+- [x] Página de inicio
+- [ ] Carrito de la compra
+
+## Precios
+
+| Producto | Precio |
+|---|---:|
+| Camiseta | 12 € |
+| Taza | 6 € |
+
+## Instalación
+
+```bash
+git clone git@github.com:usuario/web-tienda.git
+```
+
+Más información en [GitHub](https://github.com/usuario/web-tienda).</code></pre></div>
+<p style="font-size:.92em;color:var(--muted)">Deja una línea en blanco entre bloques (párrafo, lista, tabla, código): es la causa más frecuente de errores de formato. <code>|---:|</code> alinea la columna a la derecha.</p>
   </details>
 </section>
 
@@ -759,7 +826,7 @@ git status                                 # situación final
     <span class="kicker">Unidad 3</span>
     <h2>Autenticarse con GitHub</h2>
     <p class="lead">GitHub no acepta la contraseña de la cuenta desde la terminal. Hay dos caminos: <b>SSH</b> (clave pública/privada) o <b>HTTPS</b> con un <b>token</b>.</p>
-    <ul><li>SSH: <code>git@github.com:usuario/repo.git</code></li><li>HTTPS: <code>https://github.com/usuario/repo.git</code></li><li>Cambiar de uno a otro con <code>git remote set-url</code></li></ul>
+    <ul><li>SSH: <code>git@github.com:usuario/repo.git</code></li><li>HTTPS: <code>https://github.com/usuario/repo.git</code></li><li>Cambiar de uno a otro con <code>git remote set-url</code></li><li>Aulas que se reinician: guardar y restaurar la configuración</li></ul>
   </div>
 </section>
 
@@ -845,6 +912,64 @@ git remote -v                                      # situación final
 │ origin  git@github.com:usuario/web-tienda.git (fetch)
 │ origin  git@github.com:usuario/web-tienda.git (push)
 git push                                           # ahora usa la clave SSH</code></pre></div>
+  </details>
+</section>
+
+<section class="slide ex" id="e-persist" data-title="Configuración persistente en un equipo que se reinicia" data-level="2">
+  <span class="kicker">Autenticación</span>
+  <h2>No perder la configuración de Git y SSH en un aula que se reinicia</h2>
+  <div class="cols wide-l">
+    <div class="prose">
+      <p class="sit"><b>Situación.</b> En el aula, la unidad <code>C:</code> se restaura en cada reinicio: se pierden <code>~/.gitconfig</code> (identidad, alias) y <code>~/.ssh/</code> (claves). La unidad <code>D:</code> se conserva. En <code>D:/git-scripts</code> tienes dos scripts: <code>guardar-config.sh</code> y <code>restaurar-config.sh</code>.</p>
+      <ol class="goal">
+        <li>Guarda tu configuración en <code>D:/git_backup</code> y comprueba qué se ha copiado.</li>
+        <li>Simula el reinicio con <code>reiniciar-equipo</code> y comprueba que Git ya no sabe quién eres y que SSH falla.</li>
+        <li>Restaura y verifica <code>user.name</code> y <code>ssh -T git@github.com</code>.</li>
+      </ol>
+      <div class="cmds"><span>Comandos</span><code>bash guardar-config.sh</code><code>bash restaurar-config.sh</code><code>cat ~/.gitconfig</code><code>cp -r</code></div>
+    </div>
+    <div class="stack">
+      <div class="tw"><table>
+        <tr><th>Momento</th><th>Rutina</th></tr>
+        <tr><td>Al empezar la sesión</td><td><code>bash restaurar-config.sh</code> y comprobar</td></tr>
+        <tr><td>Al terminar la sesión</td><td><code>bash guardar-config.sh</code></td></tr>
+      </table></div>
+      <div class="callout bad"><b>⚠️ <code>D:/git_backup/.ssh</code> contiene tu clave privada.</b> Nunca la metas en un repositorio. La sesión de <code>gh</code> no se guarda así: repite <code>gh auth login</code>.</div>
+      <div class="callout">En Git Bash, <code>D:/git_backup</code> y <code>/d/git_backup</code> son la misma carpeta. Los scripts están en <a href="https://github.com/jc-csl/git-github-practico/blob/main/apuntes/recursos/scripts/guardar-config.sh">apuntes/recursos/scripts</a>.</div>
+    </div>
+  </div>
+  <details class="sol"><summary>Solución</summary>
+<div class="codewrap"><pre class="sh"><code>cat ~/.gitconfig                             # lo que vamos a proteger
+│ [user]
+│ 	name = Alumno
+│ 	email = alumno@ejemplo.com
+bash guardar-config.sh                       # 1. guardar (al terminar cada sesión)
+│ 2. Encontrado .gitconfig. Copiando a D:/git_backup...
+│ 3. Encontrada carpeta .ssh. Copiando a D:/git_backup...
+│ ¡Copia de seguridad finalizada con éxito!
+ls -a /d/git_backup /d/git_backup/.ssh
+│ /d/git_backup:
+│ .  ..  .gitconfig  .ssh/
+│ /d/git_backup/.ssh:
+│ .  ..  id_ed25519  id_ed25519.pub
+
+reiniciar-equipo                             # 2. (simulador) se borra C:, se conserva D:
+git config --global user.name                # no muestra nada
+ssh -T git@github.com
+│ git@github.com: Permission denied (publickey).
+
+cd /d/git-scripts
+bash restaurar-config.sh                     # 3. restaurar (al empezar cada sesión)
+│ 1. Encontrado .gitconfig en el backup. Restaurando a ~/.gitconfig...
+│ 2. Encontrada carpeta .ssh en el backup. Restaurando a ~/.ssh...
+git config --global user.name
+│ Alumno
+ssh -T git@github.com
+│ Hi usuario! You've successfully authenticated, but GitHub does not provide shell access.
+
+# Lo esencial de los scripts, por si quieres hacerlo a mano:
+#   cp ~/.gitconfig /d/git_backup/      y   cp -r ~/.ssh /d/git_backup/
+#   cp /d/git_backup/.gitconfig ~/      y   cp -r /d/git_backup/.ssh ~/</code></pre></div>
   </details>
 </section>
 
@@ -2393,13 +2518,13 @@ git log --oneline -3                        # situación final (hashes nuevos)
 </section>
 
 <!-- ═════════════════════════════ UNIDAD 10 ═════════════════════════════ -->
-<section class="slide unit-cover" id="u10" data-title="Unidad 10 · Colaborar en GitHub" data-unit="10">
+<section class="slide unit-cover" id="u10" data-title="Unidad 10 · Colaborar y publicar en GitHub" data-unit="10">
   <div class="num">10</div>
   <div>
     <span class="kicker">Unidad 10</span>
-    <h2>Colaborar en GitHub</h2>
+    <h2>Colaborar y publicar en GitHub</h2>
     <p class="lead">Dos modelos: contribuir a un proyecto <b>ajeno</b> (fork + Pull Request) o trabajar en <b>equipo</b> sobre la misma repo con ramas y Pull Requests revisados.</p>
-    <ul><li>Fork, Pull Request y mantener el fork al día</li><li>Equipo: colaboradores, ramas por tarea, revisión y limpieza</li></ul>
+    <ul><li>Fork, Pull Request y mantener el fork al día</li><li>Equipo: colaboradores, ramas por tarea, revisión y limpieza</li><li>GitHub CLI (<code>gh</code>): repos, issues y PR desde la terminal</li><li>Publicar una web con GitHub Pages</li></ul>
   </div>
 </section>
 
@@ -2482,6 +2607,115 @@ git push                                 # el PR se actualiza solo
 git switch main && git pull
 git fetch --prune
 git branch -d ana/pagina-ciclos</code></pre></div>
+  </details>
+</section>
+
+<section class="slide ex" id="e-gh" data-title="GitHub CLI: repo, issue y Pull Request desde la terminal" data-level="2">
+  <span class="kicker">GitHub</span>
+  <h2>GitHub CLI (<code>gh</code>): repo, incidencia y Pull Request sin abrir la web</h2>
+  <div class="cols wide-l">
+    <div class="prose">
+      <p class="sit"><b>Situación.</b> Tienes el proyecto local <code>practica-gh</code> con un commit. Quieres hacer todo desde la terminal: crear la repo en GitHub, apuntar una tarea pendiente, proponer el cambio con un Pull Request y fusionarlo.</p>
+      <ol class="goal">
+        <li>Inicia sesión con <code>gh</code> y compruébalo.</li>
+        <li>Crea la repo privada <code>practica-gh</code> en GitHub, vinculada como <code>origin</code> y con tu commit subido, <b>en un solo comando</b>.</li>
+        <li>Abre la incidencia #1 "Añadir sección de autoría".</li>
+        <li>En una rama, añade el autor al README con un commit que diga <code>Closes #1</code>, súbela y abre el PR.</li>
+        <li>Fusiona el PR borrando la rama y actualiza tu <code>main</code>. Comprueba que la incidencia se ha cerrado sola.</li>
+      </ol>
+      <div class="cmds"><span>Comandos</span><code>gh auth login</code><code>gh repo create</code><code>gh issue create</code><code>gh pr create</code><code>gh pr merge</code></div>
+    </div>
+    <div class="stack">
+      <div class="tw"><table>
+        <tr><th>Opción de <code>gh repo create</code></th><th>Hace</th></tr>
+        <tr><td><code>--private</code> / <code>--public</code></td><td>Visibilidad</td></tr>
+        <tr><td><code>--source=.</code></td><td>El código es la carpeta actual</td></tr>
+        <tr><td><code>--remote=origin</code></td><td>Hace el <code>git remote add</code></td></tr>
+        <tr><td><code>--push</code></td><td>Sube los commits (hace falta al menos uno)</td></tr>
+      </table></div>
+      <div class="callout copper"><b><code>git</code> y <code>gh</code> se complementan:</b> <code>git</code> gestiona el historial; <code>gh</code>, tu cuenta y la web de GitHub (repos, issues, PR, releases).</div>
+    </div>
+  </div>
+  <details class="sol"><summary>Solución</summary>
+<div class="codewrap"><pre class="sh"><code>gh auth status                               # situación inicial
+│ You are not logged into any GitHub hosts. To log in, run: gh auth login
+gh auth login                                # GitHub.com → SSH → sube tu clave → navegador
+│ ✓ Logged in as usuario
+gh auth status
+│   - Git operations protocol: ssh
+
+gh repo create practica-gh --private --source=. --remote=origin --push
+│ ✓ Created repository usuario/practica-gh on GitHub
+│ ✓ Added remote git@github.com:usuario/practica-gh.git
+│ ✓ Pushed commits to git@github.com:usuario/practica-gh.git
+git remote -v                                # origin ya apunta a GitHub
+
+gh issue create --title "Añadir sección de autoría" --body "El README debe indicar quién ha hecho la práctica."
+│ https://github.com/usuario/practica-gh/issues/1
+
+git switch -c autoria
+echo "Autor: Alumno" &gt;&gt; README.md
+git commit -am "Añade autoría. Closes #1"   # "Closes #1" cerrará la incidencia al fusionar
+git push -u origin autoria
+gh pr create --fill                          # título y descripción desde el commit
+│ https://github.com/usuario/practica-gh/pull/2
+gh pr list
+│ #2	Añade autoría. Closes #1	autoria	OPEN
+
+gh pr merge 2 --merge --delete-branch
+│ ✓ Merged pull request usuario/practica-gh#2 (Añade autoría. Closes #1)
+│ ✓ Deleted local branch autoria and switched to branch main
+│ ✓ Deleted remote branch autoria
+git pull                                     # main local = GitHub
+git log --oneline --graph
+│ *   06146f4 (HEAD -&gt; main, origin/main) Merge pull request #2 from usuario/autoria
+gh issue list --state closed
+│ #1	[CLOSED] Añadir sección de autoría
+# Issues y PR comparten numeración: la incidencia es #1 y el PR #2.</code></pre></div>
+  </details>
+</section>
+
+<section class="slide ex" id="e-pages" data-title="Publicar una web con GitHub Pages" data-level="2">
+  <span class="kicker">GitHub</span>
+  <h2>Publicar una web gratis con GitHub Pages</h2>
+  <div class="cols wide-l">
+    <div class="prose">
+      <p class="sit"><b>Situación.</b> En <code>mi-web-markdown</code> tienes <code>index.html</code>, <code>README.md</code> e <code>img/logo.png</code>. Quieres publicarlo en <code>https://usuario.github.io/mi-web-markdown/</code>.</p>
+      <ol class="goal">
+        <li>Convierte la carpeta en repositorio y confirma los tres archivos.</li>
+        <li>Crea la repo <b>pública</b> en GitHub y súbela.</li>
+        <li>Activa GitHub Pages desde <code>main</code>, carpeta raíz, y consulta su estado.</li>
+        <li>Haz un cambio y publícalo (commit + push).</li>
+      </ol>
+      <div class="cmds"><span>Comandos</span><code>git init</code><code>gh repo create --public</code><code>gh api …/pages</code><code>git push</code></div>
+    </div>
+    <div class="stack">
+      <div class="card tint"><b>Desde la web</b> (lo habitual): repo → <i>Settings</i> → <i>Pages</i> → <i>Build and deployment</i> → <i>Branch</i>: <code>main</code> y <code>/ (root)</code> → <i>Save</i>. En 1-2 minutos aparece <i>"Your site is live at…"</i>.</div>
+      <div class="callout">En el laboratorio no hay navegador: el clic en <i>Save</i> se hace con la API de GitHub, <code>gh api repos/{owner}/{repo}/pages</code>.</div>
+      <div class="callout bad">Con cuenta gratuita, Pages exige repo <b>pública</b>. Las rutas de imágenes deben ser <b>relativas</b> (<code>img/logo.png</code>, nunca <code>C:\Users\…</code>).</div>
+    </div>
+  </div>
+  <details class="sol"><summary>Solución</summary>
+<div class="codewrap"><pre class="sh"><code>cd mi-web-markdown
+git init
+git add .
+git commit -m "Primera versión de la web"
+gh repo create mi-web-markdown --public --source=. --remote=origin --push
+│ ✓ Created repository usuario/mi-web-markdown on GitHub
+│ ✓ Pushed commits to git@github.com:usuario/mi-web-markdown.git
+
+# Activar Pages (equivale a Settings → Pages → main, / (root) → Save)
+gh api repos/{owner}/{repo}/pages -X POST -f "source[branch]=main" -f "source[path]=/"
+│   "html_url": "https://usuario.github.io/mi-web-markdown/",
+gh api repos/{owner}/{repo}/pages            # estado
+│   "status": "built",
+
+# Cada cambio se publica con el ciclo de siempre
+echo "Última actualización: noviembre" &gt;&gt; README.md
+git commit -am "Actualiza README"
+git push
+gh repo view --web                           # abre la repo en el navegador</code></pre></div>
+<p style="font-size:.92em;color:var(--muted)">Sin GitHub CLI: crea la repo vacía en la web, <code>git remote add origin git@github.com:usuario/mi-web-markdown.git</code>, <code>git push -u origin main</code> y activa Pages en <i>Settings → Pages</i>.</p>
   </details>
 </section>
 
@@ -2730,6 +2964,7 @@ git config --global core.autocrlf input      # (Linux/WSL) convierte a LF al hac
       <p><b>Git y GitHub en la práctica: ejercicios por situaciones.</b> Cloud, IoT and Quantum Computing · CFGS ASIR · Centro San Luis.</p>
       <p>Autor: <b>Juan Carlos San Román</b>.</p>
       <p>Basado en los apuntes del profesorado "GIT. Resumen de comandos de interés" y "Git, GitHub. Resumen de comandos" (taller). Todos los escenarios se han ejecutado con Git 2.43 en Linux para comprobar comandos y salidas.</p>
+      <p>Forma parte del repositorio <a href="https://github.com/jc-csl/git-github-practico">git-github-practico</a>, junto con los <a href="https://github.com/jc-csl/git-github-practico/blob/main/apuntes/README.md">apuntes en Markdown</a> (chuleta, 17 ejercicios guiados con soluciones y retos) y el <a href="../editor/">editor Markdown</a>.</p>
       <p>Para saber más: <a href="https://git-scm.com/book/es/v2">Pro Git en español</a> · <a href="https://docs.github.com/es">Documentación de GitHub</a> · <a href="https://learngitbranching.js.org/?locale=es_ES">Learn Git Branching</a> (simulador de ramas).</p>
     </div>
     <div class="stack">

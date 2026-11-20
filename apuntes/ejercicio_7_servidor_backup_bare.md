@@ -15,6 +15,8 @@ Montar tu propio "GitHub privado" para copias de seguridad: un repositorio **bar
 
 **Teoría de apoyo:** [17. Servidor propio de copias de seguridad](GIT_Resumen_comandos_de_interes.md#17-servidor-propio-de-copias-de-seguridad-repositorio-bare) · [6. Gestión de remotos](GIT_Resumen_comandos_de_interes.md#6-gestión-de-remotos)
 
+🧪 **Laboratorio** (terminal simulada en el navegador, con *Comprobar* y solución): [Servidor propio con --bare](https://jc-csl.github.io/git-github-practico/laboratorio/#lab-e-bare)
+
 ```text
   Tu equipo                         Servidor (o carpeta / USB)
   mis_datos/  ── git push ──►  ~/backups/mis_datos.git   (bare)
@@ -158,3 +160,14 @@ Necesitas una máquina Linux accesible por SSH (servidor del aula, máquina virt
 3. ¿Qué comando usarías para recuperar todos tus datos en un equipo nuevo?
 4. Al clonar aparece `warning: remote HEAD refers to nonexistent ref`. ¿Qué ocurrió al crear el bare y cómo se arregla? (Pista: [17.6](GIT_Resumen_comandos_de_interes.md#176-problemas-típicos)).
 5. ¿Guarda Git los archivos que están en `.gitignore`? ¿Qué implica para una copia de seguridad?
+
+<details>
+<summary><b>Soluciones</b></summary>
+
+1. `mis_datos/` es un repositorio **normal**: carpeta de trabajo con tus archivos y, dentro, `.git`. `mis_datos.git/` es **bare**: solo el contenido de `.git` (objetos y referencias), sin carpeta de trabajo; por eso no ves `notas.txt`.
+2. Porque actualizar la rama que está *checked out* en un repositorio con carpeta de trabajo dejaría sus archivos desincronizados (y podría pisar lo que alguien edita allí). Git lo impide con `receive.denyCurrentBranch`.
+3. `git clone usuario@ip_del_servidor:backups/mis_datos.git` (o la ruta de la carpeta o del USB).
+4. El bare se creó con la rama por defecto `master` (su `HEAD` apunta a `refs/heads/master`), pero solo subiste `main`. En el servidor: `git symbolic-ref HEAD refs/heads/main`. Se evita creándolo con `git init --bare -b main`.
+5. No: lo ignorado no entra en ningún commit, así que **no está en la copia**. Lo que quieras respaldar no debe estar en `.gitignore`, o necesita otra copia aparte.
+
+</details>

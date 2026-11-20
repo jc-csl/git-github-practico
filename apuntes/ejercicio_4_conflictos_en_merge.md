@@ -17,6 +17,8 @@ Provocar un conflicto al fusionar una rama, leer los marcadores de conflicto y r
 
 **Teoría de apoyo:** [10. Ramas y merge](GIT_Resumen_comandos_de_interes.md#10-ramas-y-merge) · **Requisito:** [Ejercicio 1](ejercicio_1_git_merge_vs_rebase.md)
 
+🧪 **Laboratorio** (terminal simulada en el navegador, con *Comprobar* y solución): [Conflicto entre dos ramas](https://jc-csl.github.io/git-github-practico/laboratorio/#lab-e-conf-ramas)
+
 ---
 
 ## Parte A: preparar el conflicto
@@ -120,5 +122,14 @@ cat preferencias.txt
 1. ¿Por qué Git no pudo fusionar solo? ¿Habría conflicto si una rama hubiese cambiado `preferencias.txt` y la otra `otro.txt`?
 2. ¿Qué indica `HEAD` en los marcadores de un merge?
 3. ¿Qué ocurre si haces `git add` sin haber borrado los marcadores? (Pruébalo y mira el archivo final).
+
+<details>
+<summary><b>Soluciones</b></summary>
+
+1. Porque las dos ramas cambiaron **la misma línea** desde su ancestro común y Git no puede decidir cuál vale. Si cada rama hubiera cambiado un archivo distinto, Git fusionaría sola, sin conflicto.
+2. La rama en la que estás, la que **recibe** el merge (aquí, `main`).
+3. Git lo da por resuelto y el commit guarda las líneas `<<<<<<<`, `=======` y `>>>>>>>` dentro del archivo. Git no lo comprueba: revisa siempre con `git diff --staged` antes de confirmar.
+
+</details>
 
 ▶ **Siguiente:** el mismo conflicto, pero con rebase → [Ejercicio 5](ejercicio_5_conflictos_en_rebase.md).

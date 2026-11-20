@@ -17,6 +17,8 @@ Aprender la sintaxis de Markdown **reconstruyendo un documento ya maquetado**: m
 
 **Herramienta:** el editor Markdown de vista dividida (`index.html` en la raíz de este repositorio) o VS Code con la vista previa (`Ctrl + Shift + V`).
 
+🧪 **Laboratorio** (terminal simulada en el navegador, con *Comprobar* y solución): [README.md en Markdown](https://jc-csl.github.io/git-github-practico/laboratorio/#lab-e-readme). Allí escribes un `README.md` en la terminal y el laboratorio comprueba cada elemento de Markdown.
+
 **Entrega:** una carpeta con `README.md` y `img/logo-centro-san-luis.jpg` (la imagen está en la carpeta [`imagenes`](../imagenes/) del repositorio). En el [ejercicio 3](ejercicio_3_github_pages.md) la publicarás en GitHub Pages.
 
 ---
@@ -111,5 +113,12 @@ Pon el PDF y la vista previa uno al lado del otro y revisa la lista de autoevalu
    git add .
    git commit -m "README de la estación meteorológica"
    ```
+
+<details>
+<summary><b>Solución</b></summary>
+
+El Markdown completo que genera el PDF está en [recursos/ejercicio_2_solucion.md](recursos/ejercicio_2_solucion.md). Compáralo con el tuyo línea a línea: lo importante es que el resultado se vea igual, no que el texto sea idéntico (por ejemplo, `*cursiva*` y `_cursiva_` dan lo mismo).
+
+</details>
 
 ▶ **Siguiente:** publica tu documento en internet → [Ejercicio 3. GitHub Pages](ejercicio_3_github_pages.md).

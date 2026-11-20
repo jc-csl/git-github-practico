@@ -15,6 +15,8 @@ Comprobar en la práctica la diferencia entre **fusionar** (`merge`) y **rebasar
 
 **Teoría de apoyo:** [10. Ramas y merge](GIT_Resumen_comandos_de_interes.md#10-ramas-y-merge) · [15.1 Rebase](GIT_Resumen_comandos_de_interes.md#151-rebase)
 
+🧪 **Laboratorio** (terminal simulada en el navegador, con *Comprobar* y solución): [Merge con commit de fusión](https://jc-csl.github.io/git-github-practico/laboratorio/#lab-e-rama-merge) · [Recolocar una rama con rebase](https://jc-csl.github.io/git-github-practico/laboratorio/#lab-e-rebase)
+
 **Requisito:** [Ejercicio 9. Flujo básico con ramas](ejercicio_9_flujo_basico_con_ramas.md) (crear, fusionar y borrar una rama cuando `main` no ha avanzado).
 
 **Antes de empezar:** Git instalado y con identidad configurada (`git config --global user.name` y `user.email`). Todo el ejercicio es local: no hace falta GitHub.
@@ -150,5 +152,15 @@ Repite la **Parte A** en otra carpeta (`prueba-rebase` en lugar de `prueba-merge
 2. ¿Ha cambiado el hash del commit B en la Parte C? ¿Por qué eso es un problema si `feature` ya estuviera subida y otros la usaran?
 3. ¿Qué significa *Fast-forward*?
 4. ¿Qué pasaría con `git branch -d feature` si `feature` **no** estuviera fusionada? ¿Y con `-D`?
+
+<details>
+<summary><b>Soluciones</b></summary>
+
+1. En la Parte B, `main` tiene **4** commits (A, C, B y el commit de merge). En la Parte C, **3** (A, C y B re-aplicado), porque el rebase no crea commit de merge: copia B encima de C.
+2. Sí: B pasa a ser un commit nuevo (B') con otro hash, porque cambia su commit padre. Si `feature` ya estuviera subida y otros la usaran, ellos tendrían el B antiguo: habría que forzar el `push` y sus historias divergirían (regla de oro del rebase).
+3. Que la rama destino solo **adelanta su puntero** hasta el último commit de la otra rama. No se crea commit de merge porque el destino no tenía trabajo nuevo que combinar.
+4. `git branch -d` se niega (`not fully merged`) para que no pierdas commits. `git branch -D` la borra igualmente; sus commits solo se podrían recuperar con `git reflog`.
+
+</details>
 
 ▶ **Siguiente:** cuando las dos ramas tocan las mismas líneas aparecen conflictos → [Ejercicio 4 (merge)](ejercicio_4_conflictos_en_merge.md) y [Ejercicio 5 (rebase)](ejercicio_5_conflictos_en_rebase.md).

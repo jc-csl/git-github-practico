@@ -13,7 +13,7 @@ BACKUP_DIR="${BACKUP_DIR:-D:/git_backup}"
 
 # Crea el directorio de backup si no existe (-p evita errores si ya existe)
 echo "1. Asegurando que el directorio de destino existe en $BACKUP_DIR..."
-mkdir -p "$BACKUP_DIR" || { echo "ERROR: no se pudo crear $BACKUP_DIR"; exit 1; }
+mkdir -p "$BACKUP_DIR"
 echo "   ...Directorio listo."
 
 # Copia el archivo de configuración global de Git

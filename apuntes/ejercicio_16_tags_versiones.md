@@ -15,6 +15,8 @@ Marcar con una **etiqueta** los commits que son versiones entregables (`v1.0`, `
 
 **Teoría de apoyo:** [14. Etiquetas (tags) y versiones](GIT_Resumen_comandos_de_interes.md#14-etiquetas-tags-y-versiones)
 
+🧪 **Laboratorio** (terminal simulada en el navegador, con *Comprobar* y solución): [Etiquetar versiones](https://jc-csl.github.io/git-github-practico/laboratorio/#lab-e-tags)
+
 ---
 
 ## Parte A: crear etiquetas
@@ -123,3 +125,13 @@ gh release list
 2. ¿Por qué tras `git push` tus compañeros no ven tus etiquetas?
 3. ¿Qué significa estar en *detached HEAD*? ¿Cómo sales?
 4. ¿Qué diferencia hay entre una etiqueta y una rama? (Pista: ¿cuál se mueve al hacer commits?)
+
+<details>
+<summary><b>Soluciones</b></summary>
+
+1. La **anotada** es un objeto propio con autor, fecha y mensaje (para versiones oficiales). La **ligera** es solo un nombre que apunta a un commit.
+2. Porque `git push` no envía etiquetas: hay que subirlas con `git push origin v1.0` o `git push origin --tags`.
+3. Que `HEAD` apunta a un commit, no a una rama: lo que confirmes ahí no pertenece a ninguna rama. Se sale con `git switch main` (o creando una rama con `git switch -c`).
+4. La **rama** avanza con cada commit nuevo; la **etiqueta** se queda fija en su commit para siempre.
+
+</details>

@@ -15,6 +15,8 @@ Evitar que lleguen al repositorio archivos que **no deben subirse**: contraseña
 
 **Teoría de apoyo:** [13. .gitignore y dejar de rastrear archivos](GIT_Resumen_comandos_de_interes.md#13-gitignore-y-dejar-de-rastrear-archivos)
 
+🧪 **Laboratorio** (terminal simulada en el navegador, con *Comprobar* y solución): [.gitignore y rm --cached](https://jc-csl.github.io/git-github-practico/laboratorio/#lab-e-ignore)
+
 ---
 
 ## Parte A: un proyecto con archivos "peligrosos"
@@ -127,3 +129,13 @@ ls config.local                             # y sigue en tu disco
 2. ¿Por qué hace falta `logs/.gitkeep`?
 3. ¿Qué hace `git rm --cached` y en qué se diferencia de `git rm`?
 4. Has subido tu `.env` con una clave a GitHub. Ordena los pasos que debes dar.
+
+<details>
+<summary><b>Soluciones</b></summary>
+
+1. `/tmp` ignora solo la carpeta `tmp` de la **raíz**; `tmp/` ignora cualquier carpeta llamada `tmp`, en cualquier nivel.
+2. Git no guarda carpetas vacías. `.gitkeep` es un archivo para que `logs/` exista en el repo, mientras `/logs/*` ignora todo lo demás que contenga.
+3. `git rm --cached` deja de rastrear el archivo (lo quita del índice) pero lo **conserva en disco**; `git rm` lo borra también del disco.
+4. 1) Revocar o cambiar la clave **inmediatamente**. 2) Añadir `.env` al `.gitignore`, `git rm --cached .env`, commit y push. 3) Limpiar el historial (`git filter-repo`) y forzar el push. 4) Avisar al equipo para que vuelva a clonar.
+
+</details>

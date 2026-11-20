@@ -9,7 +9,7 @@
 
 ---
 
-Versión **de bolsillo** con los comandos imprescindibles, para tener a mano o imprimir. Cada tabla enlaza con la sección de la [chuleta completa](GIT_Resumen_comandos_de_interes.md) donde se explican con más detalle y con más opciones.
+Versión **de bolsillo** con los comandos imprescindibles, para tener a mano o imprimir. Cada tabla enlaza con la sección de la [chuleta completa](GIT_Resumen_comandos_de_interes.md) donde se explican con más detalle y con más opciones. Para probarlos sin riesgo: el [🧪 laboratorio](https://jc-csl.github.io/git-github-practico/laboratorio/).
 
 **Abreviaturas:** WD = *working directory* (carpeta de trabajo) · ⚠️ = destructivo o reescribe la historia.
 

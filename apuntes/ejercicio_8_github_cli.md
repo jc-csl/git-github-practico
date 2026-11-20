@@ -15,6 +15,8 @@ Hacer **sin abrir la web de GitHub** lo que hasta ahora hacías con el navegador
 
 **Teoría de apoyo:** [4. GitHub CLI (gh)](GIT_Resumen_comandos_de_interes.md#4-github-cli-gh) · [5.2 Proyecto nuevo con GitHub CLI](GIT_Resumen_comandos_de_interes.md#52-proyecto-nuevo-con-github-cli-en-un-solo-paso) · [16. Colaborar en GitHub](GIT_Resumen_comandos_de_interes.md#16-colaborar-en-github-fork-pull-request-y-trabajo-en-equipo)
 
+🧪 **Laboratorio** (terminal simulada en el navegador, con *Comprobar* y solución): [GitHub CLI: repo, issue y PR](https://jc-csl.github.io/git-github-practico/laboratorio/#lab-e-gh) · [Publicar con GitHub Pages](https://jc-csl.github.io/git-github-practico/laboratorio/#lab-e-pages)
+
 **Antes de empezar:** Git con identidad configurada y cuenta de GitHub. Sirve CMD, PowerShell o Git Bash.
 
 ---
@@ -150,3 +152,13 @@ A revisa con `gh pr list`, `gh pr checkout NUMERO` (prueba el cambio en local) y
 2. ¿Por qué falla `--push` si la carpeta no tiene ningún commit?
 3. ¿Qué diferencia hay entre `git` y `gh`? ¿Podrías hacer `git push` sin `gh`?
 4. ¿Qué hace `gh pr checkout` y para qué sirve al revisar el trabajo de otra persona?
+
+<details>
+<summary><b>Soluciones</b></summary>
+
+1. Crear la repo en la web, `git remote add origin <url>` y `git push -u origin main`.
+2. Porque `--push` sube los commits de la rama actual; sin commits no hay nada que subir (`--push enabled but no commits found`).
+3. `git` gestiona el **historial** (local y remoto); `gh` gestiona tu **cuenta y la web** de GitHub (repos, issues, PR, releases) a través de su API. Sí: `git push` funciona sin `gh`, con SSH o con HTTPS y token.
+4. Descarga la rama del Pull Request y te cambia a ella, para **probar el cambio en local** antes de aprobarlo y fusionarlo.
+
+</details>

@@ -21,6 +21,8 @@ AL EMPEZAR:   D:/git_backup            ── restaurar-config.sh ──►  ~/.
 
 **Teoría de apoyo:** [3.4 Equipos que se reinician](GIT_Resumen_comandos_de_interes.md#34-equipos-que-se-reinician-guardar-gitconfig-y-ssh)
 
+🧪 **Laboratorio** (terminal simulada en el navegador, con *Comprobar* y solución): [Configuración persistente](https://jc-csl.github.io/git-github-practico/laboratorio/#lab-e-persist)
+
 ---
 
 ## Fase 1: configuración inicial (solo una vez)
@@ -123,3 +125,13 @@ bash guardar-config.sh
 2. ¿Por qué hay que ejecutar el script de guardado **al final** de la sesión y no solo el primer día?
 3. ¿Qué hace `[ -f ~/.gitconfig ]`? ¿Y `[ -d ~/.ssh ]`?
 4. ¿Por qué sería grave hacer `git add .` en una carpeta que contenga `git_backup`?
+
+<details>
+<summary><b>Soluciones</b></summary>
+
+1. La configuración global en `C:\Users\<usuario>\.gitconfig` (`~/.gitconfig`); las claves SSH en `C:\Users\<usuario>\.ssh\` (`~/.ssh/`).
+2. Porque durante la sesión puedes cambiar cosas (alias, otra clave, configuración). Si solo guardas el primer día, cada restauración traería una versión antigua.
+3. `[ -f ~/.gitconfig ]` comprueba si existe ese **archivo**; `[ -d ~/.ssh ]`, si existe esa **carpeta**. Así el script avisa en vez de fallar.
+4. Tu **clave privada** quedaría confirmada en el historial y, al subirla, expuesta. Habría que borrarla de GitHub (*Settings → SSH keys*), generar otra y limpiar el historial.
+
+</details>

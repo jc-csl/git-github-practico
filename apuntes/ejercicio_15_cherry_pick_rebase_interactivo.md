@@ -16,6 +16,8 @@
 
 **Teoría de apoyo:** [15.2 Rebase interactivo](GIT_Resumen_comandos_de_interes.md#152-rebase-interactivo) · [15.3 Cherry-pick](GIT_Resumen_comandos_de_interes.md#153-cherry-pick)
 
+🧪 **Laboratorio** (terminal simulada en el navegador, con *Comprobar* y solución): [Cherry-pick](https://jc-csl.github.io/git-github-practico/laboratorio/#lab-e-cherry) · [Commit en la rama equivocada](https://jc-csl.github.io/git-github-practico/laboratorio/#lab-e-rama-equivocada) · [Rebase interactivo: squash, fixup y drop](https://jc-csl.github.io/git-github-practico/laboratorio/#lab-e-rebase-i) · [Rebase interactivo: reword y reordenar](https://jc-csl.github.io/git-github-practico/laboratorio/#lab-e-rebase-i2)
+
 **Antes de empezar:** configura un editor que sepas usar, porque el rebase interactivo lo abre. Por ejemplo `git config --global core.editor nano` (o `"code --wait"` para VS Code).
 
 ---
@@ -144,3 +146,13 @@ ls                                         # docs.txt ya no está en main
 2. ¿Qué diferencia hay entre `squash` y `fixup`? ¿Y entre `reword` y `edit`?
 3. En el editor del rebase interactivo, ¿el commit de arriba es el más antiguo o el más reciente?
 4. ¿Por qué no debes hacer `rebase -i` de commits que ya están en GitHub y usan tus compañeros?
+
+<details>
+<summary><b>Soluciones</b></summary>
+
+1. Porque el hash depende también del commit **padre** (y de la fecha): la copia cuelga de otro commit, así que es un commit distinto con los mismos cambios.
+2. `squash` une el commit al anterior y te deja editar el mensaje combinado; `fixup` lo une y descarta su mensaje. `reword` solo cambia el mensaje; `edit` se detiene para cambiar el contenido (`git commit --amend` y `git rebase --continue`).
+3. El de **arriba** es el más antiguo.
+4. Porque cambian todos los hashes: tus compañeros tienen los commits antiguos, tendrías que forzar el `push` y sus historias divergirían.
+
+</details>

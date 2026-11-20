@@ -16,6 +16,8 @@
 
 **Teoría de apoyo:** [2. Configuración inicial](GIT_Resumen_comandos_de_interes.md#2-instalación-y-configuración-inicial) · [3. Autenticación SSH](GIT_Resumen_comandos_de_interes.md#3-autenticación-ssh-con-github) · [6. Gestión de remotos](GIT_Resumen_comandos_de_interes.md#6-gestión-de-remotos)
 
+🧪 **Laboratorio** (terminal simulada en el navegador, con *Comprobar* y solución): [Autenticación SSH](https://jc-csl.github.io/git-github-practico/laboratorio/#lab-e-ssh) · [HTTPS con token y set-url](https://jc-csl.github.io/git-github-practico/laboratorio/#lab-e-https)
+
 > **¿Aula con disco C: que se reinicia?** Al terminar este ejercicio haz el [ejercicio 11](ejercicio_11_config_entorno_volatil.md) para no perder la clave en el próximo reinicio.
 
 ---
@@ -144,3 +146,13 @@ Borra la repo de prueba desde la web (*Settings → Danger Zone → Delete this 
 2. Si `ssh -T git@github.com` funciona, ¿por qué `git push` puede seguir pidiendo contraseña?
 3. ¿Qué comando muestra con qué URL está trabajando una repo? ¿Y cuál la cambia?
 4. ¿Con qué URL debes clonar a partir de ahora para no tener este problema?
+
+<details>
+<summary><b>Soluciones</b></summary>
+
+1. La **`.pub`** (pública). La privada nunca sale de tu equipo: quien la tenga puede hacerse pasar por ti.
+2. Porque esa repo tiene un remoto con URL `https://…`. Git solo usa tu clave SSH si la URL es `git@github.com:…`.
+3. `git remote -v` muestra la URL; `git remote set-url origin <nueva-url>` la cambia.
+4. Con la URL SSH: `git clone git@github.com:usuario/repo.git` (botón *Code → SSH* en GitHub).
+
+</details>

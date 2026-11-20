@@ -15,6 +15,8 @@ Subir el editor (`index.html`) y el documento Markdown del [ejercicio 2](ejercic
 
 **Teoría de apoyo:** [3. Autenticación SSH](GIT_Resumen_comandos_de_interes.md#3-autenticación-ssh-con-github) · [5. Crear o clonar un repositorio](GIT_Resumen_comandos_de_interes.md#5-crear-o-clonar-un-repositorio) · [7. Ciclo diario](GIT_Resumen_comandos_de_interes.md#7-ciclo-diario-add-commit-push-pull)
 
+🧪 **Laboratorio** (terminal simulada en el navegador, con *Comprobar* y solución): [Publicar con GitHub Pages](https://jc-csl.github.io/git-github-practico/laboratorio/#lab-e-pages)
+
 **Antes de empezar:** cuenta de GitHub y autenticación configurada (clave SSH o `gh auth login`).
 
 Estructura de la carpeta que vas a publicar:
@@ -89,3 +91,12 @@ Tras un par de minutos, la web muestra la versión nueva.
 1. ¿Por qué la repo debe crearse vacía si después haces `git push` desde local?
 2. ¿Qué hace exactamente `-u` en `git push -u origin main`? ¿Hace falta en los siguientes `push`?
 3. Si la imagen se ve en tu ordenador pero no en la web, ¿qué dos cosas comprobarías? (Pista: ruta relativa y `git status`).
+
+<details>
+<summary><b>Soluciones</b></summary>
+
+1. Porque si la repo remota ya tuviera un commit (README, licencia…), su historia y la tuya no tendrían ningún commit en común y el `push` se rechazaría (*historias no relacionadas*).
+2. `-u` vincula tu `main` con `origin/main` (*upstream*). A partir de ahí basta con `git push` y `git pull` sin argumentos; no hace falta repetirlo.
+3. Que la ruta sea **relativa** (`img/logo.png`, nunca `C:\Users\…`) y escrita con las mismas mayúsculas que el archivo (GitHub Pages las distingue); y que la imagen esté **confirmada y subida** (`git status`, `git ls-files img/`).
+
+</details>
