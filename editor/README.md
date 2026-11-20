@@ -7,6 +7,16 @@ Publicado en: https://jc-csl.github.io/git-github-practico/editor/
 Forma parte del repositorio [git-github-practico](../README.md): 📚 [apuntes de Git y GitHub](../apuntes/README.md) · 🧪 [laboratorio de ejercicios](../laboratorio/).
 
 
+## Leer los apuntes y carpetas de Markdown
+
+El navegador no le dice al editor de qué carpeta viene un archivo abierto con **Abrir .md**, así que en ese modo las imágenes y los enlaces relativos (`../imagenes/logo.png`, `ejercicio_6.md`) se buscan junto al editor y no junto al documento. Para leer documentos que enlazan a otros o llevan imágenes:
+
+- **📚 Apuntes**: en la web publicada abre `apuntes/README.md` directamente. En local te pide la carpeta: elige la carpeta del repositorio `git-github-practico`.
+- **Abrir carpeta**: lee una carpeta entera (sin `.git`). Las imágenes relativas se ven, los enlaces a otros `.md` se abren dentro del editor, el desplegable de la vista previa lista todos los documentos y **← Atrás** vuelve al anterior.
+- Enlace directo (solo en la web): `editor/?doc=../apuntes/README.md#seccion`.
+
+Si cambias un documento y vas a abrir otro, el editor te avisa. Para conservar los cambios, usa **Guardar como...**
+
 ## Tabla de contenidos
 
 - [Características principales](#características-principales)

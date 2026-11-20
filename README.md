@@ -4,8 +4,7 @@
 
 **Cloud, IoT and Quantum Computing · CFGS ASIR · Centro San Luis · curso 2026-27 · Juan Carlos San Román**
 
-> <img src="imagenes/semaforo-ia-verde.png" alt="Semáforo IA: nivel verde" width="28" align="left">
-> **Declaración de uso de IA** · Guía de uso de la IA en el aula, Centro San Luis (nivel verde). Este material parte de los apuntes propios del profesorado (resúmenes de comandos Git y taller Git/GitHub); se ha utilizado IA para la redacción de los ejercicios, el formateo, el simulador y la comprobación de los comandos en una terminal real, con revisión y validación del profesorado.
+> <img src="imagenes/semaforo-ia-verde.png" alt="Semáforo IA: nivel verde" width="28" align="left"> **Declaración de uso de IA** · Guía de uso de la IA en el aula, Centro San Luis (nivel verde). Este material parte de los apuntes propios del profesorado (resúmenes de comandos Git y taller Git/GitHub); se ha utilizado IA para la redacción de los ejercicios, el formateo, el simulador y la comprobación de los comandos en una terminal real, con revisión y validación del profesorado.
 
 Un único repositorio práctico para aprender Git y GitHub, con tres partes independientes que se enlazan entre sí:
 

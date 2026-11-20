@@ -4,8 +4,7 @@
 
 **curso 2026-27 · Juan Carlos San Román**
 
-> <img src="../imagenes/semaforo-ia-verde.png" alt="Semáforo IA: nivel verde" width="28" align="left">
-> **Declaración de uso de IA** · Guía de uso de la IA en el aula, Centro San Luis (nivel verde). Este material parte de los apuntes propios del profesorado (resúmenes de comandos Git y taller Git/GitHub); se ha utilizado IA para la redacción de los ejercicios, el formateo, el simulador y la comprobación de los comandos en una terminal real, con revisión y validación del profesorado.
+> <img src="../imagenes/semaforo-ia-verde.png" alt="Semáforo IA: nivel verde" width="28" align="left"> **Declaración de uso de IA** · Guía de uso de la IA en el aula, Centro San Luis (nivel verde). Este material parte de los apuntes propios del profesorado (resúmenes de comandos Git y taller Git/GitHub); se ha utilizado IA para la redacción de los ejercicios, el formateo, el simulador y la comprobación de los comandos en una terminal real, con revisión y validación del profesorado.
 
 Chuleta de comandos Git ordenados por funcionalidad. Cada bloque tiene una tabla `comando → comentario breve` y, cuando procede, una receta paso a paso lista para copiar. Al final de cada sección, **▶ Practica** enlaza con el ejercicio guiado correspondiente. El orden recomendado de estudio está en el [itinerario de los apuntes](README.md), y hay una versión de bolsillo con lo imprescindible en [Acciones habituales](GIT_acciones_habituales.md). Para practicar sin riesgo, el [🧪 laboratorio](https://jc-csl.github.io/git-github-practico/laboratorio/) tiene 50 ejercicios con terminal simulada en el navegador.
 
