@@ -7,14 +7,10 @@ Publicado en: https://jc-csl.github.io/git-github-practico/editor/
 Forma parte del repositorio [git-github-practico](../README.md): 📚 [apuntes de Git y GitHub](../apuntes/README.md) · 🧪 [laboratorio de ejercicios](../laboratorio/).
 
 
-## Leer los apuntes y carpetas de Markdown
+## Leer los apuntes y tus archivos Markdown
 
 - **Abrir .md** (`Ctrl+O`) muestra la **lista de los apuntes** del repositorio, con buscador: pulsa uno y se abre, sin pasar por la ventana de archivos del navegador. Funciona igual en local (`file:///`) y en la web, en Chrome, Edge y Firefox. Se ven sus imágenes, los enlaces a otros apuntes se abren dentro del editor, el **desplegable de la vista previa** cambia de apunte y **← Atrás** vuelve al anterior.
-- Abajo en esa ventana, **¿Algo tuyo?** abre la ventana del navegador para lo que no está en la lista:
-  - **Un archivo .md...**: un `.md` cualquiera. El navegador no le dice al editor de qué carpeta viene, así que sus imágenes y enlaces relativos no se ven; para eso usa **Una carpeta...**.
-  - **Una carpeta...**: lee una carpeta entera (sin `.git`), por ejemplo el repositorio de un proyecto tuyo. Las imágenes relativas se ven, los enlaces a otros `.md` se abren dentro del editor, el desplegable de la vista previa lista todos los documentos y **← Atrás** vuelve al anterior. Al volver a abrir esa carpeta, empieza en el último documento que leíste.
-- En la ventana del navegador **se elige la carpeta, no un archivo**: aunque marques un ejercicio, se abre la carpeta. El documento se elige después en el **desplegable de la vista previa** (o con los enlaces del índice).
-- Al elegir la carpeta, **el navegador pide permiso** con su propio aviso. Firefox dice *«¿Está seguro de que desea enviar todos los archivos de "apuntes"?»* y Chrome *«¿Ver archivos?»* o *«¿Subir archivos?»*. Acepta: **no se envía nada a internet**, los archivos solo los lee la pestaña del editor en tu equipo.
+- Abajo en esa ventana, **Un archivo .md...** abre la ventana del navegador para elegir un `.md` tuyo. El navegador no le dice al editor de qué carpeta viene, así que sus imágenes con ruta relativa no se ven en la vista previa (el texto sí).
 - Enlace directo: `editor/index.html?doc=../apuntes/README.md#seccion` (en local, solo para los apuntes de la lista).
 
 Si cambias un documento y vas a abrir otro, el editor te avisa.

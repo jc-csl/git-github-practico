@@ -272,8 +272,6 @@
     .doc-nav #docPath { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 34ch; }
     .doc-back, #docSelect { font: inherit; font-size: 11px; font-weight: 700; color: var(--text-main, inherit); background: transparent; border: 1px solid var(--border-subtle); border-radius: 6px; padding: 2px 8px; cursor: pointer; }
     #docSelect { max-width: 28ch; text-transform: none; }
-    #docSelect.pulse { animation: docPulse 0.8s ease-in-out 3; }
-    @keyframes docPulse { 50% { border-color: var(--accent, #3b82f6); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.45); } }
     .pane-header {
       display: flex;
       align-items: center;
@@ -968,7 +966,7 @@
           <span class="unsaved-dot" id="unsavedDot" title="Cambios sin descargar">•</span>
           <button type="button" class="unlink-btn" id="btnUnlinkFile" title="Desvincular archivo actual" style="display:none">✕</button>
         </div>
-        <span class="mode-badge" title="Versión del editor: si no coincide con la última, recarga con Ctrl+F5">v2026-11-20.7</span>
+        <span class="mode-badge" title="Versión del editor: si no coincide con la última, recarga con Ctrl+F5">v2026-11-20.8</span>
         <span id="autosaveStatus">Borrador guardado en navegador</span>
       </div>
 
@@ -1105,9 +1103,8 @@
         <ul id="openDocList" class="open-doc-list"></ul>
       </div>
       <div class="modal-footer">
-        <span class="open-doc-note">¿Algo tuyo?</span>
+        <span class="open-doc-note">¿Un .md tuyo?</span>
         <button type="button" class="btn" id="btnOpenOtherFile" title="Un .md cualquiera de tu equipo (sus imágenes relativas no se ven)">Un archivo .md...</button>
-        <button type="button" class="btn" id="btnOpenOtherFolder" title="Una carpeta con varios .md: se ven sus imágenes y los enlaces entre documentos se abren aquí. Nada se sube a internet.">Una carpeta...</button>
       </div>
     </div>
   </div>
@@ -1211,7 +1208,6 @@ Al pulsar **Imagen** (o arrastrar/pegar una captura), el editor selecciona **Rut
 
       // Documento con "base": permite resolver rutas relativas (imágenes y enlaces entre .md)
       //  - {type:'url', url}                      → abierto por web (GitHub Pages)
-      //  - {type:'dir', files:Map, path, root}    → abierto desde "Abrir .md > Una carpeta..."
       //  - null                                   → archivo suelto: rutas relativas al propio editor
       const STORAGE_KEY_DOCURL = 'md_editor_docurl_v3';
       // Apuntes incluidos en apuntes-datos.js; claves relativas a la raíz del repositorio (README.md, apuntes/...)
@@ -1233,7 +1229,6 @@ Al pulsar **Imagen** (o arrastrar/pegar una captura), el editor selecciona **Rut
       }
       let docBase = null;
       const docHistory = [];
-      const dirUrlCache = new Map();
 
       // Estado del modal de imagen
       let currentImageTab = 'local';
@@ -1320,14 +1315,6 @@ Al pulsar **Imagen** (o arrastrar/pegar una captura), el editor selecciona **Rut
       }
 
       const isExternalRef = u => /^[a-z][a-z0-9+.\-]*:/i.test(u) || u.startsWith('//');
-      function joinRelPath(baseFile, rel) {
-        const parts = baseFile.split('/'); parts.pop();
-        for (const seg of rel.split('/')) {
-          if (!seg || seg === '.') continue;
-          if (seg === '..') parts.pop(); else parts.push(seg);
-        }
-        return parts.join('/');
-      }
       function safeDecode(x) { try { return decodeURIComponent(x); } catch (e) { return x; } }
       // Devuelve la URL utilizable para una ruta relativa del documento, o null si no aplica
       function resolveDocRef(ref) {
@@ -1335,13 +1322,6 @@ Al pulsar **Imagen** (o arrastrar/pegar una captura), el editor selecciona **Rut
         const path = ref.split('#')[0].split('?')[0];
         if (!path) return null;
         if (docBase.type === 'url') return new URL(ref, docBase.url).href;
-        if (docBase.type === 'dir') {
-          const p = joinRelPath(docBase.path, safeDecode(path));
-          const f = docBase.files.get(p);
-          if (!f) return null;
-          if (!dirUrlCache.has(p)) dirUrlCache.set(p, URL.createObjectURL(f));
-          return dirUrlCache.get(p);
-        }
         return null;
       }
 
@@ -1663,22 +1643,18 @@ Al pulsar **Imagen** (o arrastrar/pegar una captura), el editor selecciona **Rut
         });
       });
 
-      // ── Documentos con base: apuntes del curso, carpetas y enlaces entre .md ──
+      // ── Documentos con base: apuntes del curso y enlaces entre .md ──
       function docLabel(base) {
         if (!base) return 'Navegación por anclas activa';
         if (base.type === 'url') return decodeURIComponent(new URL(base.url).pathname.replace(/^.*?\/(apuntes|editor|laboratorio)\//, '$1/'));
-        return (base.root ? base.root + '/' : '') + base.path;
+        return '';
       }
       function refreshDocNav() {
         document.getElementById('docPath').textContent = docLabel(docBase);
         document.getElementById('docPath').title = docLabel(docBase);
         document.getElementById('btnDocBack').hidden = docHistory.length === 0;
         const sel = document.getElementById('docSelect');
-        if (docBase && docBase.type === 'dir') {
-          const mds = [...docBase.files.keys()].filter(k => /\.(md|markdown)$/i.test(k)).sort((a, b) => a.localeCompare(b, 'es', { numeric: true }));
-          sel.innerHTML = mds.map(k => `<option value="${escapeHtml(k)}"${k === docBase.path ? ' selected' : ''}>${escapeHtml(k)}</option>`).join('');
-          sel.hidden = mds.length < 2;
-        } else if (docBase && docBase.type === 'url' && bundleKey(docBase.url)) {
+        if (docBase && docBase.type === 'url' && bundleKey(docBase.url)) {
           const cur = bundleKey(docBase.url);
           sel.innerHTML = bundleKeysSorted().map(k => `<option value="${escapeHtml(k)}"${k === cur ? ' selected' : ''}>${escapeHtml(k)}</option>`).join('');
           sel.hidden = false;
@@ -1733,69 +1709,18 @@ Al pulsar **Imagen** (o arrastrar/pegar una captura), el editor selecciona **Rut
           return false;
         }
       }
-      async function loadDocFromDir(base, path, anchor, pushHistory) {
-        const f = base.files.get(path);
-        if (!f) { showToast(`No está en la carpeta abierta: ${path}`); return false; }
-        setDocument(await f.text(), path.split('/').pop(), { type: 'dir', files: base.files, root: base.root, path }, anchor, pushHistory);
-        try { localStorage.setItem('md_editor_lastdoc_' + base.root, path); } catch (e) { /* sin almacenamiento */ }
-        return true;
-      }
       async function openDocRef(href) {
         if (!leavingDocOk()) return;
         const [pathPart, anchor] = href.split('#');
-        if (docBase.type === 'url') return loadDocFromUrl(new URL(pathPart, docBase.url).href, anchor, true);
-        return loadDocFromDir(docBase, joinRelPath(docBase.path, safeDecode(pathPart)), anchor, true);
-      }
-      function pickFolderWithInput() {
-        return new Promise(resolve => {
-          const input = document.createElement('input');
-          input.type = 'file'; input.multiple = true; input.webkitdirectory = true;
-          input.addEventListener('change', () => {
-            const files = new Map(); let root = '';
-            for (const f of input.files) {
-              const rel = f.webkitRelativePath || f.name; const parts = rel.split('/');
-              root = parts[0];
-              if (parts.includes('.git') || parts.includes('node_modules')) continue;
-              files.set(parts.slice(1).join('/'), f);
-            }
-            resolve(files.size ? { files, root } : null);
-          });
-          input.click();
-        });
-      }
-      const folderHint = 'El navegador te pedirá permiso para leer la carpeta (puede decir "enviar" o "subir"): acepta. Los archivos no salen de tu equipo, solo los lee esta pestaña. En la ventana se elige la CARPETA, no el archivo: el documento lo eliges luego en el desplegable de la vista previa.';
-      async function openFolder() {
-        if (!leavingDocOk()) return;
-        showToast(folderHint, 10000);
-        const picked = await pickFolderWithInput();
-        if (!picked) return;
-        const mds = [...picked.files.keys()].filter(k => /\.(md|markdown)$/i.test(k));
-        if (!mds.length) { showToast('La carpeta no contiene archivos .md'); return; }
-        let lastDoc = null;
-        try { lastDoc = localStorage.getItem('md_editor_lastdoc_' + picked.root); } catch (e) { /* sin almacenamiento */ }
-        const order = [lastDoc, 'README.md', 'apuntes/README.md', 'readme.md'].filter(Boolean);
-        const start = order.find(k => picked.files.has(k)) || mds.sort((a, b) => a.localeCompare(b, 'es', { numeric: true }))[0];
-        docHistory.length = 0;
-        for (const u of dirUrlCache.values()) URL.revokeObjectURL(u);
-        dirUrlCache.clear();
-        await loadDocFromDir({ type: 'dir', ...picked }, start, null, false);
-        showToast(`Carpeta "${picked.root}": ${mds.length} documentos .md. Elige cuál leer en el desplegable de la vista previa o pulsa sus enlaces.`, 6000);
-        const sel = document.getElementById('docSelect');
-        if (!sel.hidden) { sel.focus(); sel.classList.add('pulse'); setTimeout(() => sel.classList.remove('pulse'), 2400); }
+        return loadDocFromUrl(new URL(pathPart, docBase.url).href, anchor, true);
       }
       document.getElementById('docSelect').addEventListener('change', async (e) => {
-        if (!docBase) return;
-        if (docBase.type === 'url') {
-          if (!leavingDocOk()) { e.target.value = bundleKey(docBase.url) || ''; return; }
-          await loadDocFromUrl(bundleUrl(e.target.value), null, true);
-          return;
-        }
-        if (docBase.type !== 'dir') return;
-        if (!leavingDocOk()) { e.target.value = docBase.path; return; }
-        await loadDocFromDir(docBase, e.target.value, null, true);
+        if (!docBase || docBase.type !== 'url') return;
+        if (!leavingDocOk()) { e.target.value = bundleKey(docBase.url) || ''; return; }
+        await loadDocFromUrl(bundleUrl(e.target.value), null, true);
       });
 
-      // "Abrir .md": primero la lista de apuntes (sin ventana del sistema); "Un archivo .md..." y "Una carpeta..." abren la del navegador
+      // "Abrir .md": primero la lista de apuntes (sin ventana del sistema); "Un archivo .md..." abre la del navegador
       const openDocModal = document.getElementById('openDocModal');
       const openDocFilter = document.getElementById('openDocFilter');
       const openDocList = document.getElementById('openDocList');
@@ -1827,12 +1752,11 @@ Al pulsar **Imagen** (o arrastrar/pegar una captura), el editor selecciona **Rut
       document.getElementById('btnCloseOpenDoc').addEventListener('click', () => openDocModal.classList.remove('open'));
       openDocModal.addEventListener('click', (e) => { if (e.target === openDocModal) openDocModal.classList.remove('open'); });
       document.getElementById('btnOpenOtherFile').addEventListener('click', () => { openDocModal.classList.remove('open'); openLocalMarkdownFile(); });
-      document.getElementById('btnOpenOtherFolder').addEventListener('click', () => { openDocModal.classList.remove('open'); openFolder(); });
       document.getElementById('btnDocBack').addEventListener('click', async () => {
         const prev = docHistory.pop();
         if (!prev) return;
         if (!leavingDocOk()) { docHistory.push(prev); return; }
-        const ok = prev.type === 'url' ? await loadDocFromUrl(prev.url, null, false) : await loadDocFromDir(prev, prev.path, null, false);
+        const ok = await loadDocFromUrl(prev.url, null, false);
         if (ok) previewPane.scrollTo({ top: prev.scroll || 0, behavior: 'instant' });
         refreshDocNav();
       });
