@@ -4,6 +4,8 @@ Este editor funciona tanto en **local (`file:///`)** como publicado en **GitHub 
 
 En GitHub https://jc-csl.github.io/editor-markdown/
 
+📚 **Apuntes de Git y GitHub:** empieza por el [itinerario de los apuntes](apuntes/README.md).
+
 
 ## Tabla de contenidos
 

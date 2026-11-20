@@ -1,41 +1,60 @@
 # GIT / GitHub. Resumen de comandos de interés (CLI)
 
-Chuleta de comandos Git ordenados por funcionalidad. Cada bloque tiene una tabla `comando → comentario breve` y, cuando procede, una receta paso a paso lista para copiar.
+<img src="../imagenes/logo-centro-san-luis.jpg" alt="Centro San Luis" width="200">
+
+**curso 2026-27 · Juan Carlos San Román**
+
+> <img src="../imagenes/semaforo-ia-verde.png" alt="Semáforo IA: nivel verde" width="28" align="left">
+> **Declaración de uso de IA** · Guía de uso de la IA en el aula, Centro San Luis (nivel verde). Este material parte de los apuntes propios del profesorado (resúmenes de comandos Git y taller Git/GitHub); se ha utilizado IA para la redacción de los ejercicios, el formateo, el simulador y la comprobación de los comandos en una terminal real, con revisión y validación del profesorado.
+
+Chuleta de comandos Git ordenados por funcionalidad. Cada bloque tiene una tabla `comando → comentario breve` y, cuando procede, una receta paso a paso lista para copiar. Al final de cada sección, **▶ Practica** enlaza con el ejercicio guiado correspondiente. El orden recomendado de estudio está en el [itinerario de los apuntes](README.md), y hay una versión de bolsillo con lo imprescindible en [Acciones habituales](GIT_acciones_habituales.md).
 
 **Convenciones:** `<hash>` = identificador de commit (se ve con `git log --oneline`) · `origin` = nombre habitual del remoto · `main` = rama principal · ⚠️ = comando destructivo o que reescribe historial.
 
 ## Índice
 
+**Bloque I. Primeros pasos**
+
 1. [Conceptos mínimos](#1-conceptos-mínimos)
 2. [Instalación y configuración inicial](#2-instalación-y-configuración-inicial)
 3. [Autenticación SSH con GitHub](#3-autenticación-ssh-con-github)
-4. [Crear o clonar un repositorio](#4-crear-o-clonar-un-repositorio)
-5. [Gestión de remotos](#5-gestión-de-remotos)
-6. [Ciclo diario: add, commit, push, pull](#6-ciclo-diario-add-commit-push-pull)
-7. [Inspeccionar: status, log, diff](#7-inspeccionar-status-log-diff)
-8. [Deshacer cambios: restore, reset, revert, amend](#8-deshacer-cambios-restore-reset-revert-amend)
-9. [Ramas y merge](#9-ramas-y-merge)
-10. [Sincronizar con el remoto y resolver divergencias](#10-sincronizar-con-el-remoto-y-resolver-divergencias)
-11. [Stash: guardar trabajo a medias](#11-stash-guardar-trabajo-a-medias)
-12. [.gitignore y dejar de rastrear archivos](#12-gitignore-y-dejar-de-rastrear-archivos)
-13. [Etiquetas (tags) y versiones](#13-etiquetas-tags-y-versiones)
-14. [Avanzado: rebase, rebase interactivo, cherry-pick, reflog](#14-avanzado-rebase-rebase-interactivo-cherry-pick-reflog)
-15. [Colaborar en GitHub: fork, Pull Request y trabajo en equipo](#15-colaborar-en-github-fork-pull-request-y-trabajo-en-equipo)
-16. [Archivos grandes y Git LFS](#16-archivos-grandes-y-git-lfs)
-17. [Finales de línea Windows / Linux (CRLF / LF)](#17-finales-de-línea-windows--linux-crlf--lf)
-18. [Alias](#18-alias)
-19. [Problemas frecuentes: qué comando uso](#19-problemas-frecuentes-qué-comando-uso)
+4. [GitHub CLI (gh)](#4-github-cli-gh)
+5. [Crear o clonar un repositorio](#5-crear-o-clonar-un-repositorio)
+6. [Gestión de remotos](#6-gestión-de-remotos)
+
+**Bloque II. Trabajo diario**
+
+7. [Ciclo diario: add, commit, push, pull](#7-ciclo-diario-add-commit-push-pull)
+8. [Inspeccionar: status, log, diff](#8-inspeccionar-status-log-diff)
+9. [Deshacer cambios: restore, reset, revert, amend](#9-deshacer-cambios-restore-reset-revert-amend)
+10. [Ramas y merge](#10-ramas-y-merge)
+11. [Sincronizar con el remoto y resolver divergencias](#11-sincronizar-con-el-remoto-y-resolver-divergencias)
+12. [Stash: guardar trabajo a medias](#12-stash-guardar-trabajo-a-medias)
+13. [.gitignore y dejar de rastrear archivos](#13-gitignore-y-dejar-de-rastrear-archivos)
+14. [Etiquetas (tags) y versiones](#14-etiquetas-tags-y-versiones)
+
+**Bloque III. Avanzado, colaboración y copias de seguridad**
+
+15. [Avanzado: rebase, rebase interactivo, cherry-pick, reflog](#15-avanzado-rebase-rebase-interactivo-cherry-pick-reflog)
+16. [Colaborar en GitHub: fork, Pull Request y trabajo en equipo](#16-colaborar-en-github-fork-pull-request-y-trabajo-en-equipo)
+17. [Servidor propio de copias de seguridad (repositorio bare)](#17-servidor-propio-de-copias-de-seguridad-repositorio-bare)
+18. [Archivos grandes y Git LFS](#18-archivos-grandes-y-git-lfs)
+19. [Finales de línea en Windows y Linux (CRLF y LF)](#19-finales-de-línea-en-windows-y-linux-crlf-y-lf)
+20. [Alias](#20-alias)
+21. [Problemas frecuentes: qué comando uso](#21-problemas-frecuentes-qué-comando-uso)
 
 ---
 
 ## 1. Conceptos mínimos
 
+![Zonas de Git: workspace, index, repositorio local y remoto](../imagenes/git-bloques.png)
+
 | Zona | Qué es | Cómo se llega |
 |---|---|---|
-| **Working directory** | Carpeta de trabajo, archivos tal como los editas | Editando |
-| **Staging (index)** | Cambios preparados para el próximo commit | `git add` |
+| **Working directory** (*workspace*) | Carpeta de trabajo, archivos tal como los editas | Editando |
+| **Staging** (*index*) | Cambios preparados para el próximo commit | `git add` |
 | **Repositorio local** | Historial de commits, en la subcarpeta `.git` | `git commit` |
-| **Repositorio remoto** | Copia en GitHub (`origin`) | `git push` / `git pull` |
+| **Repositorio remoto** | Copia en otro sitio: GitHub o tu propio servidor (`origin`) | `git push` / `git pull` |
 
 | Término | Significado |
 |---|---|
@@ -43,6 +62,7 @@ Chuleta de comandos Git ordenados por funcionalidad. Cada bloque tiene una tabla
 | `HEAD~1`, `HEAD~2` | El commit anterior, el de dos atrás… |
 | `origin/main` | Copia local de cómo estaba la rama `main` del remoto en el último `fetch` |
 | *upstream* | Rama remota vinculada a tu rama local; permite usar `git push` / `git pull` sin argumentos |
+| Repositorio *bare* | Repositorio sin carpeta de trabajo, solo historial; es lo que hay "dentro" de GitHub o de un servidor de copias (ver [17](#17-servidor-propio-de-copias-de-seguridad-repositorio-bare)) |
 
 **Ventajas de la CLI:** acceso a todos los comandos, se puede usar en scripts para automatizar, y es igual en Windows, Linux y Mac.
 
@@ -50,7 +70,7 @@ Chuleta de comandos Git ordenados por funcionalidad. Cada bloque tiene una tabla
 
 ## 2. Instalación y configuración inicial
 
-- **Windows:** instalar desde <https://git-scm.com/downloads/win>. Se trabaja con **Git Bash** (terminal tipo Linux).
+- **Windows:** instalar desde <https://git-scm.com/downloads/win> (o `winget install --id Git.Git`). Se trabaja con **Git Bash** (terminal tipo Linux).
 - **Linux:** `sudo apt install git` y se usa desde la terminal bash de forma nativa.
 
 | Comando | Comentario |
@@ -62,12 +82,14 @@ Chuleta de comandos Git ordenados por funcionalidad. Cada bloque tiene una tabla
 | `git config --global user.email "tuemail@ejemplo.com"` | Correo (usar el mismo que en GitHub) |
 | `git config --global core.editor "nano"` | Editor para mensajes de commit, rebase, etc. |
 | `git config --global init.defaultBranch main` | Las repos nuevas nacen con rama `main` en lugar de `master` |
-| `git config --global core.autocrlf false` | Git no toca los finales de línea; elimina el *warning* LF/CRLF (ver [17](#17-finales-de-línea-windows--linux-crlf--lf)) |
+| `git config --global core.autocrlf false` | Git no toca los finales de línea; elimina el *warning* LF/CRLF (ver [19](#19-finales-de-línea-en-windows-y-linux-crlf-y-lf)) |
 | `git config --global pull.rebase false` | `git pull` fusiona con merge (valor clásico); con `true` hace rebase |
 | `git config --global --unset <clave>` | Elimina un valor de configuración |
 | `git help <comando>` | Ayuda de un comando, p. ej. `git help reset` |
 
 > **Niveles:** `--system` (todo el equipo) → `--global` (tu usuario, `~/.gitconfig`) → `--local` (solo esa repo, `.git/config`). El más específico gana.
+
+> **Identidad antes del primer commit:** `user.name` y `user.email` se configuran **una vez por equipo**. Sin ellos Git se niega a hacer commits.
 
 **Espacio de trabajo:** una carpeta por repositorio, con el nombre del repositorio.
 
@@ -83,11 +105,13 @@ pwd
 
 Requisito previo: cuenta en <https://github.com> (tu página será `https://github.com/nombre-usuario`).
 
-### Git Bash / Linux
+> **Atajo:** si usas GitHub CLI, `gh auth login` eligiendo **SSH** genera/sube la clave pública por ti (ver [4.2](#42-iniciar-sesión-gh-auth-login)). Esta sección explica el proceso manual, que también sirve para entrar en tu propio servidor (ver [17](#17-servidor-propio-de-copias-de-seguridad-repositorio-bare)).
+
+### 3.1 Git Bash y Linux
 
 | Comando | Comentario |
 |---|---|
-| `ssh-keygen -t ed25519 -C "tu_email@ejemplo.com"` | Genera la pareja de claves en `~/.ssh/` |
+| `ssh-keygen -t ed25519 -C "tu_email@ejemplo.com"` | Genera la pareja de claves en `~/.ssh/` (en sistemas antiguos: `-t rsa -b 4096`, que crea `id_rsa`) |
 | `ls -l ~/.ssh/` | Lista las claves: `id_ed25519` (privada) e `id_ed25519.pub` (pública) |
 | `eval "$(ssh-agent -s)"` | Arranca el agente SSH, que guarda las claves privadas en memoria |
 | `ssh-add ~/.ssh/id_ed25519` | Añade la clave **privada** al agente: no pide la passphrase en cada operación |
@@ -96,7 +120,7 @@ Requisito previo: cuenta en <https://github.com> (tu página será `https://gith
 
 **En GitHub:** avatar → *Settings* → *SSH and GPG keys* → *New SSH key* → poner un *Title* que identifique el equipo (p. ej. "PC de Casa") → pegar la clave pública en *Key* → *Add SSH key*.
 
-### Windows (CMD / PowerShell)
+### 3.2 Windows (CMD y PowerShell)
 
 ```bat
 ssh-keygen -t ed25519 -C "tu_email@ejemplo.com"
@@ -109,15 +133,128 @@ ssh-add %USERPROFILE%\.ssh\id_ed25519
 type %USERPROFILE%\.ssh\id_ed25519.pub | clip
 ```
 
-> **HTTPS en lugar de SSH:** GitHub ya no acepta la contraseña de la cuenta por HTTPS; pide un *Personal Access Token* (Settings → Developer settings → Personal access tokens) o el *Git Credential Manager* que instala Git for Windows.
+> **HTTPS en lugar de SSH:** GitHub ya no acepta la contraseña de la cuenta por HTTPS; pide un *Personal Access Token* (Settings → Developer settings → Personal access tokens), el *Git Credential Manager* que instala Git for Windows, o `gh auth login` con HTTPS (ver [4.2](#42-iniciar-sesión-gh-auth-login)).
+
+### 3.3 Diagnóstico: SSH funciona pero push pide contraseña
+
+**Causa:** Git guarda la URL con la que **clonaste** y la usa en todos los `push` y `pull`. Si clonaste con `https://…`, se autentica por HTTPS e **ignora tu clave SSH**. `ssh -T git@github.com` funciona porque es una prueba directa de SSH, independiente de la configuración de cada repo.
+
+```bash
+git remote -v
+# origin  https://github.com/tu-usuario/tu-repositorio.git (fetch)   ← HTTPS: este es el problema
+git remote set-url origin git@github.com:tu-usuario/tu-repositorio.git
+git remote -v
+# origin  git@github.com:tu-usuario/tu-repositorio.git (fetch)       ← SSH
+git push
+```
+
+> La URL SSH empieza por `git@github.com:` (con **dos puntos** antes del usuario), no por `https://`. Para evitar el problema desde el principio, clona ya con la URL SSH (botón *Code → SSH* en GitHub).
+
+### 3.4 Equipos que se reinician: guardar .gitconfig y .ssh
+
+En aulas donde la unidad `C:` se restaura en cada reinicio, se pierden `~/.gitconfig` (identidad, alias) y `~/.ssh/` (claves). Solución: copiarlos a un disco persistente (`D:`) al terminar y restaurarlos al empezar, con dos scripts de Git Bash: [guardar-config.sh](recursos/scripts/guardar-config.sh) y [restaurar-config.sh](recursos/scripts/restaurar-config.sh).
+
+| Momento | Comandos |
+|---|---|
+| Al terminar la sesión | `cd /d/git-scripts` → `bash guardar-config.sh` (copia a `D:/git_backup`) |
+| Al empezar la sesión | `cd /d/git-scripts` → `bash restaurar-config.sh` |
+| Comprobar tras restaurar | `git config --global user.name` · `ssh -T git@github.com` |
+
+> ⚠️ `D:/git_backup/.ssh` contiene tu clave **privada**: nunca la metas en un repositorio. La sesión de `gh` y las credenciales HTTPS no se guardan así: repite `gh auth login` tras restaurar.
+
+▶ **Practica:** [Ejercicio 10. SSH y diagnóstico HTTPS vs SSH](ejercicio_10_ssh_github_https_vs_ssh.md) · [Ejercicio 11. Configuración en un equipo que se reinicia](ejercicio_11_config_entorno_volatil.md)
 
 ---
 
-## 4. Crear o clonar un repositorio
+## 4. GitHub CLI (gh)
 
-> **Regla:** el repositorio vacío se crea **primero en GitHub** (sin README, sin .gitignore, sin licencia) antes de poder hacer `push` desde local, tanto si es un proyecto nuevo (`git init`) como si subes uno existente.
+**GitHub CLI (`gh`)** es la herramienta oficial de línea de comandos de GitHub. Permite hacer desde la terminal lo que normalmente exige abrir la web: crear repositorios remotos, gestionar Pull Requests, revisar incidencias (*Issues*) y configurar automáticamente las credenciales de Git. Funciona igual en CMD, PowerShell y Git Bash.
 
-### 4.1 Proyecto nuevo desde una carpeta local
+> `git` gestiona el historial (local y remoto); `gh` gestiona **tu cuenta y la web de GitHub**. Se usan juntos: `gh` no sustituye a `git`.
+
+### 4.1 Instalación
+
+Requisitos: Git instalado (`git --version`), cuenta de GitHub e identidad configurada (ver [2](#2-instalación-y-configuración-inicial)).
+
+| Sistema | Comando |
+|---|---|
+| Windows 10/11 (CMD o Git Bash) | `winget install --id GitHub.cli` |
+| Linux (Debian/Ubuntu) | `sudo apt install gh` (o el repositorio oficial indicado en <https://cli.github.com>) |
+| Comprobar | `gh --version` |
+
+> Tras instalar en Windows, **cierra y vuelve a abrir todas las terminales** para que se cargue la variable `PATH` actualizada. Si `gh` "no se reconoce como comando", es esto.
+
+### 4.2 Iniciar sesión (gh auth login)
+
+```bash
+gh auth login
+```
+
+El asistente hace varias preguntas. Las dos respuestas válidas son **HTTPS** o **SSH**:
+
+| Pregunta del asistente | Opción HTTPS | Opción SSH |
+|---|---|---|
+| *Where do you use GitHub?* | `GitHub.com` | `GitHub.com` |
+| *What is your preferred protocol for Git operations?* | `HTTPS` | `SSH` |
+| Pregunta siguiente | *Authenticate Git with your GitHub credentials?* → `Yes`: configura el gestor de credenciales y `git push`/`git pull` dejan de pedir usuario o token | *Upload your SSH public key to your GitHub account?* → elige tu `id_ed25519.pub`: **sube la clave por ti** (sustituye el paso web de la sección [3](#3-autenticación-ssh-con-github)) |
+| *How would you like to authenticate GitHub CLI?* | `Login with a web browser` | `Login with a web browser` |
+
+Por último, la consola muestra un **código de un solo uso** de 8 caracteres (`XXXX-XXXX`): pulsa **Enter**, se abre <https://github.com/login/device>, pega el código y autoriza el acceso.
+
+```text
+! One-time code (A198-8F37) copied to clipboard
+Press Enter to open https://github.com/login/device in your browser...
+✓ Authentication complete.
+- gh config set -h github.com git_protocol ssh
+✓ Configured git protocol
+✓ SSH key already existed on your GitHub account: C:\Users\Alumno\.ssh\id_ed25519.pub
+✓ Logged in as usuario
+```
+
+> Versión sin preguntas: `gh auth login --web --git-protocol ssh` (o `https`).
+
+### 4.3 Comprobar la sesión
+
+```text
+$ gh auth status
+github.com
+  ✓ Logged in to github.com account usuario (keyring)
+  - Active account: true
+  - Git operations protocol: ssh
+  - Token: gho_************************************
+  - Token scopes: 'admin:public_key', 'gist', 'read:org', 'repo'
+```
+
+### 4.4 Comandos gh más usados
+
+| Categoría | Comando | Función |
+|---|---|---|
+| Sesión | `gh auth status` | Comprueba con qué cuenta y protocolo estás conectado |
+| Sesión | `gh auth logout` | Cierra la sesión de GitHub en este equipo |
+| Repositorios | `gh repo create …` | Crea la repo en GitHub desde la terminal (detalle en [5.2](#52-proyecto-nuevo-con-github-cli-en-un-solo-paso)) |
+| Repositorios | `gh repo clone usuario/repo` | Clona un repositorio (sin escribir la URL completa) |
+| Repositorios | `gh repo view --web` | Abre en el navegador la página de la repo actual |
+| Repositorios | `gh repo list` | Lista los repositorios de tu cuenta |
+| Repositorios | `gh repo fork usuario/repo --clone` | Hace fork en tu cuenta y lo descarga listo para trabajar |
+| Pull Requests | `gh pr create` | Crea un Pull Request desde la rama actual (`--fill` usa los mensajes de commit) |
+| Pull Requests | `gh pr list` | Lista los PR abiertos |
+| Pull Requests | `gh pr checkout NUMERO` | Descarga la rama de un PR para probarlo en local |
+| Pull Requests | `gh pr merge NUMERO` | Fusiona un PR aprobado (`--merge`, `--squash` o `--rebase`; `--delete-branch` borra la rama) |
+| Issues | `gh issue create` | Crea una incidencia o tarea (`--title "…" --body "…"`) |
+| Issues | `gh issue list` | Lista las incidencias abiertas |
+| Configuración | `gh config set editor "code --wait"` | Usa VS Code para escribir descripciones |
+
+▶ **Practica:** [Ejercicio 8. GitHub CLI](ejercicio_8_github_cli.md)
+
+---
+
+## 5. Crear o clonar un repositorio
+
+> **Regla:** para subir un proyecto local hace falta que **exista la repo remota**. Hay dos formas:
+> - **Web + git** ([5.1](#51-proyecto-nuevo-desde-una-carpeta-local)): se crea primero en GitHub **vacía** (sin README, sin .gitignore, sin licencia) y luego se hace `push`.
+> - **GitHub CLI** ([5.2](#52-proyecto-nuevo-con-github-cli-en-un-solo-paso)): `gh repo create` la crea, la vincula y sube el código en un solo comando.
+
+### 5.1 Proyecto nuevo desde una carpeta local
 
 ```bash
 cd nombre-repo
@@ -130,20 +267,43 @@ git remote add origin git@github.com:usuario/nombre-repo.git
 git push -u origin main                    # 1ª subida: -u vincula main con origin/main
 ```
 
-### 4.2 Subir una repo local que ya existe
+### 5.2 Proyecto nuevo con GitHub CLI en un solo paso
 
 ```bash
-git remote add origin git@github.com:usuario/nombre-repo.git
+cd nombre-repo
+git init
+git add .
+git commit -m "Commit inicial"
+gh repo create nombre-repo --private --source=. --remote=origin --push
+git remote -v                              # comprobación: origin apunta a la repo nueva
+```
+
+| Parámetro | Descripción |
+|---|---|
+| `nombre-repo` | Nombre de la repo en GitHub. Si se omite, se usa el de la carpeta actual |
+| `--private` / `--public` | Visibilidad del repositorio |
+| `--source=.` | El código de origen es la carpeta actual |
+| `--remote=origin` | Registra la URL de la repo nueva con el alias `origin` (hace el `git remote add` por ti) |
+| `--push` | Sube los commits de la rama actual (hace falta al menos un commit) |
+| `--description "Texto"` | (Opcional) Descripción visible en la portada de la repo |
+
+> Sin argumentos, `gh repo create` lanza un asistente interactivo que pregunta lo mismo paso a paso.
+
+### 5.3 Subir una repo local que ya existe
+
+```bash
+git remote add origin git@github.com:usuario/nombre-repo.git   # o gh repo create (5.2)
 git branch -M main
 git push -u origin main
 ```
 
-### 4.3 Clonar una repo remota
+### 5.4 Clonar una repo remota
 
 | Comando | Comentario |
 |---|---|
 | `git clone https://github.com/usuario/nombre-repo.git` | Clona por HTTPS |
 | `git clone git@github.com:usuario/nombre-repo.git` | Clona por SSH (clave autenticada previamente, ver [3](#3-autenticación-ssh-con-github)) |
+| `gh repo clone usuario/nombre-repo` | Clona con GitHub CLI usando el protocolo que configuraste |
 | `git clone <url> otra-carpeta` | Clona en una carpeta con otro nombre |
 | `git clone --depth 1 <url>` | Clon superficial: solo el último commit (rápido, sin historial) |
 
@@ -162,30 +322,30 @@ Con `git clone` te ahorras 3 pasos:
 - **No** haces `git remote add origin`: `origin` ya es la URL de donde clonaste.
 - **No** necesitas `git branch -M main` (normalmente): la rama principal ya viene configurada.
 
-### 4.4 Crear tu propia repo a partir de clonar una ajena
+### 5.5 Crear tu propia repo a partir de clonar una ajena
 
 ```bash
 git clone https://github.com/otro-usuario/proyecto
 cd proyecto
 git branch -m master main                  # solo si la rama se llama master
-git status
-# Crear en GitHub una repo vacía con el mismo nombre (sin README, .gitignore ni licencia)
-git remote remove origin                   # quita el origin heredado de la clonación
-git remote add origin git@github.com:usuario/proyecto.git
+# Crear en GitHub una repo vacía con el mismo nombre (o usar gh repo create, 5.2)
+git remote set-url origin git@github.com:usuario/proyecto.git   # origin pasa a ser TU repo
 git push -u origin main                    # equivale a: git push --set-upstream origin main
 ```
 
+▶ **Practica:** [Ejercicio 3. Publicar en GitHub Pages](ejercicio_3_github_pages.md)
+
 ---
 
-## 5. Gestión de remotos
+## 6. Gestión de remotos
 
 | Comando | Comentario |
 |---|---|
-| `git remote -v` | Lista los remotos y sus URL |
-| `git remote add origin https://github.com/usuario/nombre-repo.git` | Añade remoto por HTTPS |
+| `git remote -v` | Lista los remotos y sus URL (una línea para *fetch* y otra para *push*) |
 | `git remote add origin git@github.com:usuario/nombre-repo.git` | Añade remoto por SSH |
-| `git remote set-url origin git@github.com:usuario/nombre-repo.git` | Cambia la URL (p. ej. de HTTPS a SSH) |
-| `git remote set-url origin https://github.com/usuario/nombre-repo.git` | Cambia la URL (de SSH a HTTPS) |
+| `git remote add origin https://github.com/usuario/nombre-repo.git` | Añade remoto por HTTPS |
+| `git remote add backup usuario@servidor:backups/repo.git` | Añade un **segundo** remoto con otro nombre (ver [17](#17-servidor-propio-de-copias-de-seguridad-repositorio-bare)) |
+| `git remote set-url origin <nueva-url>` | Cambia la URL: de HTTPS a SSH, o a otra repo distinta |
 | `git remote remove origin` | Elimina el enlace con el remoto (no borra nada en GitHub) |
 | `git remote rename origin antiguo` | Renombra un remoto |
 | `git remote show origin` | Detalle del remoto: ramas, upstream, estado |
@@ -194,15 +354,25 @@ git push -u origin main                    # equivale a: git push --set-upstream
 
 ```bash
 git remote -v
-git remote remove origin                              # borra el enlace a la repo vieja
-git remote add origin git@github.com:usuario/nueva-repo.git   # vincula con la nueva
-git branch -M main                                    # (opcional) asegura el nombre main
-git push -u origin main                               # sube código e historial por 1ª vez
+git remote set-url origin git@github.com:usuario/nueva-repo.git   # equivale a remove + add
+git push -u origin main                                          # sube código e historial
 ```
+
+**Varios remotos a la vez.** Una repo puede tener tantos remotos como quieras; cada uno con su nombre:
+
+```bash
+git remote -v
+# origin  git@github.com:usuario/proyecto.git (fetch/push)
+# backup  usuario@192.168.1.50:backups/proyecto.git (fetch/push)
+git push origin main        # sube a GitHub
+git push backup main        # sube a tu servidor de copias
+```
+
+> Si `git remote add origin …` responde `error: remote origin already exists`, la repo ya tiene un `origin`: usa otro nombre (`backup`) o cambia la URL con `set-url`.
 
 ---
 
-## 6. Ciclo diario: add, commit, push, pull
+## 7. Ciclo diario: add, commit, push, pull
 
 | Comando | Comentario |
 |---|---|
@@ -216,8 +386,7 @@ git push -u origin main                               # sube código e historial
 | `git push -u origin main` | Primera subida de una rama: crea el vínculo upstream |
 | `git pull` | Descarga y fusiona los cambios del remoto (= `fetch` + `merge`) |
 | `git fetch` | Solo descarga; no toca tu rama ni tus archivos |
-| `git rm fichero.log` | Borra el archivo del disco y del repositorio |
-| `git rm --cached fichero.log` | Deja de rastrearlo pero lo conserva en disco |
+| `git rm fichero.log` | Borra el archivo del disco y del repositorio (para conservarlo en disco, ver [13](#13-gitignore-y-dejar-de-rastrear-archivos)) |
 | `git mv antiguo.md nuevo.md` | Renombra o mueve un archivo y deja el cambio en staging |
 | `git clean -n` | Simula qué archivos no rastreados se borrarían |
 | `git clean -fd` | ⚠️ Borra archivos y carpetas no rastreados |
@@ -235,7 +404,7 @@ git push
 
 ---
 
-## 7. Inspeccionar: status, log, diff
+## 8. Inspeccionar: status, log, diff
 
 ### Estado e historial
 
@@ -265,7 +434,7 @@ git status -sb
 - `...origin/main` → tu rama rastrea a `origin/main`.
 - `[ahead 1]` → tienes 1 commit local sin subir (`push`).
 - `[behind 2]` → el remoto tiene 2 commits que no tienes (`pull`).
-- `[ahead 1, behind 2]` → historiales divergentes (ver [10](#10-sincronizar-con-el-remoto-y-resolver-divergencias)).
+- `[ahead 1, behind 2]` → historiales divergentes (ver [11](#11-sincronizar-con-el-remoto-y-resolver-divergencias)).
 
 ### Comparar versiones (diff)
 
@@ -285,7 +454,7 @@ git status -sb
 
 ---
 
-## 8. Deshacer cambios: restore, reset, revert, amend
+## 9. Deshacer cambios: restore, reset, revert, amend
 
 **Enfoque de cada comando:**
 
@@ -313,14 +482,16 @@ git status -sb
 
 **Qué usar según el caso:**
 
-| Situación | ¿Ya subido (push)? | Usar |
-|---|---|---|
-| Descartar cambios de un archivo sin añadir | — | `git restore archivo` |
-| Quitar un archivo de staging | — | `git restore --staged archivo` |
-| Corregir mensaje o contenido del último commit | No | `git commit --amend` |
-| Eliminar los últimos commits | No | `git reset` (`--soft`, mixto o `--hard`) |
-| Deshacer un commit que ya tienen otros | Sí | `git revert` (seguro, no reescribe historial) |
-| Eliminar un commit subido, trabajando tú solo | Sí | `git reset --hard` + `git push --force-with-lease` |
+| Situación | ¿Ya subido (push)? | Usar | ¿Reescribe la historia? |
+|---|---|---|:---:|
+| Descartar cambios de un archivo sin añadir | — | `git restore archivo` | No |
+| Quitar un archivo de staging | — | `git restore --staged archivo` | No |
+| Corregir mensaje o contenido del último commit | No | `git commit --amend` | **Sí** |
+| Eliminar los últimos commits | No | `git reset` (`--soft`, mixto o `--hard`) | **Sí** |
+| Deshacer un commit que ya tienen otros | Sí | `git revert` (seguro) | No |
+| Eliminar un commit subido, trabajando tú solo | Sí | `git reset --hard` + `git push --force-with-lease` | **Sí** |
+
+> **Regla de oro:** lo que reescribe la historia solo se usa con commits **no subidos**. `git revert` de un commit antiguo puede dar **conflicto** si commits posteriores tocaron las mismas líneas: se resuelve como un merge y se termina con `git revert --continue`.
 
 ### Recetas
 
@@ -354,32 +525,15 @@ git log --oneline               # o git reflog para ver todos los movimientos
 git reset --hard <hash>         # ⚠️ se borra todo lo hecho desde ese punto
 ```
 
-> Si te arrepientes de un `reset`, casi siempre se puede recuperar con `git reflog` (ver [14.4](#144-reflog-recuperar-commits-perdidos)).
+> Si te arrepientes de un `reset`, casi siempre se puede recuperar con `git reflog` (ver [15.4](#154-reflog-recuperar-commits-perdidos)).
 
-**Ejercicio guiado: deshacer cambios**
-
-```bash
-git status                           # 1. estado inicial
-# 2. modificar archivo.txt con nano
-git diff                             # 3. cambios aún no añadidos
-git add archivo.txt                  # 4. a staging
-git diff --staged                    # 5. staging frente al último commit
-git commit -m "Cambio de prueba en archivo.txt"   # 6.
-git log --oneline --graph --all      # 7. historial
-git diff HEAD~1 HEAD archivo.txt     # 8. entre los dos últimos commits
-# modificar otra vez archivo.txt
-git restore archivo.txt              # 9. descarta el cambio no añadido
-# modificar y hacer git add
-git restore --staged archivo.txt     # 10. lo saca de staging, conserva el cambio
-git reset HEAD~1                     # 11. deshace el último commit, conserva cambios
-git reset --hard HEAD~1              # 12. ⚠️ deshace commit y cambios
-git reflog                           # 13. ver todos los movimientos de HEAD
-git reset --hard <hash>              # 14. volver a cualquiera de ellos
-```
+▶ **Practica:** [Ejercicio 6. Deshacer cambios](ejercicio_6_deshacer_cambios.md)
 
 ---
 
-## 9. Ramas y merge
+## 10. Ramas y merge
+
+![Ramas: feature-1 y feature-2 salen de la rama principal; HEAD apunta a la rama actual](../imagenes/git-branch.png)
 
 | Comando | Comentario |
 |---|---|
@@ -396,6 +550,7 @@ git reset --hard <hash>              # 14. volver a cualquiera de ellos
 | `git branch -M main` | Renombra forzando (sobrescribe si ya existe `main`) |
 | `git merge nueva-rama` | Fusiona `nueva-rama` **en la rama actual** |
 | `git merge --no-ff nueva-rama` | Fusiona creando siempre commit de merge (se ve la rama en el grafo) |
+| `git merge --no-edit nueva-rama` | Fusiona aceptando el mensaje de merge por defecto, sin abrir el editor |
 | `git merge --abort` | Cancela un merge con conflictos y vuelve al estado previo |
 | `git branch -d nueva-rama` | Borra la rama (solo si ya está fusionada) |
 | `git branch -D nueva-rama` | ⚠️ Borra la rama aunque no esté fusionada |
@@ -406,22 +561,16 @@ git reset --hard <hash>              # 14. volver a cualquiera de ellos
 
 > `git switch -b` **no existe**: con `switch` la opción es `-c` (*create*); `-b` es de `checkout`.
 
-**Ejercicio guiado: ramas**
+**Ciclo de vida de una rama:** crear (`git switch -c feature/x`) → trabajar y hacer commits → volver a la rama que **recibe** (`git switch main`) → fusionar la que **contiene** los cambios (`git merge feature/x`) → borrarla (`git branch -d feature/x`).
 
-```bash
-git branch                          # ramas existentes
-git switch -c test                  # crea y cambia a 'test'
-# ... editar ...
-git status
-git add .
-git commit -m "Cambios en rama test"
-git log --oneline
-git switch main                     # vuelve a la principal
-git merge test                      # fusiona 'test' en 'main'
-git log --oneline --graph --all     # comprueba el merge
-git branch -d test                  # borra la rama ya fusionada
-git status
-```
+- **Nombres:** es habitual usar prefijos: `feature/` (funcionalidad nueva), `fix/` (arreglo), `docs/` (documentación).
+- **Al cambiar de rama**, Git deja la carpeta exactamente como está esa rama: los archivos que solo existen en otra rama "desaparecen" de la vista, pero no se borran.
+- Si tienes cambios sin confirmar que chocarían con la otra rama, Git **no te deja cambiar**: haz commit o `git stash` (ver [12](#12-stash-guardar-trabajo-a-medias)).
+
+**Dos tipos de merge:**
+
+- **Fast-forward:** si `main` no ha avanzado desde que creaste la rama, Git solo "adelanta" el puntero de `main`; no hay commit de merge.
+- **Merge de tres vías:** si las dos ramas han avanzado, Git crea un **commit de merge** con dos padres. Si ambas tocaron las mismas líneas, hay **conflicto**.
 
 **Resolver un conflicto de merge a mano:**
 
@@ -429,26 +578,22 @@ git status
 git merge otra-rama                 # CONFLICT (content): Merge conflict in index.html
 git status                          # lista los archivos en conflicto ("both modified")
 # Editar el archivo: quedarse con lo correcto y borrar las marcas
-#   <<<<<<< HEAD          (lo tuyo)
+#   <<<<<<< HEAD          (lo tuyo: la rama en la que estás)
 #   =======
 #   >>>>>>> otra-rama     (lo que llega)
 git add index.html                  # marca el conflicto como resuelto
 git commit                          # cierra el merge
 ```
 
-![git merge rebase](./img/git-merge---rebase.jpg)
+![Merge frente a rebase](../imagenes/git%20merge%20-%20rebase.jpg)
+
+▶ **Practica:** [Ejercicio 9. Flujo básico con ramas](ejercicio_9_flujo_basico_con_ramas.md) · [Ejercicio 1. Merge vs rebase](ejercicio_1_git_merge_vs_rebase.md) · [Ejercicio 4. Conflictos en merge](ejercicio_4_conflictos_en_merge.md)
 
 ---
 
-## 10. Sincronizar con el remoto y resolver divergencias
+## 11. Sincronizar con el remoto y resolver divergencias
 
-### Sin conflicto
-
-| Comando | Comentario |
-|---|---|
-| `git pull` | Actualiza local desde el remoto |
-| `git push` | Actualiza el remoto desde local |
-| `git push -u origin main` | Primera subida de la rama |
+Sin conflictos basta con el ciclo diario (`git pull` / `git push`, ver [7](#7-ciclo-diario-add-commit-push-pull)). Esta sección trata el caso en que local y remoto **no coinciden**.
 
 ### Ver diferencias con el remoto antes de decidir
 
@@ -493,14 +638,19 @@ git reset --hard origin/main        # ⚠️ PERDERÁS tus cambios locales
 **Actualizar con cambios locales sin confirmar, priorizando lo local:**
 
 ```bash
+git fetch
 git stash && git merge -X ours origin/main --no-edit && git stash pop
 ```
 
-Guarda tus cambios sin confirmar, fusiona lo que hay en el servidor dando preferencia a tus commits en caso de conflicto, y recupera tus cambios. Hacer `git fetch` antes. Si lo recuperado con `stash pop` choca con lo fusionado, Git pedirá resolver el conflicto a mano en ese punto.
+Guarda tus cambios sin confirmar, fusiona lo que hay en el servidor dando preferencia a tus commits en caso de conflicto, y recupera tus cambios. Si lo recuperado con `stash pop` choca con lo fusionado, Git pedirá resolver el conflicto a mano en ese punto.
+
+> **`git pull` a secas con historias divergentes** depende de la configuración: Git for Windows trae `pull.rebase=false` y hace merge; en otros sistemas Git se detiene con *"You have divergent branches"*. Para no depender de ello: `git config --global pull.rebase true` (o indicar `--rebase` / `--no-rebase`).
+
+▶ **Practica:** [Ejercicio 12. Push rechazado y divergencias](ejercicio_12_sincronizar_push_rechazado.md)
 
 ---
 
-## 11. Stash: guardar trabajo a medias
+## 12. Stash: guardar trabajo a medias
 
 Aparta temporalmente los cambios sin hacer commit; útil para cambiar de rama o hacer `pull` con trabajo a medias.
 
@@ -523,9 +673,11 @@ git switch mi-rama
 git stash pop             # recupero mi trabajo
 ```
 
+▶ **Practica:** [Ejercicio 13. Stash](ejercicio_13_stash_trabajo_a_medias.md)
+
 ---
 
-## 12. .gitignore y dejar de rastrear archivos
+## 13. .gitignore y dejar de rastrear archivos
 
 El archivo `.gitignore` (en la raíz de la repo) indica qué **no** debe rastrear Git.
 
@@ -566,9 +718,11 @@ git commit -m "Remover carpetas de base de datos del seguimiento de Git"
 git push origin main
 ```
 
+▶ **Practica:** [Ejercicio 14. .gitignore](ejercicio_14_gitignore.md)
+
 ---
 
-## 13. Etiquetas (tags) y versiones
+## 14. Etiquetas (tags) y versiones
 
 Marcan un commit concreto, normalmente una versión entregable (`v1.0`).
 
@@ -583,13 +737,16 @@ Marcan un commit concreto, normalmente una versión entregable (`v1.0`).
 | `git push origin --tags` | Sube todas las etiquetas |
 | `git tag -d v1.0` | Borra la etiqueta en local |
 | `git push origin --delete v1.0` | Borra la etiqueta en el remoto |
-| `git switch --detach v1.0` | Sitúa la carpeta en esa versión para consultarla |
+| `git switch --detach v1.0` | Sitúa la carpeta en esa versión para consultarla (*detached HEAD*; se vuelve con `git switch main`) |
+| `gh release create v1.0 --notes "…"` | Convierte la etiqueta en una *Release* de GitHub (ver [4](#4-github-cli-gh)) |
+
+▶ **Practica:** [Ejercicio 16. Etiquetas y versiones](ejercicio_16_tags_versiones.md)
 
 ---
 
-## 14. Avanzado: rebase, rebase interactivo, cherry-pick, reflog
+## 15. Avanzado: rebase, rebase interactivo, cherry-pick, reflog
 
-### 14.1 Rebase
+### 15.1 Rebase
 
 Re-aplica los commits de tu rama encima de otra, dejando un historial **lineal** (sin commit de merge).
 
@@ -597,7 +754,7 @@ Re-aplica los commits de tu rama encima de otra, dejando un historial **lineal**
 |---|---|
 | `git rebase main` | Recoloca la rama actual encima del último commit de `main` |
 | `git pull --rebase` | Trae lo remoto y re-aplica tus commits locales encima |
-| `git rebase --continue` | Sigue tras resolver un conflicto (`git add` antes) |
+| `git rebase --continue` | Sigue tras resolver un conflicto (`git add` antes; **no** se hace `git commit`) |
 | `git rebase --skip` | Salta el commit que da conflicto |
 | `git rebase --abort` | Cancela y vuelve al estado anterior al rebase |
 
@@ -608,9 +765,22 @@ git switch main
 git merge mi-rama               # fast-forward, sin commit de merge
 ```
 
+**Merge frente a rebase:**
+
+| | `git merge` | `git rebase` |
+|---|---|---|
+| Historial | Conserva cómo ocurrió (ramas que se separan y se unen) | Lineal, como si se hubiera trabajado en serie |
+| Commit extra | Sí, commit de merge | No |
+| Hashes | No cambian | Los commits re-aplicados tienen hash **nuevo** |
+| Conflictos | Se resuelven una vez y se cierra con `git commit` | Se resuelven commit a commit con `git rebase --continue` |
+| En un conflicto, `HEAD` es… | Tu rama actual | La rama **base** (sobre la que rebasas) |
+| Seguro en ramas compartidas | Sí | No (ver regla de oro) |
+
 > ⚠️ **Regla de oro:** no hacer rebase de commits que ya están subidos y que usan otros. Reescribe los hashes y obliga a `push --force-with-lease`.
 
-### 14.2 Rebase interactivo
+▶ **Practica:** [Ejercicio 1. Merge vs rebase](ejercicio_1_git_merge_vs_rebase.md) · [Ejercicio 5. Conflictos en rebase](ejercicio_5_conflictos_en_rebase.md)
+
+### 15.2 Rebase interactivo
 
 Permite reordenar, unir, renombrar o eliminar commits **antes de subirlos**.
 
@@ -637,7 +807,7 @@ reword 0c9d8e7 arreglos           ← pedirá un mensaje nuevo
 
 Mover líneas de sitio cambia el orden de los commits. Al guardar y cerrar se aplica; si algo sale mal, `git rebase --abort`.
 
-### 14.3 Cherry-pick
+### 15.3 Cherry-pick
 
 Copia uno o varios commits concretos de otra rama a la rama actual (crea commits nuevos con otro hash).
 
@@ -658,7 +828,9 @@ git cherry-pick 7f3a2b1         # traigo solo ese arreglo a main
 
 Caso típico: un arreglo urgente hecho en una rama de desarrollo que hace falta ya en `main`, o un commit hecho por error en la rama equivocada.
 
-### 14.4 Reflog: recuperar commits perdidos
+▶ **Practica (15.2 y 15.3):** [Ejercicio 15. Cherry-pick y rebase interactivo](ejercicio_15_cherry_pick_rebase_interactivo.md)
+
+### 15.4 Reflog: recuperar commits perdidos
 
 El reflog guarda el historial de **todos los movimientos de `HEAD`** (commits, resets, reverts, cambios de rama), aunque ya no aparezcan en `git log`. Es la red de seguridad para volver atrás de un `reset`.
 
@@ -697,33 +869,32 @@ $ git log --all --oneline --graph --decorate
 
 ---
 
-## 15. Colaborar en GitHub: fork, Pull Request y trabajo en equipo
+## 16. Colaborar en GitHub: fork, Pull Request y trabajo en equipo
 
-### 15.1 Contribuir a un repositorio público ajeno (fork + PR)
+### 16.1 Contribuir a un repositorio público ajeno (fork + PR)
 
-| Paso | Acción | Comando / dónde |
-|---|---|---|
-| 1 | Hacer **fork** del repositorio | Botón *Fork* en GitHub: crea una copia en tu cuenta |
-| 2 | Clonar tu fork | `git clone git@github.com:TU_USUARIO/NOMBRE_REPO.git` y `cd NOMBRE_REPO` |
-| 3 | Crear una rama para el cambio | `git switch -c mi-cambio` |
-| 4 | Hacer los cambios | Editar los archivos |
-| 5 | Confirmar | `git status` → `git add archivo` → `git commit -m "Descripción clara"` |
-| 6 | Subir la rama a tu fork | `git push origin mi-cambio` |
-| 7 | Abrir el **Pull Request** | En GitHub: *Compare & pull request*, destino = repo original, descripción clara |
-| 8 | Revisión | Si piden cambios, repetir 4-6: los commits nuevos se añaden solos al PR |
-| 9 | Aceptación o rechazo | Si se acepta, tus cambios quedan integrados en el proyecto original |
+| Paso | Acción | Con git + web | Con GitHub CLI |
+|---|---|---|---|
+| 1-2 | Hacer **fork** y clonarlo | Botón *Fork* → `git clone git@github.com:TU_USUARIO/NOMBRE_REPO.git` | `gh repo fork AUTOR/NOMBRE_REPO --clone` |
+| 3 | Crear una rama para el cambio | `git switch -c mi-cambio` | (igual) |
+| 4 | Hacer los cambios | Editar los archivos | (igual) |
+| 5 | Confirmar | `git add archivo` → `git commit -m "Descripción clara"` | (igual) |
+| 6 | Subir la rama a tu fork | `git push -u origin mi-cambio` | (igual) |
+| 7 | Abrir el **Pull Request** | *Compare & pull request*, destino = repo original | `gh pr create --fill` |
+| 8 | Revisión | Si piden cambios, repetir 4-6: los commits nuevos se añaden solos al PR | (igual) |
+| 9 | Aceptación o rechazo | Si se acepta, tus cambios quedan integrados en el proyecto original | `gh pr list` para ver el estado |
 
 **Mantener tu fork al día con el original:**
 
 ```bash
-git remote add upstream https://github.com/AUTOR_ORIGINAL/NOMBRE_REPO.git
+git remote add upstream https://github.com/AUTOR_ORIGINAL/NOMBRE_REPO.git   # gh repo fork --clone ya lo crea
 git fetch upstream
 git switch main
 git merge upstream/main          # o: git rebase upstream/main
 git push origin main
 ```
 
-### 15.2 Trabajo en equipo sobre un mismo repositorio
+### 16.2 Trabajo en equipo sobre un mismo repositorio
 
 **Paso 0 (supervisor):** crear la repo en GitHub y añadir al equipo en *Settings → Collaborators*.
 
@@ -735,8 +906,8 @@ git push origin main
 | 4 | Hacer los cambios | Editar o crear archivos |
 | 5 | Guardar en tu rama | `git add .` → `git commit -m "Mensaje claro"` |
 | 6 | Subir tu rama | `git push -u origin nombre-colaborador/descripcion-tarea` |
-| 7 | Crear el Pull Request | En GitHub: *Compare & pull request*, título y descripción |
-| 8 | Revisión y fusión (supervisor) | *Merge pull request* |
+| 7 | Crear el Pull Request | Web: *Compare & pull request* · CLI: `gh pr create --fill` |
+| 8 | Revisión y fusión (supervisor) | Web: *Merge pull request* · CLI: `gh pr merge NUMERO --merge --delete-branch` |
 | 9 | Limpiar tras la fusión | `git switch main` → `git pull` → `git branch -d mi-rama` |
 
 - **Sin conflicto:** si tus cambios no chocan con los de nadie (p. ej. un archivo nuevo), el supervisor fusiona directamente.
@@ -749,22 +920,142 @@ git merge origin/main            # resolver conflictos, git add, git commit
 git push
 ```
 
-### 15.3 GitHub CLI (opcional)
-
-Con la herramienta `gh` (<https://cli.github.com>) se evita pasar por la web:
-
-| Comando | Comentario |
-|---|---|
-| `gh auth login` | Autentica la terminal con tu cuenta de GitHub |
-| `gh repo create nombre-repo --private --source=. --push` | Crea la repo en GitHub desde la carpeta local y la sube |
-| `gh repo clone usuario/nombre-repo` | Clona |
-| `gh repo fork usuario/nombre-repo --clone` | Hace fork y lo clona |
-| `gh pr create` | Abre un Pull Request de la rama actual |
-| `gh pr list` / `gh pr checkout 12` | Lista los PR / descarga uno para probarlo |
+▶ **Practica:** [Ejercicio 8. GitHub CLI](ejercicio_8_github_cli.md) (Parte C: ciclo completo de PR desde la terminal)
 
 ---
 
-## 16. Archivos grandes y Git LFS
+## 17. Servidor propio de copias de seguridad (repositorio bare)
+
+No hace falta GitHub para tener un remoto: cualquier máquina a la que llegues por **SSH** (un servidor Linux, una Raspberry Pi, un NAS, otro PC del aula) o incluso **otra carpeta o un disco USB** puede guardar una copia de tu repositorio con todo su historial.
+
+### 17.1 Qué es un repositorio bare
+
+| | Repositorio normal (`git init`) | Repositorio bare (`git init --bare`) |
+|---|---|---|
+| Carpeta de trabajo | Sí: ves y editas los archivos | **No**: solo el contenido de `.git` (`HEAD`, `objects`, `refs`…) |
+| Para qué sirve | Trabajar | Recibir `push` y servir `clone`/`pull` (es un "almacén") |
+| Nombre habitual | `proyecto/` | `proyecto.git/` (por convención acaba en `.git`) |
+| ¿Acepta `push` a su rama actual? | No, lo rechaza | Sí |
+
+Por qué hace falta que sea *bare*: si haces `push` a un repositorio normal, Git lo rechaza para no pisar los archivos que alguien podría estar editando allí:
+
+```text
+! [remote rejected] main -> main (branch is currently checked out)
+```
+
+### 17.2 Requisitos
+
+- **En el servidor:** Git (`sudo apt install git`) y un servidor SSH (`sudo apt install openssh-server`), con un usuario al que puedas entrar.
+- **En tu equipo:** cliente SSH (incluido en Git Bash, Linux y Windows 10/11).
+- **Recomendado:** entrar con clave en lugar de contraseña. Con la clave generada en la sección [3](#3-autenticación-ssh-con-github):
+
+```bash
+ssh-copy-id usuario@192.168.1.50      # copia tu clave pública al servidor (Git Bash / Linux)
+ssh usuario@192.168.1.50              # ya no debería pedir la contraseña del servidor
+```
+
+### 17.3 Puesta en marcha paso a paso
+
+**1. Preparar el repositorio local con datos** (en tu equipo):
+
+```bash
+cd mis_datos                     # la carpeta con tus archivos (ya debe tener contenido)
+git init -b main                 # -b main: la rama nace como main
+git add .
+git commit -m "Copia de seguridad inicial"
+```
+
+*Verificación:* `git status` → `nothing to commit, working tree clean`.
+
+> Si la carpeta está **vacía**, el commit falla con `nothing to commit (create/copy files and use "git add" to track)`: copia antes tus archivos dentro.
+
+**2. Conectarse al servidor por SSH:**
+
+```bash
+ssh usuario@ip_del_servidor      # p. ej. ssh alumno@192.168.1.50
+```
+
+**3. Crear el repositorio bare en el servidor:**
+
+```bash
+mkdir -p ~/backups/mis_datos.git
+cd ~/backups/mis_datos.git
+git init --bare -b main          # -b main: evita problemas si el servidor usa master por defecto
+exit                             # vuelve a tu terminal local
+```
+
+*Verificación:* `Initialized empty Git repository in /home/usuario/backups/mis_datos.git/`.
+
+**4. Vincular el repositorio local con el servidor** (de nuevo en tu equipo, dentro de `mis_datos`):
+
+```bash
+git remote add origin usuario@ip_del_servidor:backups/mis_datos.git
+```
+
+*Verificación:* `git remote -v` muestra la ruta SSH para `(fetch)` y para `(push)`.
+
+> Si la repo ya tiene un `origin` (por ejemplo, GitHub), usa otro nombre: `git remote add backup …` y después `git push -u backup main`.
+
+Formatos de URL válidos para el remoto:
+
+| URL | Significado |
+|---|---|
+| `usuario@ip:backups/mis_datos.git` | Ruta **relativa** a la carpeta personal del usuario en el servidor |
+| `usuario@ip:/home/usuario/backups/mis_datos.git` | Ruta **absoluta** |
+| `ssh://usuario@ip:2222/home/usuario/backups/mis_datos.git` | Forma completa; necesaria si SSH no usa el puerto 22 |
+| `/e/backups/mis_datos.git` (Git Bash) o `E:/backups/mis_datos.git` | Carpeta local o **disco USB**: no hace falta SSH |
+
+**5. Sincronizar (hacer el backup):**
+
+```bash
+git push -u origin main          # -u: a partir de ahora basta con git push
+```
+
+*Verificación:* la terminal muestra cómo se comprimen y escriben los objetos y termina con `* [new branch]  main -> main`.
+
+### 17.4 Mantenimiento de las copias
+
+Cada vez que modifiques, añadas o borres archivos:
+
+```bash
+git add .
+git commit -m "Actualización de backup: [fecha o descripción]"
+git push
+```
+
+**Atajo con alias** (ver [20](#20-alias)): un único comando que añade, confirma con la fecha del día y sube.
+
+```bash
+git config --global alias.backup '!git add . && git commit -m "Backup $(date +%F)" && git push'
+git backup                       # → commit "Backup 2026-11-20" y push
+```
+
+### 17.5 Consultar y restaurar la copia
+
+| Comando | Dónde | Comentario |
+|---|---|---|
+| `git log --oneline` | Servidor, dentro de `mis_datos.git` | Un repo bare no tiene archivos visibles, pero sí historial |
+| `git clone usuario@ip:backups/mis_datos.git` | Cualquier equipo | **Restaura** la copia completa (archivos e historial) en una carpeta nueva |
+| `git pull` | Equipo que ya tiene la repo | Trae los cambios subidos desde otro equipo |
+
+### 17.6 Problemas típicos
+
+| Mensaje | Causa y solución |
+|---|---|
+| `error: remote origin already exists` | Ya hay un remoto con ese nombre: usa `backup` o `git remote set-url origin <url>` |
+| `fatal: '…' does not appear to be a git repository` | Ruta del remoto mal escrita: revisa `git remote -v` y la carpeta en el servidor |
+| `Permission denied (publickey,password)` | Usuario o clave incorrectos: prueba primero `ssh usuario@ip` |
+| `! [remote rejected] … (branch is currently checked out)` | El repositorio del servidor no es bare: créalo con `git init --bare` |
+| Al clonar: `warning: remote HEAD refers to nonexistent ref, unable to checkout` | El bare nació con `master` y subiste `main`. En el servidor: `git symbolic-ref HEAD refs/heads/main` |
+| `error: src refspec main does not match any` | Tu rama no se llama `main` (o no hay commits): mira `git branch` y usa ese nombre |
+
+> **Git no es una copia de seguridad completa del sistema:** solo guarda lo que confirmas con `commit`, e ignora lo que esté en `.gitignore`. Para archivos muy grandes o binarios que cambian a menudo, ver [18](#18-archivos-grandes-y-git-lfs).
+
+▶ **Practica:** [Ejercicio 7. Servidor de copias de seguridad con Git](ejercicio_7_servidor_backup_bare.md)
+
+---
+
+## 18. Archivos grandes y Git LFS
 
 GitHub rechaza archivos de más de **100 MB** en un `push` normal.
 
@@ -814,7 +1105,7 @@ git push origin main             # a partir de aquí, Git como de costumbre
 
 ---
 
-## 17. Finales de línea Windows / Linux (CRLF / LF)
+## 19. Finales de línea en Windows y Linux (CRLF y LF)
 
 - **Windows** usa **CRLF**: retorno de carro (`\r`) + nueva línea (`\n`).
 - **Linux** usa **LF**: solo nueva línea (`\n`).
@@ -839,9 +1130,9 @@ Síntoma típico al ejecutar en Linux/WSL un script editado en Windows: `$'\r': 
 
 ---
 
-## 18. Alias
+## 20. Alias
 
-Comandos cortos personalizados; se guardan en `~/.gitconfig`.
+Comandos cortos personalizados; se guardan en `~/.gitconfig`. Si el alias empieza por `!`, se ejecuta como comando de la terminal (permite encadenar varios con `&&`).
 
 | Comando | Comentario |
 |---|---|
@@ -852,6 +1143,7 @@ Comandos cortos personalizados; se guardan en `~/.gitconfig`.
 | `git config --global alias.cm 'commit -m'` | `git cm "mensaje"` |
 | `git config --global alias.lg 'log --oneline --graph --all --decorate'` | `git lg` → grafo completo |
 | `git config --global alias.unstage 'restore --staged'` | `git unstage archivo` |
+| `git config --global alias.backup '!git add . && git commit -m "Backup $(date +%F)" && git push'` | `git backup` → copia de seguridad en un paso (ver [17.4](#174-mantenimiento-de-las-copias)) |
 | `git config --global --get-regexp alias` | Lista los alias definidos |
 | `git config --global --unset alias.last` | Borra un alias |
 
@@ -866,7 +1158,7 @@ Date:   Tue Aug 26 19:48:51 2008 +0800
 
 ---
 
-## 19. Problemas frecuentes: qué comando uso
+## 21. Problemas frecuentes: qué comando uso
 
 | Problema | Solución |
 |---|---|
@@ -880,19 +1172,27 @@ Date:   Tue Aug 26 19:48:51 2008 +0800
 | Borré una rama sin fusionar | `git reflog` → `git branch rama <hash>` |
 | Necesito cambiar de rama con trabajo a medias | `git stash` → … → `git stash pop` |
 | Un archivo del `.gitignore` sigue apareciendo | `git rm --cached archivo` → commit |
-| Subí un archivo de más de 100 MB | Ver [16](#16-archivos-grandes-y-git-lfs) |
+| Subí un archivo de más de 100 MB | Ver [18](#18-archivos-grandes-y-git-lfs) |
 | Subí una contraseña o token | Revocar la credencial **inmediatamente**; después limpiar el historial (`git filter-repo`) |
-| El remoto está en HTTPS y pide credenciales | `git remote set-url origin git@github.com:usuario/nombre-repo.git` |
+| `ssh -T git@github.com` funciona pero `push` pide usuario o contraseña | El remoto está en HTTPS: `git remote set-url origin git@github.com:usuario/nombre-repo.git` (ver [3.3](#33-diagnóstico-ssh-funciona-pero-push-pide-contraseña)) |
+| Tras reiniciar el equipo del aula, Git no sabe quién soy y SSH falla | Restaurar la configuración guardada en `D:` (ver [3.4](#34-equipos-que-se-reinician-guardar-gitconfig-y-ssh)) |
 | La rama se llama `master` | `git branch -m master main` |
 | `Permission denied (publickey)` | Revisar `ssh-add -l`, `ssh -T git@github.com` y la clave en GitHub |
-| `$'\r': command not found` | `dos2unix script.sh` (ver [17](#17-finales-de-línea-windows--linux-crlf--lf)) |
+| `gh` no se reconoce como comando | Cerrar y reabrir la terminal tras instalarlo (ver [4.1](#41-instalación)) |
+| `gh` no tiene permisos o usa otra cuenta | `gh auth status`; si hace falta, `gh auth logout` y `gh auth login` |
+| `remote origin already exists` | Usar otro nombre (`git remote add backup …`) o `git remote set-url origin …` |
+| Problemas con el servidor de copias propio | Ver [17.6](#176-problemas-típicos) |
+| `$'\r': command not found` | `dos2unix script.sh` (ver [19](#19-finales-de-línea-en-windows-y-linux-crlf-y-lf)) |
 | Un merge se ha complicado | `git merge --abort` y volver a empezar |
 | ¿En qué commit se introdujo un fallo? | `git log -p archivo`, `git blame archivo` |
+
+▶ **Practica:** [Ejercicio 17. Retos finales](ejercicio_17_retos_finales.md)
 
 ---
 
 ## Enlaces
 
-- Documentación oficial y libro *Pro Git* en español: <https://git-scm.com/book/es/v2>
+- Documentación oficial y libro *Pro Git* en español (el capítulo 4, *Git en el servidor*, amplía la sección 17): <https://git-scm.com/book/es/v2>
+- Manual de GitHub CLI: <https://cli.github.com/manual/>
 - Tutorial `git fetch` (Atlassian): <https://www.atlassian.com/es/git/tutorials/syncing/git-fetch>
 - Documentación de GitHub: <https://docs.github.com/es>
