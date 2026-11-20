@@ -1,0 +1,17 @@
+#!/bin/sh
+# Regenera editor/apuntes-datos.js con los .md tal como van en este commit y lo añade.
+# Activar una vez en cada copia del repositorio:  git config core.hooksPath .githooks
+
+# Solo si el commit toca algún .md de apuntes/ o el README.md
+if ! git diff --cached --name-only -- README.md apuntes | grep -qi '\.md$'; then
+  exit 0
+fi
+
+if ! command -v node >/dev/null 2>&1; then
+  echo "Aviso: no se encuentra Node.js; editor/apuntes-datos.js no se ha regenerado." >&2
+  echo "       Instálalo o ejecuta luego: node editor/generar-apuntes.mjs" >&2
+  exit 0
+fi
+
+node editor/generar-apuntes.mjs --indice || exit 1
+git add editor/apuntes-datos.js

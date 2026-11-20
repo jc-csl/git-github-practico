@@ -9,13 +9,21 @@ Forma parte del repositorio [git-github-practico](../README.md): 📚 [apuntes d
 
 ## Leer los apuntes y carpetas de Markdown
 
-El navegador no le dice al editor de qué carpeta viene un archivo abierto con **Abrir .md**, así que en ese modo las imágenes y los enlaces relativos (`../imagenes/logo.png`, `ejercicio_6.md`) se buscan junto al editor y no junto al documento. Para leer documentos que enlazan a otros o llevan imágenes:
+- **Abrir .md** (`Ctrl+O`) muestra la **lista de los apuntes** del repositorio, con buscador: pulsa uno y se abre, sin pasar por la ventana de archivos del navegador. Funciona igual en local (`file:///`) y en la web, en Chrome, Edge y Firefox. Se ven sus imágenes, los enlaces a otros apuntes se abren dentro del editor, el **desplegable de la vista previa** cambia de apunte y **← Atrás** vuelve al anterior.
+- Abajo en esa ventana, **¿Algo tuyo?** abre la ventana del navegador para lo que no está en la lista:
+  - **Un archivo .md...**: un `.md` cualquiera. El navegador no le dice al editor de qué carpeta viene, así que sus imágenes y enlaces relativos no se ven; para eso usa **Una carpeta...**.
+  - **Una carpeta...**: lee una carpeta entera (sin `.git`), por ejemplo el repositorio de un proyecto tuyo. Las imágenes relativas se ven, los enlaces a otros `.md` se abren dentro del editor, el desplegable de la vista previa lista todos los documentos y **← Atrás** vuelve al anterior. Al volver a abrir esa carpeta, empieza en el último documento que leíste.
+- En la ventana del navegador **se elige la carpeta, no un archivo**: aunque marques un ejercicio, se abre la carpeta. El documento se elige después en el **desplegable de la vista previa** (o con los enlaces del índice).
+- Al elegir la carpeta, **el navegador pide permiso** con su propio aviso. Firefox dice *«¿Está seguro de que desea enviar todos los archivos de "apuntes"?»* y Chrome *«¿Ver archivos?»* o *«¿Subir archivos?»*. Acepta: **no se envía nada a internet**, los archivos solo los lee la pestaña del editor en tu equipo.
+- Enlace directo: `editor/index.html?doc=../apuntes/README.md#seccion` (en local, solo para los apuntes de la lista).
 
-- **📚 Apuntes**: en la web publicada abre `apuntes/README.md` directamente. En local te pide la carpeta: elige la carpeta del repositorio `git-github-practico`.
-- **Abrir carpeta**: lee una carpeta entera (sin `.git`). Las imágenes relativas se ven, los enlaces a otros `.md` se abren dentro del editor, el desplegable de la vista previa lista todos los documentos y **← Atrás** vuelve al anterior.
-- Enlace directo (solo en la web): `editor/?doc=../apuntes/README.md#seccion`.
+Si cambias un documento y vas a abrir otro, el editor te avisa.
 
-Si cambias un documento y vas a abrir otro, el editor te avisa. Para conservar los cambios, usa **Guardar como...**
+**Descargar .md** (`Ctrl+S`) descarga el documento con su nombre, igual en todos los navegadores, en local y en la web. Una página web no puede escribir en el disco de forma fiable (en algunos equipos la ventana de guardar de Chrome se cierra sin guardar nada), así que el editor siempre descarga:
+
+- El archivo va a la carpeta *Descargas*. Para sustituir el original, muévelo a su sitio.
+- Para **elegir la carpeta cada vez** (y sobrescribir el original), activa en el navegador que pregunte dónde guardar las descargas. Chrome: *Configuración → Descargas → Preguntar dónde guardar cada archivo antes de descargarlo*. Firefox: *Ajustes → General → Archivos y aplicaciones → Preguntar siempre dónde guardar archivos*.
+- Si modificas un **apunte de la lista**, el cambio se ve en el editor hasta que recargues. Para que quede en la lista, sustituye el archivo en `apuntes/` y ejecuta `node editor/generar-apuntes.mjs` (o haz commit con el hook activado).
 
 ## Tabla de contenidos
 
@@ -27,7 +35,7 @@ Si cambias un documento y vas a abrir otro, el editor te avisa. Para conservar l
 ## Características principales
 
 - **Vista dividida sincronizada**: Escribe Markdown a la izquierda y revisa el resultado formateado a la derecha.
-- **Archivos locales**: Abre archivos `.md` con `Ctrl+O` y guárdalos con `Ctrl+S`.
+- **Archivos**: abre los apuntes o tus `.md` con `Ctrl+O` y descárgalos con `Ctrl+S`.
 - **Índice automático y anclas**: Haz clic en cualquier enlace del índice superior o usa el botón **Índice** en la barra de herramientas.
 - **Atajos rápidos**: Negrita (`Ctrl+B`), cursiva (`Ctrl+I`), enlace (`Ctrl+K`) e imagen (`Ctrl+Shift+I`).
 
@@ -54,6 +62,6 @@ Al pulsar **Imagen** (o arrastrar/pegar una captura), el editor selecciona **Rut
 | Atajo | Acción |
 | :--- | :--- |
 | `Ctrl + O` | Abrir archivo `.md` |
-| `Ctrl + S` | Guardar documento |
+| `Ctrl + S` | Descargar documento |
 | `Ctrl + Shift + I` | Importar / insertar imagen |
 | `Ctrl + K` | Insertar enlace |

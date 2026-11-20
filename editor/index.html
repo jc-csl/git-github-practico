@@ -7,6 +7,8 @@
   <!-- Librerías opcionales via CDN con respaldo offline integrado -->
   <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
+  <!-- Los apuntes del repositorio (generado por generar-apuntes.mjs): se abren sin ventana de archivos, también en local -->
+  <script src="apuntes-datos.js"></script>
   <style>
     :root {
       --bg-app: #f8fafc;
@@ -270,6 +272,8 @@
     .doc-nav #docPath { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 34ch; }
     .doc-back, #docSelect { font: inherit; font-size: 11px; font-weight: 700; color: var(--text-main, inherit); background: transparent; border: 1px solid var(--border-subtle); border-radius: 6px; padding: 2px 8px; cursor: pointer; }
     #docSelect { max-width: 28ch; text-transform: none; }
+    #docSelect.pulse { animation: docPulse 0.8s ease-in-out 3; }
+    @keyframes docPulse { 50% { border-color: var(--accent, #3b82f6); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.45); } }
     .pane-header {
       display: flex;
       align-items: center;
@@ -600,6 +604,13 @@
       gap: 14px;
     }
 
+    #openDocFilter { font: inherit; font-size: 13.5px; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-editor, transparent); color: var(--text-main, inherit); }
+    .open-doc-list { list-style: none; margin: 0; padding: 0; max-height: 55vh; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; }
+    .open-doc-list button { width: 100%; text-align: left; font: inherit; font-size: 13.5px; padding: 7px 10px; border: 0; border-radius: 6px; background: transparent; color: var(--text-main, inherit); cursor: pointer; }
+    .open-doc-list button:hover, .open-doc-list button:focus-visible { background: var(--bg-toolbar); outline: none; }
+    .open-doc-list small { display: block; color: var(--text-muted); font-size: 11.5px; }
+    .open-doc-note { margin-right: auto; font-size: 12.5px; color: var(--text-muted); }
+
     .modal-footer {
       display: flex;
       align-items: center;
@@ -866,23 +877,13 @@
           <span>Editor Markdown</span>
         </div>
         <div class="file-actions">
-          <button type="button" class="btn" id="btnOpenFile" title="Abrir archivo .md local (Ctrl+O)">
+          <button type="button" class="btn" id="btnOpenFile" title="Abrir un apunte, o un archivo o una carpeta de tu equipo (Ctrl+O)">
             <svg class="icon" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
             Abrir .md
           </button>
-          <button type="button" class="btn" id="btnOpenFolder" title="Abrir una carpeta: las imágenes y los enlaces entre .md funcionan con rutas relativas">
-            <svg class="icon" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
-            Abrir carpeta
-          </button>
-          <button type="button" class="btn" id="btnCourseNotes" title="Abrir los apuntes del curso (apuntes/README.md) y navegar por ellos">
-            📚 Apuntes
-          </button>
-          <button type="button" class="btn btn-primary" id="btnSaveFile" title="Guardar cambios (Ctrl+S)">
-            <svg class="icon" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-            Guardar
-          </button>
-          <button type="button" class="btn" id="btnSaveAsFile" title="Guardar como nuevo archivo .md">
-            Guardar como...
+          <button type="button" class="btn btn-primary" id="btnDownload" title="Descargar el documento a tu carpeta Descargas (Ctrl+S)">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Descargar .md
           </button>
         </div>
       </div>
@@ -964,10 +965,10 @@
         <div class="file-pill">
           <svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
           <span id="activeFileName">documento.md</span>
-          <span class="unsaved-dot" id="unsavedDot" title="Cambios sin guardar en disco">•</span>
+          <span class="unsaved-dot" id="unsavedDot" title="Cambios sin descargar">•</span>
           <button type="button" class="unlink-btn" id="btnUnlinkFile" title="Desvincular archivo actual" style="display:none">✕</button>
         </div>
-        <span class="mode-badge" id="storageModeBadge">Local file://</span>
+        <span class="mode-badge" title="Versión del editor: si no coincide con la última, recarga con Ctrl+F5">v2026-11-20.7</span>
         <span id="autosaveStatus">Borrador guardado en navegador</span>
       </div>
 
@@ -1048,7 +1049,7 @@
               <div class="relative-row">
                 <input type="text" id="relativePathInput" class="form-input mono" value="./img/imagen.png" placeholder="./img/mi-imagen.png" />
                 <button type="button" class="btn btn-accent-soft" id="btnSaveImageAsset" title="Descargar imagen para guardarla en tu carpeta img/">
-                  Guardar imagen
+                  Descargar imagen
                 </button>
               </div>
             </div>
@@ -1093,6 +1094,24 @@
   </div>
 
   <!-- Modal de Confirmación Reiniciar -->
+  <div class="modal-backdrop" id="openDocModal" role="dialog" aria-modal="true">
+    <div class="modal-card" style="max-width:560px;">
+      <div class="modal-header">
+        <h3>Abrir documento</h3>
+        <button type="button" class="modal-close" id="btnCloseOpenDoc">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="search" id="openDocFilter" placeholder="Buscar en los apuntes..." autocomplete="off">
+        <ul id="openDocList" class="open-doc-list"></ul>
+      </div>
+      <div class="modal-footer">
+        <span class="open-doc-note">¿Algo tuyo?</span>
+        <button type="button" class="btn" id="btnOpenOtherFile" title="Un .md cualquiera de tu equipo (sus imágenes relativas no se ven)">Un archivo .md...</button>
+        <button type="button" class="btn" id="btnOpenOtherFolder" title="Una carpeta con varios .md: se ven sus imágenes y los enlaces entre documentos se abren aquí. Nada se sube a internet.">Una carpeta...</button>
+      </div>
+    </div>
+  </div>
+
   <div class="modal-backdrop" id="resetModal" role="dialog" aria-modal="true">
     <div class="modal-card" style="max-width:420px;">
       <div class="modal-header">
@@ -1133,7 +1152,7 @@ Este editor funciona tanto en **local (\`file:///\`)** como publicado en **GitHu
 ## Características principales
 
 - **Vista dividida sincronizada**: Escribe Markdown a la izquierda y revisa el resultado formateado a la derecha.
-- **Archivos locales**: Abre archivos \`.md\` con \`Ctrl+O\` y guárdalos con \`Ctrl+S\`.
+- **Archivos**: abre los apuntes o tus \`.md\` con \`Ctrl+O\` y descárgalos con \`Ctrl+S\`.
 - **Índice automático y anclas**: Haz clic en cualquier enlace del índice superior o usa el botón **Índice** en la barra de herramientas.
 - **Atajos rápidos**: Negrita (\`Ctrl+B\`), cursiva (\`Ctrl+I\`), enlace (\`Ctrl+K\`) e imagen (\`Ctrl+Shift+I\`).
 
@@ -1160,7 +1179,7 @@ Al pulsar **Imagen** (o arrastrar/pegar una captura), el editor selecciona **Rut
 | Atajo | Acción |
 | :--- | :--- |
 | \`Ctrl + O\` | Abrir archivo \`.md\` |
-| \`Ctrl + S\` | Guardar documento |
+| \`Ctrl + S\` | Descargar documento |
 | \`Ctrl + Shift + I\` | Importar / insertar imagen |
 | \`Ctrl + K\` | Insertar enlace |
 `;
@@ -1175,7 +1194,6 @@ Al pulsar **Imagen** (o arrastrar/pegar una captura), el editor selecciona **Rut
       const activeFileNameEl = document.getElementById('activeFileName');
       const unsavedDotEl = document.getElementById('unsavedDot');
       const btnUnlinkFile = document.getElementById('btnUnlinkFile');
-      const storageModeBadge = document.getElementById('storageModeBadge');
       const autosaveStatus = document.getElementById('autosaveStatus');
       const statWords = document.getElementById('statWords');
       const statChars = document.getElementById('statChars');
@@ -1193,9 +1211,26 @@ Al pulsar **Imagen** (o arrastrar/pegar una captura), el editor selecciona **Rut
 
       // Documento con "base": permite resolver rutas relativas (imágenes y enlaces entre .md)
       //  - {type:'url', url}                      → abierto por web (GitHub Pages)
-      //  - {type:'dir', files:Map, path, root}    → abierto desde "Abrir carpeta"
+      //  - {type:'dir', files:Map, path, root}    → abierto desde "Abrir .md > Una carpeta..."
       //  - null                                   → archivo suelto: rutas relativas al propio editor
       const STORAGE_KEY_DOCURL = 'md_editor_docurl_v3';
+      // Apuntes incluidos en apuntes-datos.js; claves relativas a la raíz del repositorio (README.md, apuntes/...)
+      const APUNTES = window.APUNTES_MD || null;
+      const repoBaseUrl = new URL('../', location.href).href;
+      function bundleKey(url) {
+        if (!APUNTES || !url || !url.startsWith(repoBaseUrl)) return null;
+        const k = decodeURIComponent(url.slice(repoBaseUrl.length).split('#')[0].split('?')[0]);
+        return Object.prototype.hasOwnProperty.call(APUNTES, k) ? k : null;
+      }
+      const bundleUrl = (k) => repoBaseUrl + k.split('/').map(encodeURIComponent).join('/');
+      function bundleTitle(k) {
+        const m = /^#\s+(.+)$/m.exec(APUNTES[k]);
+        return m ? m[1].replace(/[*_`]/g, '').trim() : k.split('/').pop();
+      }
+      function bundleKeysSorted() {
+        const rank = k => k === 'README.md' ? 0 : k === 'apuntes/README.md' ? 1 : /^apuntes\/GIT_/.test(k) ? 2 : /^apuntes\/ejercicio_/.test(k) ? 3 : 4;
+        return Object.keys(APUNTES).sort((a, b) => rank(a) - rank(b) || a.localeCompare(b, 'es', { numeric: true }));
+      }
       let docBase = null;
       const docHistory = [];
       const dirUrlCache = new Map();
@@ -1207,16 +1242,13 @@ Al pulsar **Imagen** (o arrastrar/pegar una captura), el editor selecciona **Rut
       let selectedImageWidth = 0;
       let selectedImageHeight = 0;
 
-      const isDirectFsSupported = window.isSecureContext && typeof window.showOpenFilePicker === 'function';
-      storageModeBadge.textContent = isDirectFsSupported ? 'Directo FS' : 'Local file://';
-
-      function showToast(message) {
+      function showToast(message, ms = 2800) {
         toastEl.textContent = message;
         toastEl.classList.add('show');
         clearTimeout(showToast._timer);
         showToast._timer = setTimeout(() => {
           toastEl.classList.remove('show');
-        }, 2800);
+        }, ms);
       }
 
       // Tema claro / oscuro
@@ -1646,12 +1678,16 @@ Al pulsar **Imagen** (o arrastrar/pegar una captura), el editor selecciona **Rut
           const mds = [...docBase.files.keys()].filter(k => /\.(md|markdown)$/i.test(k)).sort((a, b) => a.localeCompare(b, 'es', { numeric: true }));
           sel.innerHTML = mds.map(k => `<option value="${escapeHtml(k)}"${k === docBase.path ? ' selected' : ''}>${escapeHtml(k)}</option>`).join('');
           sel.hidden = mds.length < 2;
+        } else if (docBase && docBase.type === 'url' && bundleKey(docBase.url)) {
+          const cur = bundleKey(docBase.url);
+          sel.innerHTML = bundleKeysSorted().map(k => `<option value="${escapeHtml(k)}"${k === cur ? ' selected' : ''}>${escapeHtml(k)}</option>`).join('');
+          sel.hidden = false;
         } else sel.hidden = true;
         if (docBase && docBase.type === 'url') localStorage.setItem(STORAGE_KEY_DOCURL, docBase.url); else localStorage.removeItem(STORAGE_KEY_DOCURL);
       }
       function leavingDocOk() {
         if (docBase && docBase.original != null && markdownInput.value !== docBase.original) {
-          return window.confirm('Has modificado este documento y no lo has guardado. ¿Abrir otro igualmente? (Puedes guardarlo antes con "Guardar como...")');
+          return window.confirm('Has modificado este documento y no lo has guardado. ¿Abrir otro igualmente? (Puedes descargarlo antes con "Descargar .md")');
         }
         return true;
       }
@@ -1681,6 +1717,11 @@ Al pulsar **Imagen** (o arrastrar/pegar una captura), el editor selecciona **Rut
         }
       }
       async function loadDocFromUrl(url, anchor, pushHistory) {
+        const k = bundleKey(url);
+        if (k) {
+          setDocument(APUNTES[k], k.split('/').pop(), { type: 'url', url: url.split('#')[0] }, anchor, pushHistory);
+          return true;
+        }
         try {
           const res = await fetch(url, { cache: 'no-cache' });
           if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -1696,6 +1737,7 @@ Al pulsar **Imagen** (o arrastrar/pegar una captura), el editor selecciona **Rut
         const f = base.files.get(path);
         if (!f) { showToast(`No está en la carpeta abierta: ${path}`); return false; }
         setDocument(await f.text(), path.split('/').pop(), { type: 'dir', files: base.files, root: base.root, path }, anchor, pushHistory);
+        try { localStorage.setItem('md_editor_lastdoc_' + base.root, path); } catch (e) { /* sin almacenamiento */ }
         return true;
       }
       async function openDocRef(href) {
@@ -1703,13 +1745,6 @@ Al pulsar **Imagen** (o arrastrar/pegar una captura), el editor selecciona **Rut
         const [pathPart, anchor] = href.split('#');
         if (docBase.type === 'url') return loadDocFromUrl(new URL(pathPart, docBase.url).href, anchor, true);
         return loadDocFromDir(docBase, joinRelPath(docBase.path, safeDecode(pathPart)), anchor, true);
-      }
-      async function readDirectoryHandle(dirHandle, prefix, files) {
-        for await (const [name, handle] of dirHandle.entries()) {
-          if (name === '.git' || name === 'node_modules') continue;
-          if (handle.kind === 'file') files.set(prefix + name, await handle.getFile());
-          else await readDirectoryHandle(handle, prefix + name + '/', files);
-        }
       }
       function pickFolderWithInput() {
         return new Promise(resolve => {
@@ -1728,46 +1763,71 @@ Al pulsar **Imagen** (o arrastrar/pegar una captura), el editor selecciona **Rut
           input.click();
         });
       }
-      async function openFolder(preferred) {
+      const folderHint = 'El navegador te pedirá permiso para leer la carpeta (puede decir "enviar" o "subir"): acepta. Los archivos no salen de tu equipo, solo los lee esta pestaña. En la ventana se elige la CARPETA, no el archivo: el documento lo eliges luego en el desplegable de la vista previa.';
+      async function openFolder() {
         if (!leavingDocOk()) return;
-        let picked = null;
-        if (typeof window.showDirectoryPicker === 'function' && window.isSecureContext) {
-          try {
-            const dir = await window.showDirectoryPicker({ mode: 'read' });
-            const files = new Map(); await readDirectoryHandle(dir, '', files);
-            picked = { files, root: dir.name };
-          } catch (err) {
-            if (err && err.name === 'AbortError') return;
-          }
-        }
-        if (!picked) picked = await pickFolderWithInput();
+        showToast(folderHint, 10000);
+        const picked = await pickFolderWithInput();
         if (!picked) return;
         const mds = [...picked.files.keys()].filter(k => /\.(md|markdown)$/i.test(k));
         if (!mds.length) { showToast('La carpeta no contiene archivos .md'); return; }
-        const order = [preferred, 'README.md', 'apuntes/README.md', 'readme.md'].filter(Boolean);
+        let lastDoc = null;
+        try { lastDoc = localStorage.getItem('md_editor_lastdoc_' + picked.root); } catch (e) { /* sin almacenamiento */ }
+        const order = [lastDoc, 'README.md', 'apuntes/README.md', 'readme.md'].filter(Boolean);
         const start = order.find(k => picked.files.has(k)) || mds.sort((a, b) => a.localeCompare(b, 'es', { numeric: true }))[0];
         docHistory.length = 0;
         for (const u of dirUrlCache.values()) URL.revokeObjectURL(u);
         dirUrlCache.clear();
         await loadDocFromDir({ type: 'dir', ...picked }, start, null, false);
-        showToast(`Carpeta "${picked.root}": ${mds.length} documentos .md. Los enlaces y las imágenes relativas funcionan.`);
+        showToast(`Carpeta "${picked.root}": ${mds.length} documentos .md. Elige cuál leer en el desplegable de la vista previa o pulsa sus enlaces.`, 6000);
+        const sel = document.getElementById('docSelect');
+        if (!sel.hidden) { sel.focus(); sel.classList.add('pulse'); setTimeout(() => sel.classList.remove('pulse'), 2400); }
       }
-      async function openCourseNotes() {
-        if (/^https?:$/.test(location.protocol)) {
-          if (!leavingDocOk()) return;
-          docHistory.length = 0;
-          if (await loadDocFromUrl(new URL('../apuntes/README.md', location.href).href, null, false)) return;
-        }
-        showToast('En local el navegador solo deja leer lo que elijas: selecciona la carpeta del repositorio git-github-practico (o la carpeta apuntes).');
-        openFolder('apuntes/README.md');
-      }
-      document.getElementById('btnOpenFolder').addEventListener('click', () => openFolder());
-      document.getElementById('btnCourseNotes').addEventListener('click', openCourseNotes);
       document.getElementById('docSelect').addEventListener('change', async (e) => {
-        if (!docBase || docBase.type !== 'dir') return;
+        if (!docBase) return;
+        if (docBase.type === 'url') {
+          if (!leavingDocOk()) { e.target.value = bundleKey(docBase.url) || ''; return; }
+          await loadDocFromUrl(bundleUrl(e.target.value), null, true);
+          return;
+        }
+        if (docBase.type !== 'dir') return;
         if (!leavingDocOk()) { e.target.value = docBase.path; return; }
         await loadDocFromDir(docBase, e.target.value, null, true);
       });
+
+      // "Abrir .md": primero la lista de apuntes (sin ventana del sistema); "Un archivo .md..." y "Una carpeta..." abren la del navegador
+      const openDocModal = document.getElementById('openDocModal');
+      const openDocFilter = document.getElementById('openDocFilter');
+      const openDocList = document.getElementById('openDocList');
+      function renderOpenDocList() {
+        const q = openDocFilter.value.trim().toLowerCase();
+        const keys = bundleKeysSorted().filter(k => !q || (k + ' ' + bundleTitle(k)).toLowerCase().includes(q) || APUNTES[k].toLowerCase().includes(q));
+        openDocList.innerHTML = keys.length
+          ? keys.map(k => `<li><button type="button" data-key="${escapeHtml(k)}">${escapeHtml(bundleTitle(k))}<small>${escapeHtml(k)}</small></button></li>`).join('')
+          : '<li class="open-doc-note">Ningún apunte contiene ese texto.</li>';
+      }
+      function openDocPicker() {
+        if (!APUNTES) { openLocalMarkdownFile(); return; }
+        openDocFilter.value = '';
+        renderOpenDocList();
+        openDocModal.classList.add('open');
+        setTimeout(() => openDocFilter.focus(), 30);
+      }
+      openDocFilter.addEventListener('input', renderOpenDocList);
+      openDocFilter.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { const b = openDocList.querySelector('button'); if (b) b.click(); }
+      });
+      openDocList.addEventListener('click', async (e) => {
+        const b = e.target.closest('button[data-key]');
+        if (!b) return;
+        if (!leavingDocOk()) return;
+        openDocModal.classList.remove('open');
+        await loadDocFromUrl(bundleUrl(b.dataset.key), null, !!docBase);
+      });
+      document.getElementById('btnCloseOpenDoc').addEventListener('click', () => openDocModal.classList.remove('open'));
+      openDocModal.addEventListener('click', (e) => { if (e.target === openDocModal) openDocModal.classList.remove('open'); });
+      document.getElementById('btnOpenOtherFile').addEventListener('click', () => { openDocModal.classList.remove('open'); openLocalMarkdownFile(); });
+      document.getElementById('btnOpenOtherFolder').addEventListener('click', () => { openDocModal.classList.remove('open'); openFolder(); });
       document.getElementById('btnDocBack').addEventListener('click', async () => {
         const prev = docHistory.pop();
         if (!prev) return;
@@ -1780,32 +1840,7 @@ Al pulsar **Imagen** (o arrastrar/pegar una captura), el editor selecciona **Rut
 
       // Apertura de archivo local (.md)
       async function openLocalMarkdownFile() {
-        if (isDirectFsSupported) {
-          try {
-            const [handle] = await window.showOpenFilePicker({
-              types: [{
-                description: 'Archivos Markdown',
-                accept: { 'text/markdown': ['.md', '.markdown', '.txt'] }
-              }],
-              multiple: false
-            });
-            const file = await handle.getFile();
-            const content = await file.text();
-            detachDocBase();
-            activeFileHandle = handle;
-            activeFileName = file.name;
-            hasUnsavedDiskChanges = false;
-            markdownInput.value = content;
-            updateFileStatusUI();
-            updateStatsAndPreview();
-            showToast(`Archivo "${file.name}" vinculado`);
-            return;
-          } catch (err) {
-            if (err && err.name === 'AbortError') return;
-          }
-        }
-
-        // Respaldo infalible para protocolo file:///
+        // Ventana de archivos del navegador (<input type="file">): funciona en todos los navegadores, también en local
         fallbackFileInput.value = '';
         fallbackFileInput.click();
       }
@@ -1839,53 +1874,23 @@ Al pulsar **Imagen** (o arrastrar/pegar una captura), el editor selecciona **Rut
         setTimeout(() => URL.revokeObjectURL(url), 1000);
       }
 
-      async function saveMarkdownFile(forceSaveAs = false) {
+      // Descargar: una página no puede escribir en el disco de forma fiable en todos los navegadores y equipos
+      // (la ventana de guardar de Chrome se queda colgada en algunos), así que siempre se descarga.
+      // Si el navegador está configurado para preguntar dónde guardar las descargas, se elige ahí la carpeta.
+      function downloadMarkdownFile() {
         const content = markdownInput.value;
-
-        if (isDirectFsSupported) {
-          try {
-            let handle = forceSaveAs ? null : activeFileHandle;
-            if (!handle) {
-              handle = await window.showSaveFilePicker({
-                suggestedName: activeFileName,
-                types: [{
-                  description: 'Archivo Markdown',
-                  accept: { 'text/markdown': ['.md'] }
-                }]
-              });
-            }
-            const writable = await handle.createWritable();
-            await writable.write(content);
-            await writable.close();
-
-            activeFileHandle = handle;
-            activeFileName = handle.name;
-            hasUnsavedDiskChanges = false;
-            updateFileStatusUI();
-            showToast(`Guardado directamente en "${activeFileName}"`);
-            return;
-          } catch (err) {
-            if (err && err.name === 'AbortError') return;
-          }
-        }
-
-        // Respaldo descarga manteniendo el nombre activo
-        let targetName = activeFileName;
-        if (forceSaveAs) {
-          const prompted = prompt('Nombre del archivo Markdown:', activeFileName);
-          if (!prompted) return;
-          targetName = prompted.endsWith('.md') ? prompted : `${prompted}.md`;
-          activeFileName = targetName;
-        }
-        triggerDownloadMarkdown(targetName, content);
+        triggerDownloadMarkdown(activeFileName, content);
         hasUnsavedDiskChanges = false;
+        if (docBase) {
+          docBase.original = content;
+          if (docBase.type === 'url' && bundleKey(docBase.url)) APUNTES[bundleKey(docBase.url)] = content;
+        }
         updateFileStatusUI();
-        showToast(`Descargado "${targetName}"`);
+        showToast(`Descargado "${activeFileName}" (carpeta Descargas, salvo que tu navegador pregunte dónde guardar).`, 6000);
       }
 
-      document.getElementById('btnOpenFile').addEventListener('click', openLocalMarkdownFile);
-      document.getElementById('btnSaveFile').addEventListener('click', () => saveMarkdownFile(false));
-      document.getElementById('btnSaveAsFile').addEventListener('click', () => saveMarkdownFile(true));
+      document.getElementById('btnOpenFile').addEventListener('click', openDocPicker);
+      document.getElementById('btnDownload').addEventListener('click', downloadMarkdownFile);
 
       btnUnlinkFile.addEventListener('click', () => {
         activeFileHandle = null;
@@ -2068,7 +2073,7 @@ Al pulsar **Imagen** (o arrastrar/pegar una captura), el editor selecciona **Rut
         }
       });
 
-      // Guardar archivo de imagen en la carpeta local del usuario
+      // Descargar la imagen para guardarla en la carpeta img/ del usuario
       document.getElementById('btnSaveImageAsset').addEventListener('click', async () => {
         if (!selectedImageFile) {
           showToast('Primero selecciona una imagen');
@@ -2076,21 +2081,6 @@ Al pulsar **Imagen** (o arrastrar/pegar una captura), el editor selecciona **Rut
         }
         const rawPath = relativePathInput.value.trim();
         const fileName = rawPath.split('/').pop() || sanitizeImageFilename(selectedImageFile.name);
-
-        if (isDirectFsSupported && typeof window.showSaveFilePicker === 'function') {
-          try {
-            const handle = await window.showSaveFilePicker({
-              suggestedName: fileName
-            });
-            const writable = await handle.createWritable();
-            await writable.write(selectedImageFile);
-            await writable.close();
-            showToast(`Imagen guardada como "${handle.name}"`);
-            return;
-          } catch (err) {
-            if (err && err.name === 'AbortError') return;
-          }
-        }
 
         const url = URL.createObjectURL(selectedImageFile);
         const a = document.createElement('a');
@@ -2232,16 +2222,17 @@ Al pulsar **Imagen** (o arrastrar/pegar una captura), el editor selecciona **Rut
         const ctrl = e.ctrlKey || e.metaKey;
         if (ctrl && e.key.toLowerCase() === 's') {
           e.preventDefault();
-          saveMarkdownFile(e.shiftKey);
+          downloadMarkdownFile();
         } else if (ctrl && e.key.toLowerCase() === 'o') {
           e.preventDefault();
-          openLocalMarkdownFile();
+          openDocPicker();
         } else if (ctrl && e.shiftKey && e.key.toLowerCase() === 'i') {
           e.preventDefault();
           openImageModalWithFile(null);
         } else if (e.key === 'Escape') {
           closeImageModal();
           resetModal.classList.remove('open');
+          openDocModal.classList.remove('open');
         }
       });
 
@@ -2272,13 +2263,13 @@ Al pulsar **Imagen** (o arrastrar/pegar una captura), el editor selecciona **Rut
       const storedContent = localStorage.getItem(STORAGE_KEY_CONTENT);
       markdownInput.value = storedContent !== null ? storedContent : DEFAULT_MARKDOWN;
       const storedDocUrl = localStorage.getItem(STORAGE_KEY_DOCURL);
-      if (storedDocUrl && /^https?:$/.test(location.protocol)) docBase = { type: 'url', url: storedDocUrl };
+      if (storedDocUrl && (/^https?:$/.test(location.protocol) || bundleKey(storedDocUrl))) docBase = { type: 'url', url: storedDocUrl };
       updateFileStatusUI();
       updateStatsAndPreview();
       refreshDocNav();
-      // ?doc=../apuntes/README.md abre directamente un documento (solo en web)
+      // ?doc=../apuntes/README.md abre directamente un documento (en local, solo los incluidos en apuntes-datos.js)
       const docParam = new URLSearchParams(location.search).get('doc');
-      if (docParam && /^https?:$/.test(location.protocol)) {
+      if (docParam && (/^https?:$/.test(location.protocol) || bundleKey(new URL(docParam.split('#')[0], location.href).href))) {
         const [pp, anc] = docParam.split('#');
         loadDocFromUrl(new URL(pp, location.href).href, anc, false);
       }
