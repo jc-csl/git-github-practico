@@ -11,21 +11,22 @@
 /* Misma familia visual que la web del laboratorio: navy + cobre */
 :root{
   --bg:#f3f5fa; --surface:#ffffff; --surface-2:#eef1f8; --ink:#171c2c; --muted:#596079; --line:#dbe0ec;
-  --accent:#b25f25; --accent-soft:#f6e6d9; --indigo:#3c4fc4; --indigo-soft:#e5e8fb; --ok:#0b8763; --ok-soft:#dcf3ea;
+  --accent:#b25f25; --accent-soft:#f6e6d9; --on-accent:#fff; --indigo:#3c4fc4; --indigo-soft:#e5e8fb; --ok:#0b8763; --ok-soft:#dcf3ea;
   --code-bg:#121729; --code-ink:#e3e7f5;
   --f-display:"Archivo","Segoe UI",system-ui,sans-serif; --f-body:"Source Sans 3","Segoe UI",system-ui,sans-serif; --f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
   color-scheme:light;
 }
-@media (prefers-color-scheme: dark){ :root{
+/* Siempre oscuro (no hay botón de tema en la portada) */
+:root{
   --bg:#0d111d; --surface:#151a2b; --surface-2:#1c2236; --ink:#e7eaf4; --muted:#a2a9c2; --line:#2b3250;
-  --accent:#e58d52; --accent-soft:#3a2617; --indigo:#93a0ff; --indigo-soft:#232a4f; --ok:#3dcc9c; --ok-soft:#123327;
-  --code-bg:#0a0d17; color-scheme:dark; }}
+  --accent:#e58d52; --accent-soft:#3a2617; --on-accent:#0d111d; --indigo:#93a0ff; --indigo-soft:#232a4f; --ok:#3dcc9c; --ok-soft:#123327;
+  --code-bg:#0a0d17; color-scheme:dark; }
 *{box-sizing:border-box}
 html,body{margin:0}
 body{background:var(--bg);color:var(--ink);font:400 17px/1.55 var(--f-body);-webkit-font-smoothing:antialiased}
 h1,h2,h3{font-family:var(--f-display);line-height:1.15;text-wrap:balance;margin:0 0 .5em}
 h2{font-size:1.6rem;font-weight:800;letter-spacing:-.01em}
-h3{font-size:1.2rem;font-weight:700}
+h3,.card h2{font-size:1.2rem;font-weight:700;letter-spacing:0}
 p{margin:0 0 .8em}
 a{color:var(--indigo)}
 code{font-family:var(--f-mono);font-size:.88em;background:var(--surface-2);padding:.1em .35em;border-radius:5px}
@@ -46,12 +47,12 @@ code{font-family:var(--f-mono);font-size:.88em;background:var(--surface-2);paddi
 .card ul{margin:.2em 0 1em;padding-left:1.1em;color:var(--muted)}
 .card .btns{margin-top:auto;display:flex;gap:8px;flex-wrap:wrap}
 .btn{display:inline-flex;align-items:center;gap:6px;font:600 .95rem var(--f-body);text-decoration:none;color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:8px 14px}
-.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
 .btn:hover{filter:brightness(1.06)}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px;margin-top:22px}
 .steps{counter-reset:s;list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
 .steps li{counter-increment:s;background:var(--surface-2);border-radius:12px;padding:14px 14px 14px 52px;position:relative}
-.steps li::before{content:counter(s);position:absolute;left:14px;top:12px;width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;font:800 .95rem/28px var(--f-display);text-align:center}
+.steps li::before{content:counter(s);position:absolute;left:14px;top:12px;width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--on-accent);font:800 .95rem/28px var(--f-display);text-align:center}
 .steps b{display:block;font-family:var(--f-display)}
 pre{background:var(--code-bg);color:var(--code-ink);font:400 .88rem/1.5 var(--f-mono);border-radius:12px;padding:14px 16px;overflow:auto;margin:0}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:22px}
@@ -75,7 +76,7 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;color:v
 <section class="cards" aria-label="Partes del curso">
   <article class="card">
     <div class="ico" aria-hidden="true">🧪</div>
-    <h3>Laboratorio y ejercicios</h3>
+    <h2>Laboratorio y ejercicios</h2>
     <p>50 ejercicios por situaciones en 12 unidades, del primer <code>git init</code> a GitHub CLI y GitHub Pages.</p>
     <ul>
       <li>Terminal Git simulada en el navegador, sin instalar nada</li>
@@ -87,7 +88,7 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;color:v
   </article>
   <article class="card">
     <div class="ico" aria-hidden="true">📚</div>
-    <h3>Apuntes y editor Markdown</h3>
+    <h2>Apuntes y editor Markdown</h2>
     <p>Los apuntes del curso se leen y se editan en el editor Markdown: texto a la izquierda, resultado a la derecha.</p>
     <ul>
       <li>Chuleta de bolsillo y resumen completo (21 secciones)</li>

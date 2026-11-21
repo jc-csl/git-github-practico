@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -12,20 +12,20 @@
    Cada ejercicio es una "diapositiva": situación → tareas → solución desplegable con comandos y salida esperada. */
 :root{
   --bg:#f3f5fa; --surface:#ffffff; --surface-2:#eef1f8; --ink:#171c2c; --muted:#596079; --line:#dbe0ec;
-  --accent:#b25f25; --accent-soft:#f6e6d9; --indigo:#3c4fc4; --indigo-soft:#e5e8fb;
-  --ok:#0b8763; --ok-soft:#dcf3ea; --bad:#cc3434; --bad-soft:#fbe3e3; --warn:#b77400; --warn-soft:#fbf0d9;
+  --accent:#b25f25; --accent-soft:#f6e6d9; --on-accent:#fff; --indigo:#3c4fc4; --indigo-soft:#e5e8fb;
+  --ok:#0b8763; --ok-soft:#dcf3ea; --bad:#cc3434; --bad-soft:#fbe3e3; --warn:#a06600; --warn-soft:#fbf0d9;
   --code-bg:#121729; --code-ink:#e3e7f5;
   --f-display:"Archivo","Segoe UI",system-ui,sans-serif; --f-body:"Source Sans 3","Segoe UI",system-ui,sans-serif; --f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
   --r:12px; color-scheme:light;
 }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
   --bg:#0d111d; --surface:#151a2b; --surface-2:#1c2236; --ink:#e7eaf4; --muted:#a2a9c2; --line:#2b3250;
-  --accent:#e58d52; --accent-soft:#3a2617; --indigo:#93a0ff; --indigo-soft:#232a4f;
+  --accent:#e58d52; --accent-soft:#3a2617; --on-accent:#0d111d; --indigo:#93a0ff; --indigo-soft:#232a4f;
   --ok:#3dcc9c; --ok-soft:#123327; --bad:#ff7070; --bad-soft:#3a1a1d; --warn:#f0b443; --warn-soft:#382a10;
   --code-bg:#0a0d17; --code-ink:#e3e7f5; color-scheme:dark; }}
 :root[data-theme="dark"]{
   --bg:#0d111d; --surface:#151a2b; --surface-2:#1c2236; --ink:#e7eaf4; --muted:#a2a9c2; --line:#2b3250;
-  --accent:#e58d52; --accent-soft:#3a2617; --indigo:#93a0ff; --indigo-soft:#232a4f;
+  --accent:#e58d52; --accent-soft:#3a2617; --on-accent:#0d111d; --indigo:#93a0ff; --indigo-soft:#232a4f;
   --ok:#3dcc9c; --ok-soft:#123327; --bad:#ff7070; --bad-soft:#3a1a1d; --warn:#f0b443; --warn-soft:#382a10;
   --code-bg:#0a0d17; --code-ink:#e3e7f5; color-scheme:dark; }
 
@@ -57,7 +57,7 @@ th{font-family:var(--f-display);font-weight:700;font-size:.92em;background:var(-
 .topbar .sp{flex:1}
 .btn{font:600 .95rem var(--f-body);border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:.45em .9em;border-radius:999px;cursor:pointer;display:inline-flex;align-items:center;gap:.45em;text-decoration:none}
 .btn:hover{border-color:var(--accent)}
-.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
 .btn.small{font-size:.85rem;padding:.3em .7em}
 .btn[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
 .layout{display:grid;grid-template-columns:280px minmax(0,1fr)}
@@ -149,7 +149,7 @@ pre.txt .cf{color:var(--bad)}
 .hero .meta{font-size:.95rem;color:#aab0d6;margin-top:1.2em}
 .hero .btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:1.4em}
 .hero .btn{background:rgba(255,255,255,.08);color:#fff;border-color:rgba(255,255,255,.25)}
-.hero .btn.primary{background:var(--accent);border-color:var(--accent)}
+.hero .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
 .hero canvas{position:absolute;right:-30px;top:-10px;width:min(540px,60%);height:auto;opacity:.5;pointer-events:none}
 .hero .inner{position:relative;z-index:1}
 .logos-main{display:flex;align-items:center;gap:22px;flex-wrap:wrap;margin-top:1.4em}
@@ -174,7 +174,7 @@ pre.txt .cf{color:var(--bad)}
 /* zonas */
 .zones{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;position:relative}
 .zone{border-radius:14px;padding:12px;border:2px solid var(--line);background:var(--surface);min-height:120px}
-.zone h4{font:800 .9rem var(--f-display);margin:0 0 .3em;display:flex;justify-content:space-between;align-items:center;gap:6px}
+.zone h3{font:800 .9rem var(--f-display);margin:0 0 .3em;display:flex;justify-content:space-between;align-items:center;gap:6px}
 .zone small{color:var(--muted);display:block;line-height:1.3}
 .zone.z1{border-color:var(--warn)} .zone.z2{border-color:var(--ok)} .zone.z3{border-color:var(--indigo)} .zone.z4{border-color:var(--accent)}
 .arrows{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:8px 0;font:600 .82rem var(--f-mono)}
@@ -191,15 +191,15 @@ pre.txt .cf{color:var(--bad)}
 .simz.z1{border-color:var(--warn)} .simz.z2{border-color:var(--ok)} .simz.z3{border-color:var(--indigo)} .simz.z4{border-color:var(--accent)}
 .file{display:flex;justify-content:space-between;align-items:center;border-radius:8px;padding:.4em .6em;background:var(--surface-2);font:600 .85rem var(--f-mono);gap:6px}
 .file .v{padding:.05em .5em;border-radius:999px;background:var(--line);color:var(--ink);font-size:.8rem}
-.file.mod{background:var(--warn-soft)} .file.mod .v{background:var(--warn);color:#fff}
-.file.stg{background:var(--ok-soft)} .file.stg .v{background:var(--ok);color:#fff}
+.file.mod{background:var(--warn-soft)} .file.mod .v{background:var(--warn);color:var(--on-accent)}
+.file.stg{background:var(--ok-soft)} .file.stg .v{background:var(--ok);color:var(--on-accent)}
 .empty{color:var(--muted);font-size:.85rem;font-style:italic}
 .clist{display:grid;gap:4px;font:500 .8rem var(--f-mono)}
 .clist div{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:.2em .4em;border-radius:6px}
 .clist div:first-child{background:var(--surface-2)}
 .clist .h{color:var(--accent);font-weight:600}
 .ref{font:700 .68rem var(--f-display);padding:.05em .45em;border-radius:999px;white-space:nowrap}
-.ref.head{background:var(--indigo);color:#fff} .ref.rem{background:var(--accent);color:#fff}
+.ref.head{background:var(--indigo);color:var(--on-accent)} .ref.rem{background:var(--accent);color:var(--on-accent)}
 .simbtns{display:flex;flex-wrap:wrap;gap:6px;margin:.7em 0 .3em}
 .simbtns .btn{font:600 .8rem var(--f-mono);padding:.3em .65em;border-radius:8px}
 .simbtns .btn.d{border-color:var(--bad);color:var(--bad)}
@@ -234,7 +234,7 @@ pre.txt .cf{color:var(--bad)}
 /* mapa y glosario */
 .cmap td:first-child{white-space:nowrap}
 .chip{display:inline-block;font:600 .78rem var(--f-mono);padding:.08em .5em;border-radius:6px;background:var(--surface-2);color:var(--ink);text-decoration:none;margin:1px 2px}
-.chip:hover{background:var(--accent);color:#fff}
+.chip:hover{background:var(--accent);color:var(--on-accent)}
 .gl-search{font:500 1rem var(--f-body);padding:.6em .9em;border:1px solid var(--line);border-radius:999px;width:min(420px,100%);background:var(--surface);color:var(--ink)}
 .gl{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;margin-top:12px}
 .gl .card b{font-family:var(--f-display)}
@@ -277,6 +277,7 @@ body.lab-on{overflow:hidden}
 .lab-note{font-size:.92rem;background:var(--accent-soft);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:8px 12px}
 .lab-note:empty{display:none}
 .lab-term{flex:1;min-height:0;overflow:auto;background:var(--code-bg);color:var(--code-ink);border-radius:12px;padding:12px 14px;font:400 .84rem/1.5 var(--f-mono);cursor:text}
+.lab-term:focus-within{outline:3px solid var(--accent);outline-offset:-3px}  /* el input no dibuja foco: lo marca la terminal entera */
 #labOut{white-space:pre-wrap;word-break:break-word}
 .lab-in{display:flex;align-items:baseline}
 .lab-in input{flex:1;background:transparent;border:0;color:inherit;font:inherit;outline:none;padding:0;min-width:4em}
@@ -426,10 +427,10 @@ git status -sb                  # comando (lo que escribes)
   <span class="kicker">1.1</span>
   <h2>Las cuatro zonas</h2>
   <div class="zones">
-    <div class="zone z1"><h4>Working directory <span class="pill warn">tu carpeta</span></h4><small>Los archivos tal como los editas. Aquí trabajas.</small></div>
-    <div class="zone z2"><h4>Staging (index) <span class="pill ok">preparado</span></h4><small>Lo que entrará en el próximo commit. Una "foto" en preparación.</small></div>
-    <div class="zone z3"><h4>Repositorio local <span class="pill ind">.git</span></h4><small>El historial de commits, guardado en la subcarpeta oculta <code>.git</code>.</small></div>
-    <div class="zone z4"><h4>Remoto <span class="pill" style="background:var(--accent-soft);color:var(--accent)">origin</span></h4><small>La copia en GitHub o en un servidor. Se sincroniza a mano.</small></div>
+    <div class="zone z1"><h3>Working directory <span class="pill warn">tu carpeta</span></h3><small>Los archivos tal como los editas. Aquí trabajas.</small></div>
+    <div class="zone z2"><h3>Staging (index) <span class="pill ok">preparado</span></h3><small>Lo que entrará en el próximo commit. Una "foto" en preparación.</small></div>
+    <div class="zone z3"><h3>Repositorio local <span class="pill ind">.git</span></h3><small>El historial de commits, guardado en la subcarpeta oculta <code>.git</code>.</small></div>
+    <div class="zone z4"><h3>Remoto <span class="pill" style="background:var(--accent-soft);color:var(--accent)">origin</span></h3><small>La copia en GitHub o en un servidor. Se sincroniza a mano.</small></div>
   </div>
   <div class="arrows">
     <div class="r">git add →</div><div class="r">git commit →</div><div class="r">git push →</div><div class="l">← git pull / fetch</div>
@@ -1107,39 +1108,141 @@ git status -sb
   <h2>Repo remota <code>--bare</code> en otro equipo</h2>
   <div class="cols wide-l">
     <div class="prose">
-      <p class="sit"><b>Situación.</b> El departamento quiere un servidor Git propio (un Ubuntu en la red, <code>192.168.1.50</code>) en lugar de GitHub. Ana y Beñat trabajarán contra él desde sus PCs.</p>
+      <p class="sit"><b>Situación.</b> El departamento quiere un servidor Git propio (un Ubuntu en la red, <code>192.168.1.50</code>) en lugar de GitHub. Como hacen GitHub y GitLab, se crea un usuario <b><code>git</code></b> solo para esto y las repos se guardan en su carpeta personal, <code>/home/git</code>. Ana y Beñat conocen la contraseña de ese usuario. Ana ya tiene el proyecto con <code>horario.txt</code> (<code>Reunión: lunes</code>).</p>
       <ol class="goal">
-        <li>En el servidor, crea una repo <b>bare</b> (sin carpeta de trabajo).</li>
-        <li>Desde el PC de Ana, sube su proyecto existente.</li>
-        <li>Desde el PC de Beñat, clónalo.</li>
-        <li><b>Laboratorio</b>: repite todo en tu propio equipo con carpetas, para usarlo en las unidades 7 y 8.</li>
+        <li>En el servidor, crea el usuario <code>git</code> y la repo <b>bare</b> <code>/home/git/proyecto.git</code>.</li>
+        <li>Ana sube su proyecto; Beñat lo clona. Cada uno firma con su nombre.</li>
+        <li>Los dos cambian la misma línea de <code>horario.txt</code>: Ana sube primero y a Beñat le rechazan el push.</li>
+        <li>Beñat resuelve el conflicto y sube; Ana actualiza. Comprueba en el servidor quién hizo cada commit.</li>
+        <li><b>Control de usuarios</b>: cambia la contraseña compartida por una clave SSH por persona, deja a <code>git</code> sin terminal y quita el acceso a Beñat.</li>
+        <li><b>Laboratorio</b>: repite los pasos 1 y 2 en tu equipo con carpetas, para usarlo en las unidades 7 y 8.</li>
       </ol>
-      <div class="cmds"><span>Comandos</span><code>git init --bare</code><code>git remote add</code><code>git push -u</code><code>git clone</code></div>
+      <div class="cmds"><span>Comandos</span><code>adduser</code><code>git init --bare</code><code>git remote add</code><code>git push -u</code><code>git clone</code><code>git pull</code><code>git log</code><code>ssh-keygen</code><code>chmod</code><code>usermod</code></div>
     </div>
     <div class="stack">
       <div class="callout"><b>¿Qué es bare?</b> Una repo con solo el contenido de <code>.git</code> (objetos, ramas, config) y <b>sin archivos de trabajo</b>. Nadie edita ahí: solo se hace push y pull. Por convenio el nombre acaba en <code>.git</code>. GitHub guarda así las repos.</div>
-      <div class="callout copper"><b>Requisito:</b> acceso SSH al servidor (<code>ssh usuario@192.168.1.50</code>) y Git instalado en él.</div>
+      <div class="callout copper"><b>¿Por qué un usuario <code>git</code>?</b> Todos se conectan igual (<code>git@192.168.1.50:proyecto.git</code>, la ruta es relativa a <code>/home/git</code>) y nadie necesita cuenta propia en el servidor. Requisito: <code>git</code> y <code>openssh-server</code> instalados.</div>
+      <div class="callout ok"><b>Mismo usuario Linux, distintos autores:</b> el autor de cada commit sale de <code>user.name</code> en cada PC, no del usuario con el que entras por SSH.</div>
+      <div class="callout warn"><b>Contraseña compartida:</b> cómoda en el aula, pero quien la sabe entra al servidor con una shell completa. Lo correcto: una clave SSH por persona y el usuario limitado a <code>git-shell</code> (pestaña <b>Control de usuarios</b> de la solución).</div>
     </div>
   </div>
   <details class="sol"><summary>Solución</summary>
-  <div class="tabs" data-tabgroup role="tablist"><button type="button" data-tab="red" aria-selected="true">Servidor en la red</button><button type="button" data-tab="lab" aria-selected="false">Laboratorio en tu equipo</button></div>
+  <div class="tabs" data-tabgroup role="tablist"><button type="button" data-tab="red" aria-selected="true">Servidor en la red</button><button type="button" data-tab="users" aria-selected="false">Control de usuarios</button><button type="button" data-tab="lab" aria-selected="false">Laboratorio en tu equipo</button></div>
   <div data-pane="red">
-<div class="codewrap"><pre class="sh"><code># ── En el SERVIDOR (ssh profe@192.168.1.50) ──
-sudo mkdir -p /srv/git && sudo chown profe:profe /srv/git
-git init --bare /srv/git/proyecto.git
-│ Initialized empty Git repository in /srv/git/proyecto.git/
-ls /srv/git/proyecto.git                     # no hay archivos de trabajo, solo la estructura de .git
+<div class="codewrap"><pre class="sh"><code># ── 1. SERVIDOR (entra un administrador: ssh profe@192.168.1.50) ──
+sudo apt install git openssh-server          # si no están
+sudo adduser git                             # usuario solo para Git; pide la contraseña que compartirán Ana y Beñat
+sudo -u git git init --bare -b main /home/git/proyecto.git
+│ Initialized empty Git repository in /home/git/proyecto.git/
+ls /home/git/proyecto.git                    # sin archivos de trabajo: solo la estructura de .git
 │ HEAD  branches  config  description  hooks  info  objects  refs
-# (Para un grupo de usuarios: git init --bare --shared=group ...)
 
-# ── En el PC de ANA (proyecto con commits) ──
-git remote add origin profe@192.168.1.50:/srv/git/proyecto.git
+# ── 2. PC de ANA: sube su proyecto (ya tiene commits) ──
+git config user.name "Ana" && git config user.email "ana@ejemplo.com"
+git remote add origin git@192.168.1.50:proyecto.git
 git push -u origin main
+│ git@192.168.1.50's password:               # la del usuario git
 │  * [new branch]      main -&gt; main
+│ branch 'main' set up to track 'origin/main'.
 
-# ── En el PC de BEÑAT ──
-git clone profe@192.168.1.50:/srv/git/proyecto.git
-cd proyecto && git log --oneline</code></pre></div>
+# ── 2. PC de BEÑAT: clona ──
+git clone git@192.168.1.50:proyecto.git
+│ git@192.168.1.50's password:
+cd proyecto
+git config user.name "Beñat" && git config user.email "benat@ejemplo.com"
+
+# ── 3. Los dos cambian la misma línea ──
+# ANA (sube primero)
+sed -i 's/Reunión: lunes/Reunión: lunes a las 10/' horario.txt
+git commit -am "Hora de la reunión" && git push
+# BEÑAT (sin actualizar antes)
+sed -i 's/Reunión: lunes/Reunión: martes/' horario.txt
+git commit -am "Reunión el martes"
+git push
+│  ! [rejected]        main -&gt; main (fetch first)
+│ hint: Updates were rejected because the remote contains work that you do not have locally.
+
+# ── 4. BEÑAT resuelve ──
+git pull --no-rebase                         # trae el commit de Ana y fusiona
+│ CONFLICT (content): Merge conflict in horario.txt
+│ Automatic merge failed; fix conflicts and then commit the result.
+cat horario.txt
+│ &lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+│ Reunión: martes                            # lo de Beñat
+│ =======
+│ Reunión: lunes a las 10                    # lo de Ana
+│ &gt;&gt;&gt;&gt;&gt;&gt;&gt; 5d41c7e…
+nano horario.txt                             # acuerdan: "Reunión: martes a las 10", sin marcas
+git add horario.txt
+git commit -m "Reunión: martes a las 10"
+git push
+
+# ── ANA actualiza ──
+git pull
+cat horario.txt
+│ Reunión: martes a las 10
+
+# ── SERVIDOR: quién hizo cada commit ──
+sudo -u git git -C /home/git/proyecto.git log --graph --format='%h %an: %s'
+│ *   b7e20f4 Beñat: Reunión: martes a las 10
+│ |\
+│ | * 5d41c7e Ana: Hora de la reunión
+│ * | 9c3a8d1 Beñat: Reunión el martes
+│ |/
+│ * 2f6b0a3 Ana: Proyecto inicial</code></pre></div>
+  </div>
+  <div data-pane="users" hidden>
+<div class="codewrap"><pre class="sh"><code># ── 5a. PC de ANA (y de BEÑAT): crea su clave; el comentario -C dice de quién es ──
+ssh-keygen -t ed25519 -C "ana"               # Enter a todo
+cat ~/.ssh/id_ed25519.pub                    # la parte PÚBLICA: se la pasa al administrador (correo, USB…)
+│ ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAI… ana
+
+# ── 5b. SERVIDOR: carpeta de claves del usuario git (una sola vez) ──
+sudo -u git mkdir -p /home/git/.ssh                    # creada por git → git es el dueño
+sudo -u git touch /home/git/.ssh/authorized_keys       # una línea = una persona que puede entrar
+sudo chmod 700 /home/git/.ssh
+sudo chmod 600 /home/git/.ssh/authorized_keys
+ls -la /home/git/.ssh
+│ drwx------ 2 git git 4096 nov 21 10:00 .
+│ -rw------- 1 git git    0 nov 21 10:00 authorized_keys
+
+# ── 5c. SERVIDOR: dar acceso = añadir una línea ──
+cat ana.pub   | sudo -u git tee -a /home/git/.ssh/authorized_keys
+cat benat.pub | sudo -u git tee -a /home/git/.ssh/authorized_keys
+sudo cut -d' ' -f3 /home/git/.ssh/authorized_keys      # quién tiene acceso (el comentario)
+│ ana
+│ benat
+
+# ── 5d. SERVIDOR: cerrar la puerta a todo lo demás ──
+sudo usermod -s /usr/bin/git-shell git       # sin terminal: solo push, pull y clone
+sudo passwd -l git                           # contraseña bloqueada: solo entra quien tenga clave
+
+# ── 5e. Comprobar desde el PC de ANA ──
+git push                                     # ya no pide contraseña
+ssh git@192.168.1.50                         # intento de terminal
+│ fatal: Interactive git shell is not enabled.
+│ hint: ~/git-shell-commands should exist and have read and execute access.
+│ Connection to 192.168.1.50 closed.
+
+# ── 5f. SERVIDOR: quitar el acceso a Beñat = borrar su línea ──
+sudo -u git sed -i '/ benat$/d' /home/git/.ssh/authorized_keys
+sudo cut -d' ' -f3 /home/git/.ssh/authorized_keys
+│ ana
+# PC de BEÑAT
+git pull
+│ git@192.168.1.50: Permission denied (publickey,password).
+│ fatal: Could not read from remote repository.</code></pre></div>
+<div class="tw"><table>
+  <tr><th>Comando</th><th>Qué hace</th><th>Por qué</th></tr>
+  <tr><td><code>sudo -u git …</code></td><td>Ejecuta el comando como el usuario <code>git</code></td><td>Lo que crea es de <code>git</code> (sin <code>chown</code>). Sigue funcionando aunque <code>git</code> no tenga terminal</td></tr>
+  <tr><td><code>chmod 700 .ssh</code></td><td><code>drwx------</code>: el dueño lee, escribe y entra (7 = 4+2+1); grupo y otros, nada (0)</td><td>Si otro usuario pudiera escribir ahí, podría colar su clave. SSH lo sabe e <b>ignora las claves</b> si los permisos son más abiertos</td></tr>
+  <tr><td><code>chmod 600 authorized_keys</code></td><td><code>-rw-------</code>: el dueño lee y escribe (6 = 4+2); el resto, nada</td><td>La lista de quién entra solo la toca <code>git</code></td></tr>
+  <tr><td><code>tee -a</code></td><td>Añade al final (<code>-a</code>) sin borrar lo que había</td><td>Sin <code>-a</code> se pierden las claves anteriores. Cada clave ocupa <b>una sola línea</b></td></tr>
+  <tr><td><code>usermod -s /usr/bin/git-shell git</code></td><td>Cambia la shell de <code>git</code> por <code>git-shell</code></td><td>Acepta <code>clone</code>, <code>push</code> y <code>pull</code>; rechaza cualquier terminal</td></tr>
+  <tr><td><code>passwd -l git</code></td><td>Bloquea la contraseña</td><td>La contraseña compartida deja de servir: el acceso depende solo de las claves</td></tr>
+  <tr><td><code>sed -i '/ benat$/d'</code></td><td>Borra la línea que acaba en <code>benat</code></td><td>Quitar a alguien = borrar su línea. No hay que tocar a los demás</td></tr>
+</table></div>
+<p style="margin:.6em 0 0">Si no cuadran los permisos: <code>sudo tail /var/log/auth.log</code> muestra el motivo (<i>bad ownership or modes</i>).</p>
   </div>
   <div data-pane="lab" hidden>
 <div class="codewrap"><pre class="sh"><code>mkdir -p ~/practicas-git/equipo && cd ~/practicas-git/equipo
@@ -1162,6 +1265,7 @@ git config user.name "Beñat" && git config user.email "benat@ejemplo.com"
 git pull                                     # trae el commit de Ana
 git log --oneline
 │ 9a9bb7a (HEAD -&gt; main, origin/main) Lista inicial</code></pre></div>
+<p style="margin:.6em 0 0">El conflicto entre Ana y Beñat, con esta misma carpeta: <a href="#e-conf-pull">Push rechazado: pull con conflicto</a>.</p>
   </div>
   </details>
 </section>
@@ -1225,11 +1329,11 @@ git remote remove upstream</code></pre></div>
       <p class="sit"><b>Situación.</b> En <code>pc-ana</code> (laboratorio) añades leche y huevos a la lista y creas <code>notas.txt</code>. Quieres dos commits: uno con la lista y otro con las notas.</p>
       <ol class="goal">
         <li>Mira el estado inicial.</li>
-        <li>Haz los cambios y prepara solo la lista; haz commit.</li>
+        <li>Haz los cambios, mira con <code>git diff</code> qué ha cambiado en la lista y prepárala solo a ella; haz commit.</li>
         <li>Haz el segundo commit con las notas.</li>
         <li>Antes de subir, comprueba que vas 2 commits por delante; sube y compruébalo de nuevo.</li>
       </ol>
-      <div class="cmds"><span>Comandos</span><code>git status -sb</code><code>git add</code><code>git commit</code><code>git push</code><code>git log origin/main..main</code></div>
+      <div class="cmds"><span>Comandos</span><code>git status -sb</code><code>git diff</code><code>git add</code><code>git commit</code><code>git push</code><code>git log origin/main..main</code></div>
     </div>
     <div class="callout copper"><b>Mensajes de commit:</b> en presente e imperativo, diciendo <b>qué</b> cambia: "Añade leche y huevos", no "cambios" ni "asdf".</div>
   </div>
@@ -1244,6 +1348,15 @@ echo "Comprar el sábado" &gt; notas.txt
 git status -s
 │  M lista.txt
 │ ?? notas.txt
+git diff lista.txt                            # qué ha cambiado antes de prepararlo
+│ diff --git a/lista.txt b/lista.txt
+│ --- a/lista.txt                             # versión anterior
+│ +++ b/lista.txt                             # versión nueva
+│ @@ -1,2 +1,4 @@                             # desde la línea 1: antes 2 líneas, ahora 4
+│  Lista de la compra                         # espacio delante: sin cambios
+│  - pan                                      # también sin cambios: ese "-" es texto
+│ +- leche                                    # + delante: línea añadida (verde)
+│ +- huevos
 git add lista.txt && git commit -m "Añade leche y huevos"
 git add notas.txt && git commit -m "Añade notas"
 
@@ -1256,6 +1369,7 @@ git push
 │    9a9bb7a..3f2a1c4  main -&gt; main
 git status -sb                                # situación final
 │ ## main...origin/main</code></pre></div>
+<p style="margin:.6em 0 0"><b>Cómo leer el diff.</b> <code>@@ -1,2 +1,4 @@</code>: el trozo empieza en la línea 1; antes tenía 2 líneas y ahora 4. Manda la <b>primera columna</b>: <code>+</code> línea añadida (verde), <code>-</code> línea quitada (rojo), espacio = sin cambios. Por eso <code>- pan</code> no se ha borrado: lleva un espacio delante y su guion es parte del texto.</p>
   </details>
 </section>
 
