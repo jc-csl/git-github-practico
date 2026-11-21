@@ -584,7 +584,11 @@ const G={
   if(errs.length) die(errs.join('\n')+`\nerror: failed to push some refs to '${url}'`+hintTxt); },
  reset(a){ const R=needWT(); const {f,args,pp}=P(a); const mode=f.hard?'hard':f.soft?'soft':'mixed';
   let target='HEAD', paths=[...pp]; args.forEach((x,i)=>{ if(i===0&&rev(R,x)&&!(x in wt(R))) target=x; else paths.push(x); });
-  if(paths.length){ const t=tree(rev(R,target)); for(const s of paths){ const rel=relArg(R,s); union(t,R.index).filter(p=>p===rel||p.startsWith(rel+'/')).forEach(p=>{ if(p in t) R.index[p]=t[p]; else delete R.index[p]; }); }
+  if(paths.length){ const t=tree(rev(R,target)), W0=wt(R);
+    // sin "--", un argumento que no es revisión ni archivo es un error (git reset --hard HEAD~5 en un repo con 1 commit)
+    const ms=paths.map(s=>{ const rel=relArg(R,s), m=union(t,R.index).filter(p=>p===rel||p.startsWith(rel+'/')); if(!m.length&&!pp.includes(s)&&!(rel in W0)) die(badRev(s)); return m; });
+    if(mode==='hard') die('fatal: Cannot do hard reset with paths.');
+    ms.flat().forEach(p=>{ if(p in t) R.index[p]=t[p]; else delete R.index[p]; });
     const W=wt(R), ch=Object.keys(R.index).filter(p=>W[p]!==R.index[p]); if(ch.length) say('Unstaged changes after reset:\n'+ch.map(p=>(p in W?'M':'D')+'\t'+p).join('\n')); return; }
   const h=rev(R,target); if(!h) die(badRev(target));
   if(mode==='hard'){ hardTo(R,h); R.op=null; }
@@ -723,7 +727,7 @@ const SH={
  cat(a){ const fs=a.filter(x=>x!=='-'); if(!fs.length){ put(E.stdin||''); return; }
   for(const x of fs){ const p=abs(x); if(isDir(p)) die(`cat: ${x}: Is a directory`); if(!isFile(p)) die(`cat: ${x}: No such file or directory`); put(E.files[p]); } },
  rm(a){ const fl=a.filter(x=>/^-/.test(x)).join(''), r=/r/i.test(fl), f=fl.includes('f');
-  for(const x of a.filter(x=>!/^-/.test(x))){ const p=abs(x); if(isDir(p)){ if(!r) die(`rm: cannot remove '${x}': Is a directory`); if(E.repos[p]) delete E.repos[p]; for(const k of Object.keys(E.repos)) if(k.startsWith(p+'/')) delete E.repos[k]; rmPath(p); }
+  for(const x of a.filter(x=>!/^-/.test(x))){ const p=abs(x); if(isDir(p)){ if(!r) die(`rm: cannot remove '${x}': Is a directory`); if(E.repos[p]) delete E.repos[p]; if(basename(p)==='.git') delete E.repos[dirname(p)]; for(const k of Object.keys(E.repos)) if(k.startsWith(p+'/')) delete E.repos[k]; rmPath(p); }
     else if(isFile(p)) delete E.files[p]; else if(!f) die(`rm: cannot remove '${x}': No such file or directory`); } },
  mv(a){ const [s,d]=a.filter(x=>!/^-/.test(x)); if(!d) die('mv: missing destination file operand'); const sp=abs(s); let dp=abs(d); if(isDir(dp)) dp+='/'+basename(sp);
   if(isFile(sp)){ write(dp,E.files[sp]); delete E.files[sp]; return; }

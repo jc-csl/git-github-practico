@@ -75,4 +75,13 @@ for(const id of Object.keys(SPECS)){ const env=Env(), err=env.setup(SPECS[id]); 
   else console.log(`✓ ${id}${unexpected.length?'   (errores esperados: '+unexpected.join(' | ')+')':''}`); }
 // check negativo: sin hacer nada, ningún ejercicio debe salir "todo correcto"
 for(const id of Object.keys(SPECS)){ const env=Env(); env.setup(SPECS[id]); if(SPECS[id].checks.every(([,fn])=>{ try{ return fn(env.A); }catch(e){ return false; } })){ bad++; console.log(`✗ ${id}: aprueba sin hacer nada`); } }
+// errores: donde Git real responde "fatal:", el simulador también (en un repo con un solo commit)
+for(const cmds of [['rm -rf .git','git status'],['git reset --hard HEAD~5'],['git reset --hard a.txt'],['git switch noexiste']]){
+  const env=Env(); env.setup(SPECS['e-init']);
+  for(const c of ['mkdir neg && cd neg','git init','echo a > a.txt','git add .','git commit -m uno',...cmds]){ env.takeOut(); env.run(c); }
+  const out=env.takeOut().map(o=>o.s).join('');
+  if(out.startsWith('fatal:')) console.log(`✓ error: ${cmds.join(' ; ')}`); else { bad++; console.log(`✗ se esperaba fatal: ${cmds.join(' ; ')} → ${out.trim()||'(sin salida)'}`); } }
+// el editor lee los apuntes de editor/apuntes-datos.js: debe estar al día con los .md
+{ const r=require('child_process').spawnSync(process.execPath,[require('path').join(__dirname,'..','editor','generar-apuntes.mjs'),'--comprobar'],{encoding:'utf8'});
+  if(r.status){ bad++; console.log('✗ '+(r.stderr||r.stdout).trim()); } else console.log('✓ '+r.stdout.trim()); }
 console.log(bad?`\n${bad} fallo(s)`:'\nTodo OK'); process.exit(bad?1:0);
