@@ -42,6 +42,7 @@ git-github-practico/
 │   └── recursos/                       PDF del ejercicio 2, solución, scripts
 ├── editor/             editor Markdown (index.html)
 │   ├── apuntes-datos.js        los .md de apuntes/ para el editor (generado)
+│   ├── vendor/                 marked y DOMPurify (sin CDN: funciona sin conexión)
 │   └── generar-apuntes.mjs     lo regenera (solo al hacer commit con el hook de .githooks/)
 └── imagenes/           logo, semáforo IA y diagramas
 ```
@@ -55,7 +56,7 @@ git-github-practico/
   node lab.test.js
   ```
 
-  Ejecuta una solución modelo por ejercicio, exige que pasen todas las comprobaciones, que ningún ejercicio se apruebe sin hacer nada y que los scripts del ejercicio de configuración persistente coincidan con los de `apuntes/recursos/scripts/`.
+  Ejecuta una solución modelo por ejercicio, exige que pasen todas las comprobaciones, que ningún ejercicio se apruebe sin hacer nada, que los comandos erróneos den `fatal:` como en Git real, que `editor/apuntes-datos.js` esté al día y que los scripts del ejercicio de configuración persistente coincidan con los de `apuntes/recursos/scripts/`.
 - **Apuntes en el editor:** el editor lee los apuntes de `editor/apuntes-datos.js` para abrirlos sin la ventana de archivos del navegador, también en local, donde una página no puede ver qué archivos hay en el disco. Ese archivo se genera con Node.js a partir de los `.md` de `apuntes/` y del `README.md`:
   - **Al hacer commit se regenera solo** con el hook `.githooks/pre-commit`, usando los `.md` tal como van en el commit. Hay que activarlo **una vez en cada copia** del repositorio:
 

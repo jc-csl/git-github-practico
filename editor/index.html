@@ -4,9 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Editor Markdown — GitHub Pages & Local</title>
-  <!-- Librerías opcionales via CDN con respaldo offline integrado -->
-  <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
+  <!-- Librerías en vendor/ (marked 12.0.2, DOMPurify 3.1.6): funcionan sin conexión -->
+  <script src="vendor/marked.min.js"></script>
+  <script src="vendor/purify.min.js"></script>
   <!-- Los apuntes del repositorio (generado por generar-apuntes.mjs): se abren sin ventana de archivos, también en local -->
   <script src="apuntes-datos.js"></script>
   <style>
@@ -27,6 +27,7 @@
       --accent-hover: #1d4ed8;
       --accent-soft: #eff6ff;
       --accent-text: #1e40af;
+      --on-accent: #ffffff;
       --success: #16a34a;
       --warning: #d97706;
       --danger: #dc2626;
@@ -53,6 +54,7 @@
       --accent-hover: #60a5fa;
       --accent-soft: #172554;
       --accent-text: #93c5fd;
+      --on-accent: #0b1120;
       --success: #22c55e;
       --warning: #f59e0b;
       --danger: #ef4444;
@@ -113,8 +115,8 @@
 
     .brand-badge {
       background: var(--accent);
-      color: #ffffff;
-      font-size: 11px;
+      color: var(--on-accent);
+      font-size: 12px;
       font-weight: 800;
       padding: 2px 6px;
       border-radius: 5px;
@@ -167,7 +169,7 @@
     button.btn-primary {
       background-color: var(--accent);
       border-color: var(--accent);
-      color: #ffffff;
+      color: var(--on-accent);
     }
 
     button.btn-primary:hover {
@@ -270,14 +272,14 @@
 
     .doc-nav { display: inline-flex; align-items: center; gap: 8px; min-width: 0; text-transform: none; letter-spacing: 0; }
     .doc-nav #docPath { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 34ch; }
-    .doc-back, #docSelect { font: inherit; font-size: 11px; font-weight: 700; color: var(--text-main, inherit); background: transparent; border: 1px solid var(--border-subtle); border-radius: 6px; padding: 2px 8px; cursor: pointer; }
+    .doc-back, #docSelect { font: inherit; font-size: 12px; font-weight: 700; color: var(--text-main, inherit); background: transparent; border: 1px solid var(--border-subtle); border-radius: 6px; padding: 2px 8px; cursor: pointer; }
     #docSelect { max-width: 28ch; text-transform: none; }
     .pane-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 5px 14px;
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.6px;
@@ -525,7 +527,7 @@
     }
 
     .mode-badge {
-      font-size: 11px;
+      font-size: 12px;
       padding: 1px 6px;
       border-radius: 4px;
       background-color: var(--accent-soft);
@@ -606,7 +608,7 @@
     .open-doc-list { list-style: none; margin: 0; padding: 0; max-height: 55vh; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; }
     .open-doc-list button { width: 100%; text-align: left; font: inherit; font-size: 13.5px; padding: 7px 10px; border: 0; border-radius: 6px; background: transparent; color: var(--text-main, inherit); cursor: pointer; }
     .open-doc-list button:hover, .open-doc-list button:focus-visible { background: var(--bg-toolbar); outline: none; }
-    .open-doc-list small { display: block; color: var(--text-muted); font-size: 11.5px; }
+    .open-doc-list small { display: block; color: var(--text-muted); font-size: 12px; }
     .open-doc-note { margin-right: auto; font-size: 12.5px; color: var(--text-muted); }
 
     .modal-footer {
@@ -746,12 +748,12 @@
     }
 
     .badge-default {
-      font-size: 10.5px;
+      font-size: 12px;
       font-weight: 700;
       padding: 1px 6px;
       border-radius: 4px;
       background-color: var(--accent);
-      color: #ffffff;
+      color: var(--on-accent);
     }
 
     .img-preview-box {
@@ -811,7 +813,7 @@
     }
 
     .helper-note {
-      font-size: 11.5px;
+      font-size: 12px;
       color: var(--text-muted);
       line-height: 1.4;
     }
@@ -1092,11 +1094,11 @@
   </div>
 
   <!-- Modal de Confirmación Reiniciar -->
-  <div class="modal-backdrop" id="openDocModal" role="dialog" aria-modal="true">
+  <div class="modal-backdrop" id="openDocModal" role="dialog" aria-modal="true" aria-labelledby="openDocModalTitle">
     <div class="modal-card" style="max-width:560px;">
       <div class="modal-header">
-        <h3>Abrir documento</h3>
-        <button type="button" class="modal-close" id="btnCloseOpenDoc">✕</button>
+        <h3 id="openDocModalTitle">Abrir documento</h3>
+        <button type="button" class="modal-close" id="btnCloseOpenDoc" aria-label="Cerrar">✕</button>
       </div>
       <div class="modal-body">
         <input type="search" id="openDocFilter" placeholder="Buscar en los apuntes..." autocomplete="off">
@@ -1109,11 +1111,11 @@
     </div>
   </div>
 
-  <div class="modal-backdrop" id="resetModal" role="dialog" aria-modal="true">
+  <div class="modal-backdrop" id="resetModal" role="dialog" aria-modal="true" aria-labelledby="resetModalTitle">
     <div class="modal-card" style="max-width:420px;">
       <div class="modal-header">
-        <h3>Reiniciar documento</h3>
-        <button type="button" class="modal-close" id="btnCloseResetModal">✕</button>
+        <h3 id="resetModalTitle">Reiniciar documento</h3>
+        <button type="button" class="modal-close" id="btnCloseResetModal" aria-label="Cerrar">✕</button>
       </div>
       <div class="modal-body">
         <p style="font-size:13.5px; color:var(--text-muted); line-height:1.5;">
@@ -1198,7 +1200,6 @@ Al pulsar **Imagen** (o arrastrar/pegar una captura), el editor selecciona **Rut
       const toastEl = document.getElementById('toast');
 
       // Estado de archivo y sesión
-      let activeFileHandle = null;
       let activeFileName = localStorage.getItem(STORAGE_KEY_FILENAME) || 'documento.md';
       let hasUnsavedDiskChanges = false;
       let isSyncingScroll = false;
@@ -1258,8 +1259,7 @@ Al pulsar **Imagen** (o arrastrar/pegar una captura), el editor selecciona **Rut
         }
       }
 
-      const savedTheme = localStorage.getItem(STORAGE_KEY_THEME) ||
-        (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      const savedTheme = localStorage.getItem(STORAGE_KEY_THEME) || 'dark';  // oscuro por defecto; el botón de tema lo cambia y se recuerda
       applyTheme(savedTheme);
 
       document.getElementById('btnToggleTheme').addEventListener('click', () => {
@@ -1333,129 +1333,52 @@ Al pulsar **Imagen** (o arrastrar/pegar una captura), el editor selecciona **Rut
           .replace(/"/g, '&quot;');
       }
 
-      // Parser Markdown integrado de respaldo si no hay conexión a CDN
-      function fallbackParseMarkdown(rawText) {
-        const slugCounts = new Map();
-        const codeBlocks = [];
-
-        let text = rawText.replace(/```([a-zA-Z0-9_-]*)\n([\s\S]*?)```/g, (_, lang, code) => {
-          const idx = codeBlocks.length;
-          codeBlocks.push(`<pre><code class="language-${escapeHtml(lang)}">${escapeHtml(code)}</code></pre>`);
-          return `@@CODEBLOCK_${idx}@@`;
-        });
-
-        text = escapeHtml(text);
-
-        // Encabezados
-        text = text.replace(/^(#{1,6})\s+(.+)$/gm, (_, hashes, title) => {
-          const level = hashes.length;
-          const id = createUniqueSlug(title, slugCounts);
-          return `<h${level} id="${id}">${title}</h${level}>`;
-        });
-
-        // Citas
-        text = text.replace(/^&gt;\s+(.+)$/gm, '<blockquote>$1</blockquote>');
-
-        // Código en línea
-        text = text.replace(/`([^`\n]+)`/g, '<code>$1</code>');
-
-        // Imágenes
-        text = text.replace(/!\[([^\]]*)\]\(([^)\s]+)(?:\s+&quot;([^&]*)&quot;)?\)/g, (_, alt, src, title) => {
-          const resolvedSrc = resolvePreviewImageSrc(src);
-          const titleAttr = title ? ` title="${title}"` : '';
-          return `<img src="${resolvedSrc}" alt="${alt}"${titleAttr} />`;
-        });
-
-        // Enlaces
-        text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, label, href) => {
-          if (href.startsWith('#')) {
-            return `<a href="${href}">${label}</a>`;
-          }
-          return `<a href="${href}" target="_blank" rel="noopener noreferrer">${label}</a>`;
-        });
-
-        // Negrita, cursiva, tachado
-        text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-        text = text.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-        text = text.replace(/~~([^~]+)~~/g, '<del>$1</del>');
-
-        // Listas
-        text = text.replace(/^-\s+\[x\]\s+(.+)$/gim, '<ul><li><input type="checkbox" checked disabled /> $1</li></ul>');
-        text = text.replace(/^-\s+\[\s\]\s+(.+)$/gm, '<ul><li><input type="checkbox" disabled /> $1</li></ul>');
-        text = text.replace(/^[-*]\s+(.+)$/gm, '<ul><li>$1</li></ul>');
-        text = text.replace(/^\d+\.\s+(.+)$/gm, '<ol><li>$1</li></ol>');
-        text = text.replace(/<\/ul>\n<ul>/g, '\n').replace(/<\/ol>\n<ol>/g, '\n');
-
-        // Párrafos
-        const lines = text.split(/\n{2,}/).map(block => {
-          const trimmed = block.trim();
-          if (!trimmed) return '';
-          if (/^<(h[1-6]|ul|ol|blockquote|pre|hr|table)/.test(trimmed) || /^@@CODEBLOCK_\d+@@$/.test(trimmed)) {
-            return trimmed;
-          }
-          return `<p>${trimmed.replace(/\n/g, '<br />')}</p>`;
-        });
-
-        let html = lines.join('\n');
-        codeBlocks.forEach((block, idx) => {
-          html = html.replace(`@@CODEBLOCK_${idx}@@`, block);
-        });
-        return html;
-      }
-
-      // Renderizado principal con Marked + DOMPurify
+      // Marked + DOMPurify, servidos desde editor/vendor/: sin internet también funciona y nunca se muestra HTML sin limpiar
       function renderMarkdown(rawText) {
-        if (typeof window.marked !== 'undefined') {
-          const slugCounts = new Map();
-          const renderer = new window.marked.Renderer();
+        const slugCounts = new Map();
+        const renderer = new window.marked.Renderer();
 
-          renderer.heading = function (tokenOrText, levelArg) {
-            const isObj = typeof tokenOrText === 'object' && tokenOrText !== null;
-            const text = isObj ? (tokenOrText.text || '') : String(tokenOrText || '');
-            const level = isObj ? tokenOrText.depth : levelArg;
-            const innerHtml = (isObj && this.parser) ? this.parser.parseInline(tokenOrText.tokens) : text;
-            const id = createUniqueSlug(text, slugCounts);
-            return `<h${level} id="${id}">${innerHtml}</h${level}>\n`;
-          };
+        renderer.heading = function (tokenOrText, levelArg) {
+          const isObj = typeof tokenOrText === 'object' && tokenOrText !== null;
+          const text = isObj ? (tokenOrText.text || '') : String(tokenOrText || '');
+          const level = isObj ? tokenOrText.depth : levelArg;
+          const innerHtml = (isObj && this.parser) ? this.parser.parseInline(tokenOrText.tokens) : text;
+          const id = createUniqueSlug(text, slugCounts);
+          return `<h${level} id="${id}">${innerHtml}</h${level}>\n`;
+        };
 
-          renderer.image = function (tokenOrHref, titleArg, textArg) {
-            const isObj = typeof tokenOrHref === 'object' && tokenOrHref !== null;
-            const rawHref = isObj ? tokenOrHref.href : tokenOrHref;
-            const title = isObj ? tokenOrHref.title : titleArg;
-            const alt = isObj ? tokenOrHref.text : textArg;
-            const resolvedHref = resolvePreviewImageSrc(rawHref);
-            const titleAttr = title ? ` title="${escapeHtml(title)}"` : '';
-            return `<img src="${escapeHtml(resolvedHref)}" alt="${escapeHtml(alt || '')}"${titleAttr} />`;
-          };
+        renderer.image = function (tokenOrHref, titleArg, textArg) {
+          const isObj = typeof tokenOrHref === 'object' && tokenOrHref !== null;
+          const rawHref = isObj ? tokenOrHref.href : tokenOrHref;
+          const title = isObj ? tokenOrHref.title : titleArg;
+          const alt = isObj ? tokenOrHref.text : textArg;
+          const resolvedHref = resolvePreviewImageSrc(rawHref);
+          const titleAttr = title ? ` title="${escapeHtml(title)}"` : '';
+          return `<img src="${escapeHtml(resolvedHref)}" alt="${escapeHtml(alt || '')}"${titleAttr} />`;
+        };
 
-          renderer.link = function (tokenOrHref, titleArg, textArg) {
-            const isObj = typeof tokenOrHref === 'object' && tokenOrHref !== null;
-            const href = isObj ? tokenOrHref.href : tokenOrHref;
-            const title = isObj ? tokenOrHref.title : titleArg;
-            const text = (isObj && this.parser) ? this.parser.parseInline(tokenOrHref.tokens) : textArg;
-            const titleAttr = title ? ` title="${escapeHtml(title)}"` : '';
-            if (href && href.startsWith('#')) {
-              return `<a href="${escapeHtml(href)}"${titleAttr}>${text}</a>`;
-            }
-            return `<a href="${escapeHtml(href || '')}"${titleAttr} target="_blank" rel="noopener noreferrer">${text}</a>`;
-          };
-
-          const rawHtml = window.marked.parse(rawText, {
-            renderer,
-            gfm: true,
-            breaks: false
-          });
-
-          if (typeof window.DOMPurify !== 'undefined') {
-            return window.DOMPurify.sanitize(rawHtml, {
-              ADD_ATTR: ['id', 'target', 'rel'],
-              ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp|blob|data):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i
-            });
+        renderer.link = function (tokenOrHref, titleArg, textArg) {
+          const isObj = typeof tokenOrHref === 'object' && tokenOrHref !== null;
+          const href = isObj ? tokenOrHref.href : tokenOrHref;
+          const title = isObj ? tokenOrHref.title : titleArg;
+          const text = (isObj && this.parser) ? this.parser.parseInline(tokenOrHref.tokens) : textArg;
+          const titleAttr = title ? ` title="${escapeHtml(title)}"` : '';
+          if (href && href.startsWith('#')) {
+            return `<a href="${escapeHtml(href)}"${titleAttr}>${text}</a>`;
           }
-          return rawHtml;
-        }
+          return `<a href="${escapeHtml(href || '')}"${titleAttr} target="_blank" rel="noopener noreferrer">${text}</a>`;
+        };
 
-        return fallbackParseMarkdown(rawText);
+        const rawHtml = window.marked.parse(rawText, {
+          renderer,
+          gfm: true,
+          breaks: false
+        });
+
+        return window.DOMPurify.sanitize(rawHtml, {
+          ADD_ATTR: ['id', 'target', 'rel'],
+          ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp|blob|data):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i
+        });
       }
 
       function updateStatsAndPreview() {
@@ -1484,7 +1407,7 @@ Al pulsar **Imagen** (o arrastrar/pegar una captura), el editor selecciona **Rut
         activeFileNameEl.textContent = activeFileName;
         localStorage.setItem(STORAGE_KEY_FILENAME, activeFileName);
         unsavedDotEl.classList.toggle('visible', hasUnsavedDiskChanges);
-        btnUnlinkFile.style.display = (activeFileHandle || activeFileName !== 'documento.md') ? 'inline-block' : 'none';
+        btnUnlinkFile.style.display = (activeFileName !== 'documento.md') ? 'inline-block' : 'none';
       }
 
       // Navegación suave por enlaces internos (#indice)
@@ -1662,8 +1585,10 @@ Al pulsar **Imagen** (o arrastrar/pegar una captura), el editor selecciona **Rut
         if (docBase && docBase.type === 'url') localStorage.setItem(STORAGE_KEY_DOCURL, docBase.url); else localStorage.removeItem(STORAGE_KEY_DOCURL);
       }
       function leavingDocOk() {
-        if (docBase && docBase.original != null && markdownInput.value !== docBase.original) {
-          return window.confirm('Has modificado este documento y no lo has guardado. ¿Abrir otro igualmente? (Puedes descargarlo antes con "Descargar .md")');
+        // con el original a mano se compara; si no (texto propio, archivo local), vale la marca de cambios sin descargar
+        const changed = docBase && docBase.original != null ? markdownInput.value !== docBase.original : hasUnsavedDiskChanges;
+        if (changed) {
+          return window.confirm('Has modificado este documento y no lo has descargado. ¿Abrir otro igualmente? (Puedes descargarlo antes con "Descargar .md")');
         }
         return true;
       }
@@ -1671,7 +1596,6 @@ Al pulsar **Imagen** (o arrastrar/pegar una captura), el editor selecciona **Rut
         if (pushHistory && docBase) docHistory.push({ ...docBase, scroll: previewPane.scrollTop });
         docBase = base;
         if (docBase) docBase.original = text;
-        activeFileHandle = null;
         activeFileName = name;
         hasUnsavedDiskChanges = false;
         markdownInput.value = text;
@@ -1765,6 +1689,7 @@ Al pulsar **Imagen** (o arrastrar/pegar una captura), el editor selecciona **Rut
       // Apertura de archivo local (.md)
       async function openLocalMarkdownFile() {
         // Ventana de archivos del navegador (<input type="file">): funciona en todos los navegadores, también en local
+        if (!leavingDocOk()) return;
         fallbackFileInput.value = '';
         fallbackFileInput.click();
       }
@@ -1775,7 +1700,6 @@ Al pulsar **Imagen** (o arrastrar/pegar una captura), el editor selecciona **Rut
         const reader = new FileReader();
         reader.onload = () => {
           detachDocBase();
-          activeFileHandle = null;
           activeFileName = file.name;
           hasUnsavedDiskChanges = false;
           markdownInput.value = String(reader.result || '');
@@ -1817,7 +1741,6 @@ Al pulsar **Imagen** (o arrastrar/pegar una captura), el editor selecciona **Rut
       document.getElementById('btnDownload').addEventListener('click', downloadMarkdownFile);
 
       btnUnlinkFile.addEventListener('click', () => {
-        activeFileHandle = null;
         activeFileName = 'documento.md';
         hasUnsavedDiskChanges = false;
         updateFileStatusUI();
@@ -1841,7 +1764,6 @@ Al pulsar **Imagen** (o arrastrar/pegar una captura), el editor selecciona **Rut
       document.getElementById('btnCloseResetModal').addEventListener('click', () => resetModal.classList.remove('open'));
       document.getElementById('btnClearEmpty').addEventListener('click', () => {
         detachDocBase();
-        activeFileHandle = null;
         activeFileName = 'documento.md';
         hasUnsavedDiskChanges = false;
         markdownInput.value = '';
@@ -1851,7 +1773,6 @@ Al pulsar **Imagen** (o arrastrar/pegar una captura), el editor selecciona **Rut
       });
       document.getElementById('btnRestoreDemo').addEventListener('click', () => {
         detachDocBase();
-        activeFileHandle = null;
         activeFileName = 'documento.md';
         hasUnsavedDiskChanges = false;
         markdownInput.value = DEFAULT_MARKDOWN;
@@ -2187,13 +2108,15 @@ Al pulsar **Imagen** (o arrastrar/pegar una captura), el editor selecciona **Rut
       const storedContent = localStorage.getItem(STORAGE_KEY_CONTENT);
       markdownInput.value = storedContent !== null ? storedContent : DEFAULT_MARKDOWN;
       const storedDocUrl = localStorage.getItem(STORAGE_KEY_DOCURL);
-      if (storedDocUrl && (/^https?:$/.test(location.protocol) || bundleKey(storedDocUrl))) docBase = { type: 'url', url: storedDocUrl };
+      if (storedDocUrl && (/^https?:$/.test(location.protocol) || bundleKey(storedDocUrl))) docBase = { type: 'url', url: storedDocUrl, original: bundleKey(storedDocUrl) ? APUNTES[bundleKey(storedDocUrl)] : null };
+      // lo recuperado del navegador cuenta como no descargado, salvo que sea el ejemplo o el apunte sin tocar
+      hasUnsavedDiskChanges = storedContent !== null && storedContent !== DEFAULT_MARKDOWN && storedContent !== (docBase && docBase.original);
       updateFileStatusUI();
       updateStatsAndPreview();
       refreshDocNav();
       // ?doc=../apuntes/README.md abre directamente un documento (en local, solo los incluidos en apuntes-datos.js)
       const docParam = new URLSearchParams(location.search).get('doc');
-      if (docParam && (/^https?:$/.test(location.protocol) || bundleKey(new URL(docParam.split('#')[0], location.href).href))) {
+      if (docParam && (/^https?:$/.test(location.protocol) || bundleKey(new URL(docParam.split('#')[0], location.href).href)) && leavingDocOk()) {
         const [pp, anc] = docParam.split('#');
         loadDocFromUrl(new URL(pp, location.href).href, anc, false);
       }
