@@ -143,7 +143,7 @@
       flex-shrink: 0;
     }
 
-    button.btn {
+    button.btn, a.btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -160,9 +160,10 @@
       cursor: pointer;
       white-space: nowrap;
       transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+      text-decoration: none;
     }
 
-    button.btn:hover {
+    button.btn:hover, a.btn:hover {
       background-color: var(--bg-hover);
     }
 
@@ -877,6 +878,10 @@
           <span>Editor Markdown</span>
         </div>
         <div class="file-actions">
+          <a class="btn" href="../index.html" title="Volver a la portada del curso">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+            Inicio
+          </a>
           <button type="button" class="btn" id="btnOpenFile" title="Abrir un apunte, o un archivo o una carpeta de tu equipo (Ctrl+O)">
             <svg class="icon" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
             Abrir .md
