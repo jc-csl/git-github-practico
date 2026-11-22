@@ -84,7 +84,16 @@ git restore --staged config.txt
 git status                  # vuelve a "Changes not staged": el cambio SIGUE en el archivo
 git restore config.txt      # ahora sí lo descartamos para dejarlo limpio
 ```
+**Escenario 3: Recuperar un archivo borrado de un commit anteirior.**
 
+```bash
+
+git log --oneline -- ruta/al/archivo.ext               #Encuentra el hash del commit, apunta el hash del commit
+git restore --source=a1b2c3d -- ruta/al/archivo.ext    #Restaura el archivo del commit encintrado
+git add ruta/al/archivo.ext                                      #Guarda los cambios
+git commit -m "Restaura archivo.ext desde el commit a1b2c3d"
+git status
+```
 > `git restore --staged` saca el archivo de staging pero **conserva** el cambio; `git restore` sin más **lo descarta** (⚠️ no se puede recuperar).
 
 ---
