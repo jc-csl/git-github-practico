@@ -65,6 +65,8 @@ Un remoto puede ser **otra carpeta**. Así practicas el flujo completo sin SSH. 
 
    ```bash
    git -C ~/practica-backup/servidor/mis_datos.git log --oneline
+   Listar los nombres de todos los archivos guardados en la rama main
+   git ls-tree -r --name-only main
    ```
 
 5. **Restaura** la copia en otra carpeta, como si hubieras perdido el equipo:
