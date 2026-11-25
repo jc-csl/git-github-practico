@@ -65,7 +65,9 @@ Un remoto puede ser **otra carpeta**. Así practicas el flujo completo sin SSH. 
 
    ```bash
    git -C ~/practica-backup/servidor/mis_datos.git log --oneline
+   ```
    Listar los nombres de todos los archivos guardados en la rama main
+    ```bash
    git ls-tree -r --name-only main
    ```
    
@@ -74,7 +76,7 @@ Un remoto puede ser **otra carpeta**. Así practicas el flujo completo sin SSH. 
    git ls-tree -r --name-only main
    ```
 
-5. **Restaura** la copia en otra carpeta, como si hubieras perdido el equipo:
+6. **Restaura** la copia en otra carpeta, como si hubieras perdido el equipo:
 
    ```bash
    cd ~/practica-backup
@@ -82,7 +84,7 @@ Un remoto puede ser **otra carpeta**. Así practicas el flujo completo sin SSH. 
    ls restaurado                  # notas.txt  tareas.txt
    ```
 
-6. **Comprueba por qué hace falta `--bare`:** intenta subir a `restaurado`, que es un repositorio normal.
+7. **Comprueba por qué hace falta `--bare`:** intenta subir a `restaurado`, que es un repositorio normal.
 
    ```bash
    cd ~/practica-backup/mis_datos
