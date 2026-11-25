@@ -70,11 +70,6 @@ Un remoto puede ser **otra carpeta**. Así practicas el flujo completo sin SSH. 
     ```bash
    git ls-tree -r --name-only main
    ```
-   
-   Listar los nombres de todos los archivos guardados en la rama main
-   ```bash
-   git ls-tree -r --name-only main
-   ```
 
 6. **Restaura** la copia en otra carpeta, como si hubieras perdido el equipo:
 
